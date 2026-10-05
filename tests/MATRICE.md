@@ -22,12 +22,12 @@ Les cas manuels sont décrits dans [`MANUEL.md`](MANUEL.md).
 | Mesure | Valeur |
 |--------|--------|
 | Fonctionnalités vérifiables recensées | 82 |
-| Couverture automatisée (A + AM) | **90,2 %** (74 sur 82) |
+| Couverture automatisée (A + AM) | **91,5 %** (75 sur 82) |
 | dont automatisée seule (A) | 78,0 % (64) |
-| dont automatisée avec complément manuel (AM) | 12,2 % (10) |
-| Couverture manuelle seule (M) | **9,8 %** (8 sur 82) |
+| dont automatisée avec complément manuel (AM) | 13,4 % (11) |
+| Couverture manuelle seule (M) | **8,5 %** (7 sur 82) |
 | Fonctionnalités qui demandent au moins un test manuel (AM + M) | 22,0 % (18) |
-| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1588 |
+| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1593 |
 | Cas de test manuels | 21 |
 | Cas manuels joués | 18 sur 21 (11 réussi, 4 échec, 3 partiel) |
 | Taux d'automatisation par nombre de cas | 98,7 % |
@@ -37,7 +37,7 @@ Lecture : le taux par nombre de cas est très supérieur au taux fonctionnel par
 la mesure à retenir.
 
 Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516 cas nommés
-(`h_run`), 44 scénarios QEMU et 28 tests Python.
+(`h_run`), 45 scénarios QEMU et 32 tests Python.
 
 ## Par sous-système
 
@@ -54,7 +54,7 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | a09 | 3 | 3 | 0 | 0 | 100,0 % |
 | a10 | 3 | 2 | 1 | 0 | 100,0 % |
 | a11 | 2 | 2 | 0 | 0 | 100,0 % |
-| a12 | 2 | 1 | 0 | 1 | 50,0 % |
+| a12 | 2 | 1 | 1 | 0 | 100,0 % |
 | a13 | 5 | 3 | 2 | 0 | 100,0 % |
 | a14 | 3 | 3 | 0 | 0 | 100,0 % |
 | a15 | 4 | 3 | 0 | 1 | 75,0 % |
@@ -111,7 +111,7 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | F40 | a11 | Partitions GPT et MBR, bornes des E/S | A | [test_gpt.c](host/a11/test_gpt.c)<br>[test_gpt_hdr.c](host/a11/test_gpt_hdr.c)<br>[test_mbr.c](host/a11/test_mbr.c)<br>[test_blk_bounds.c](host/a11/test_blk_bounds.c) | aucun |
 | F41 | a11 | Pilote virtio-blk (lecture, écriture, appareil hostile) | A | [test_virtq.c](host/a11/test_virtq.c)<br>[test_vblk_io.c](host/a11/test_vblk_io.c)<br>[test_vblk_neg.c](host/a11/test_vblk_neg.c)<br>[test_vblk_fault.c](host/a11/test_vblk_fault.c)<br>[a11_virtio_blk.py](qemu/a11_virtio_blk.py)<br>[a11_absent.py](qemu/a11_absent.py) | aucun |
 | F42 | a12 | Analyse de l'initrd cpio hostile et des chemins | A | [test_cpio.c](host/a12/test_cpio.c)<br>[test_cpio_big.c](host/a12/test_cpio_big.c)<br>[test_path.c](host/a12/test_path.c) | aucun |
-| F43 | a12 | FAT32 en lecture et écriture, noms longs, appels système de fichiers (Des tests automatisés existent mais ne sont pas encore versionnés (dix fichiers à découper pour la norme).) | M | aucun | MT-23 |
+| F43 | a12 | FAT32 en lecture et écriture, noms longs, appels système de fichiers (Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat. Les tests hôte de a12 sont à découper pour la norme avant d'être versionnés.) | AM | [a12_fat32.py](qemu/a12_fat32.py)<br>[test_a12_fat32.py](tools/test_a12_fat32.py) | MT-23 |
 | F44 | a13 | Console noyau : texte, défilement, UTF-8, entrées hostiles | A | [test_kcon_scroll.c](host/a13/test_kcon_scroll.c)<br>[test_kcon_utf8.c](host/a13/test_kcon_utf8.c)<br>[test_kcon_hostile.c](host/a13/test_kcon_hostile.c)<br>[test_kcon_wrap.c](host/a13/test_kcon_wrap.c)<br>[a13_console.py](qemu/a13_console.py) | aucun |
 | F45 | a13 | Écran d'arrêt | AM | [test_bsod_paint.c](host/a13/test_bsod_paint.c)<br>[test_bsod_table.c](host/a13/test_bsod_table.c)<br>[a13_panic.py](qemu/a13_panic.py) | MT-21 |
 | F46 | a13 | Changement de mode graphique et validation de géométrie | A | [test_dispi_mode.c](host/a13/test_dispi_mode.c)<br>[test_fbgeom.c](host/a13/test_fbgeom.c)<br>[test_display_modes.c](host/a13/test_display_modes.c)<br>[a13_modes.py](qemu/a13_modes.py) | aucun |

@@ -311,9 +311,10 @@ tests = ["tests/host/a12/test_cpio.c", "tests/host/a12/test_cpio_big.c", "tests/
 id = "F43"
 sous_systeme = "a12"
 titre = "FAT32 en lecture et écriture, noms longs, appels système de fichiers"
-mode = "M"
+mode = "AM"
+tests = ["tests/qemu/a12_fat32.py", "tests/tools/test_a12_fat32.py"]
 manuels = ["MT-23"]
-note = "Des tests automatisés existent mais ne sont pas encore versionnés (dix fichiers à découper pour la norme)."
+note = "Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat. Les tests hôte de a12 sont à découper pour la norme avant d'être versionnés."
 
 [[fonction]]
 id = "F44"
