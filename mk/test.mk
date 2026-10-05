@@ -1,4 +1,4 @@
-.PHONY: norme hdrcheck test-qemu test run run-uefi lot lot-compile norme-lot
+.PHONY: norme hdrcheck scan test-tools test-qemu test run run-uefi lot lot-compile norme-lot
 
 norme:
 	tools/norme.sh
@@ -24,10 +24,22 @@ test-qemu: $(O)/kernel.elf $(O)/rootfs.stamp
 	python3 tools/run_scenarios.py --kernel $(O)/kernel.elf --root $(O)/root \
 		--out $(B)/qemu --resolution $(MODE)
 
-test: norme test-host test-qemu
+scan:
+	python3 tools/scan_securite.py
+
+test-tools:
+	python3 -m pytest -q tests/tools
+
+test: norme test-tools test-host test-qemu
 
 KVM := $(shell test -w /dev/kvm && echo -enable-kvm -cpu host)
-UEFI_FLAGS := -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/ovmf/OVMF_CODE.fd \
+OVMF_CODE ?= $(firstword $(wildcard /usr/share/edk2/ovmf/OVMF_CODE.fd \
+	/usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd \
+	/usr/share/edk2/x64/OVMF_CODE.4m.fd))
+OVMF_VARS ?= $(firstword $(wildcard /usr/share/edk2/ovmf/OVMF_VARS.fd \
+	/usr/share/OVMF/OVMF_VARS_4M.fd /usr/share/OVMF/OVMF_VARS.fd \
+	/usr/share/edk2/x64/OVMF_VARS.4m.fd))
+UEFI_FLAGS := -drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
 	-drive if=pflash,format=raw,file=$(O)/ovmf_vars.fd
 
 run: $(O)/disk.img
@@ -35,7 +47,7 @@ run: $(O)/disk.img
 		-serial stdio -vga std -device isa-debug-exit,iobase=0xf4,iosize=0x04
 
 run-uefi: $(O)/disk.img
-	cp /usr/share/edk2/ovmf/OVMF_VARS.fd $(O)/ovmf_vars.fd
+	cp $(OVMF_VARS) $(O)/ovmf_vars.fd
 	qemu-system-x86_64 -machine q35 -m 256M $(KVM) $(UEFI_FLAGS) \
 		-drive file=$(O)/disk.img,format=raw,snapshot=on \
 		-serial stdio -vga std -device isa-debug-exit,iobase=0xf4,iosize=0x04

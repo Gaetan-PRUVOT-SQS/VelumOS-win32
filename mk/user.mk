@@ -1,5 +1,5 @@
-UCC := x86_64-elf-gcc
-UAR := x86_64-elf-ar
+UCC := $(CROSS)gcc
+UAR := $(CROSS)ar
 UCFLAGS := -std=gnu11 -ffreestanding -fPIE -fno-plt -fno-strict-aliasing \
 	-fwrapv -fno-common -fno-omit-frame-pointer -fstack-protector-strong \
 	-mstack-protector-guard=global -ftrivial-auto-var-init=zero \

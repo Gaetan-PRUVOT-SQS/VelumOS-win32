@@ -6,8 +6,25 @@ import subprocess
 import time
 from pathlib import Path
 
-OVMF_CODE = "/usr/share/edk2/ovmf/OVMF_CODE.fd"
-OVMF_VARS = "/usr/share/edk2/ovmf/OVMF_VARS.fd"
+OVMF_CANDIDATS = (
+    ("/usr/share/edk2/ovmf/OVMF_CODE.fd", "/usr/share/edk2/ovmf/OVMF_VARS.fd"),
+    ("/usr/share/OVMF/OVMF_CODE_4M.fd", "/usr/share/OVMF/OVMF_VARS_4M.fd"),
+    ("/usr/share/OVMF/OVMF_CODE.fd", "/usr/share/OVMF/OVMF_VARS.fd"),
+    ("/usr/share/edk2/x64/OVMF_CODE.4m.fd", "/usr/share/edk2/x64/OVMF_VARS.4m.fd"),
+)
+
+
+def trouver_ovmf():
+    code, variables = os.environ.get("OVMF_CODE"), os.environ.get("OVMF_VARS")
+    if code and variables:
+        return code, variables
+    for candidat in OVMF_CANDIDATS:
+        if all(os.path.exists(c) for c in candidat):
+            return candidat
+    raise FileNotFoundError("OVMF introuvable : définir OVMF_CODE et OVMF_VARS")
+
+
+OVMF_CODE, OVMF_VARS = trouver_ovmf()
 
 
 class VMError(Exception):
@@ -56,7 +73,9 @@ class Image:
     def enregistrer_png(self, chemin):
         from PIL import Image as PilImage
 
-        PilImage.frombytes("RGB", (self.largeur, self.hauteur), bytes(self.donnees)).save(chemin)
+        PilImage.frombytes("RGB", (self.largeur, self.hauteur), bytes(self.donnees)).save(
+            chemin, optimize=True
+        )
 
 
 class VM:

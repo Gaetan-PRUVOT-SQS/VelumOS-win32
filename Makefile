@@ -15,10 +15,15 @@ ifeq ($(V),1)
 Q :=
 endif
 HOSTCC ?= gcc
+LIMINE_VERSION := 12.9.1
+LIMINE_SHA256 := ce972a05e9d1973dc9b725f9130bd15af01add0eb3a7f90c118ac5cfe21c17b8
+LIMINE_DIR ?= build/limine
+export LIMINE_DIR
 
-CC := x86_64-elf-gcc
-LD := x86_64-elf-gcc
-AR := x86_64-elf-ar
+CROSS ?= x86_64-elf-
+CC := $(CROSS)gcc
+LD := $(CROSS)gcc
+AR := $(CROSS)ar
 INC := -Iinclude -Ithird_party/limine -Iarch/x86_64/limine
 
 KCFLAGS_COMMON := -std=gnu11 -ffreestanding -fno-pic -fno-pie -mcmodel=kernel \
@@ -48,20 +53,33 @@ include mk/host.mk
 include mk/test.mk
 
 .DEFAULT_GOAL := all
-.PHONY: all clean help
+.PHONY: all clean help limine
 
 all: $(O)/kernel.elf $(O)/disk.img
 
 clean:
 	rm -rf $(B)
 
+limine: $(LIMINE_DIR)/limine
+
+$(LIMINE_DIR)/limine:
+	mkdir -p $(LIMINE_DIR)
+	curl -fsSL -o $(LIMINE_DIR)/limine-binary.tar.xz \
+		https://github.com/Limine-Bootloader/Limine/releases/download/v$(LIMINE_VERSION)/limine-binary.tar.xz
+	echo "$(LIMINE_SHA256)  $(LIMINE_DIR)/limine-binary.tar.xz" | sha256sum -c -
+	tar -xf $(LIMINE_DIR)/limine-binary.tar.xz -C $(LIMINE_DIR) --strip-components=1
+	$(HOSTCC) -O2 -std=c99 -D_FILE_OFFSET_BITS=64 $(LIMINE_DIR)/limine.c -o $@
+
 help:
 	@printf '%s\n' 'make [B=build/x] [PROFIL=debug|release]' \
+	'  limine        télécharge Limine $(LIMINE_VERSION) (empreinte vérifiée) et compile son outil' \
 	'  all           noyau, applis et image disque' \
 	'  ONLY="skel aNN"  ne construit que ces lots (noyau, libs, applis)' \
 	'  norme         norminette sur tout le C' \
+	'  scan          contrôle statique de sécurité (fonctions dangereuses, secrets)' \
 	'  lot LOT=aNN   compile, norme et tests hôte du lot' \
 	'  test-host     tests unitaires hôte (ASan, UBSan)' \
 	'  test-qemu     scénarios QEMU (BIOS et UEFI)' \
-	'  test          norme, hôte, QEMU' \
+	'  test-tools    tests des outils Python (pytest)' \
+	'  test          norme, outils, hôte, QEMU' \
 	'  run           lance QEMU avec fenêtre (run-uefi en UEFI)'
