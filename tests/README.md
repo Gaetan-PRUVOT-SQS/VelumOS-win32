@@ -1,0 +1,144 @@
+# Tests de VelumOS
+
+Ce dossier contient tous les tests du projet, du test unitaire d'une fonction du noyau jusqu'au scénario
+qui démarre une machine virtuelle et clique dans le bureau. La stratégie, les résultats et le registre des défauts
+sont dans [`../TESTS.md`](../TESTS.md). Ce fichier explique comment les tests sont organisés, comment les lire
+et comment en écrire un.
+
+## Organisation
+
+```
+tests/
+  host/            tests unitaires, exécutés sur l'hôte (ASan et UBSan)
+    harness.c/h      harnais commun : h_begin, h_run, h_true, h_eq_*, h_end
+    skel/            tests du squelette (printf du noyau)
+    aNN/             un dossier par sous-système : test_<élément>.c et fake_*.c
+  qemu/            scénarios système, chacun démarre une machine QEMU
+    aNN_<sujet>.py   scénarios d'un sous-système
+    int_*.py         scénarios d'intégration (session, préemption, captures)
+    skel_boot.py     démarrage du noyau complet et autotests
+  tools/           tests des outils Python (image disque)
+```
+
+Les sous-systèmes `aNN` sont ceux de la table du README (a01 processeur, a02 mémoire physique, et ainsi de suite).
+Un fragment `mk/lot-aNN.mk` déclare pour chacun ses sources compilées sur l'hôte (`HSRC_aNN`), ses tests
+(`HT_aNN`) et ses applis.
+
+## Les quatre niveaux
+
+| Niveau | Ce qu'on vérifie | Oracle | Lancement |
+|--------|------------------|--------|-----------|
+| Unitaire (hôte) | la logique pure d'un module : tables de pages, allocateurs, analyseurs, décodeurs, rendu | valeur attendue, modèle de référence, outil de l'hôte | `make host-aNN` |
+| Autotest noyau | le module dans le vrai noyau : verrous, interruptions, matériel émulé, mesures de temps | invariants, compteurs avant et après, tolérances | option `selftest` |
+| Scénario système (QEMU) | le système entier : démarrage BIOS et UEFI, fautes volontaires, session graphique | journal série, captures d'écran, code de sortie QEMU | `make test-qemu` |
+| Statique | le code et les outils | zéro erreur | `make norme`, `make hdrcheck`, `make scan`, `ruff` |
+
+## Tests unitaires hôte
+
+Un fichier `test_<élément>.c` est un exécutable : il appelle `h_begin`, enchaîne des cas avec `h_run`, et se termine
+par `h_end`, qui renvoie un code non nul au premier échec. Le harnais est volontairement minimal :
+
+```c
+int	main(void)
+{
+	h_begin("skel/fmt");
+	h_run("decimal", fmt_decimal);
+	h_run("hexadecimal", fmt_hex);
+	h_run("chaines", fmt_strings);
+	h_run("troncature", fmt_truncation);
+	return (h_end());
+}
+```
+
+Chaque vérification porte un message : `h_true(cond, "quoi")`, `h_eq_i64("quoi", obtenu, attendu)`,
+`h_eq_u64`, `h_eq_str`. Un échec affiche `ECHEC <suite>/<cas> : <quoi>` avec la valeur obtenue et la valeur attendue.
+
+Conventions :
+
+- Le nom du cas dit la technique et l'élément couvert, par exemple `v_spawnv/exigence : chemin, blob, longueur,
+  flags`, `v_spawnv/supposition d'erreur : argv nul, 257, chemin nul`, `v_spawnv/injection de panne : VALLOC refuse`.
+  C'est ce qui permet de remonter d'un test à son modèle (voir [`../TESTS.md`](../TESTS.md)).
+- Les dépendances du module sont remplacées par des faux (`fake_*.c`) : mémoire physique simulée, verrous, horloge,
+  8042, virtio, disque en mémoire, bus PCI. Un faux sait aussi injecter des pannes (`pmm_fail_after`,
+  `heap_fail_after`, refus de `VALLOC`).
+- Compilation avec `-fsanitize=address,undefined -fno-sanitize-recover=undefined -Werror` : un dépassement de tampon
+  ou un comportement indéfini fait échouer le test sur-le-champ. Les fonctions de `lib/libk` (`strlen`...) sont renommées
+  `vk_*` à la compilation pour ne pas entrer en conflit avec la libc de l'hôte.
+- Tout test aléatoire utilise un générateur à graine fixe et **affiche sa graine** (`a07/elf_fuzz : graine 0xa07c0de`,
+  `modele de reference : graine = 0x...`). Un échec se rejoue donc à l'identique.
+
+## Scénarios système (QEMU)
+
+Un scénario est un fichier Python qui déclare une machine et une fonction `run(vm)` :
+
+```python
+NAME = "intégration : préemption et mort d'un processus qui boucle en anneau 3"
+CMDLINE = "init=/system/bin/spin"
+
+def run(vm):
+    vm.attendre(r"SPIN start", delai=60)
+    vm.attendre(r"SPIN PASS", delai=30)
+    vm.attendre(r"KILL PASS", delai=30)
+```
+
+Valeurs optionnelles : `FIRMWARES` (par défaut `("bios", "uefi")`), `MEMOIRE`, `SMP`, `QEMU_EXTRA`.
+Le lanceur `tools/run_scenarios.py` construit une image par ligne de commande distincte, joue chaque scénario dans chaque
+firmware, en parallèle (`--jobs`), et affiche `OK` ou `ECHEC` avec la fin du journal série.
+
+L'objet `vm` (`tools/vtest.py`) offre :
+
+| Méthode | Usage |
+|---------|-------|
+| `attendre(motif, delai)` | attend une expression régulière dans le journal série, échoue sur `PANIC:`, sur l'arrêt de QEMU ou au délai |
+| `serie()` | journal série complet |
+| `capture(nom)` | capture d'écran, renvoyée comme `Image` (`pixel`, `compter`, `differences`, `enregistrer_png`) |
+| `touche(nom)`, `souris_deplacer(dx, dy)`, `souris_bouton(masque)` | entrées par le moniteur QEMU |
+| `moniteur(commande)` | commande libre du moniteur QEMU |
+
+Le disque est monté en `snapshot=on` : un scénario ne modifie jamais l'image.
+
+Options de ligne de commande reconnues par le noyau, utilisées par les scénarios :
+
+| Option | Effet |
+|--------|-------|
+| `selftest` | lance les autotests des modules et affiche `SELFTESTS PASS n` ou `SELFTESTS FAIL` |
+| `exit` | quitte QEMU à la fin (code de sortie par `isa-debug-exit`) |
+| `fault=div0\|gp\|ud\|pf\|df\|stack\|nmi\|guard\|panic` | provoque une faute noyau précise (profil debug) pour vérifier l'exception, les registres, la pile utilisée, la page de garde ou l'écran d'arrêt |
+| `pmm_fault=double\|owner\|align\|range` | provoque une libération invalide de mémoire physique (double, mauvais propriétaire, adresse non alignée, hors plage) et attend la panique |
+| `inputlog` | journalise chaque événement clavier et souris sur la série |
+| `power=off\|reboot` | extinction ou redémarrage ACPI à la fin des autotests de temps |
+| `blktest`, `pci.q35`, `pci.edu`, `dispmode=LxH` | variantes d'autotests des disques, du PCI (carte mère q35, appareil `edu`) et de l'affichage |
+| `verbose`, `init=/chemin` | console noyau à la place de l'écran de démarrage ; programme lancé en premier (`init=/aucun` laisse l'écran ou la console visibles) |
+
+## Autotests noyau
+
+Chaque module exporte `int <module>_selftest(void)` (0 pour la réussite). Le noyau les enchaîne et imprime, pour
+chacun, `[TEST] <module> ...` puis `[TEST] <module> ... OK` ou `FAIL`, et pour finir `SELFTESTS PASS <n>`.
+Les mesures (équité de l'ordonnanceur, précision du sommeil, nombre de pages libres avant et après) sont écrites
+dans le journal et vérifiées contre des tolérances.
+
+## Instabilités : comment on les traite
+
+Un test qui échoue une fois sur dix n'est pas toléré, il est analysé. Les causes rencontrées et leur traitement :
+
+| Symptôme | Cause | Traitement |
+|----------|-------|------------|
+| faux échec sur `PANIC:` | le journal est lu pendant l'écriture de la ligne | on n'échoue plus si le motif attendu contient lui-même `PANIC` |
+| curseur resté dans le coin | QEMU fusionne les déplacements de souris envoyés trop vite | pause de 0,12 s entre deux mouvements |
+| résultats périmés | image mise en cache non reconstruite quand seul l'initrd change | la date de l'initrd compte dans la décision |
+| `[TEST] x ... OK` introuvable | les journaux du test s'intercalent avant le `OK` | la ligne de résultat est écrite en entier sur sa propre ligne |
+| seuil de convoi dépassé | le seuil dépendait du nombre de cœurs de l'hôte | seuil réexprimé indépendamment du parallélisme |
+
+## Lancer les tests
+
+```
+make test-tools                       outils Python (pytest)
+make host-a02                         un sous-système
+make -j8 -k test-host                 tous les tests unitaires
+make test-qemu                        tous les scénarios, BIOS et UEFI
+python3 tools/run_scenarios.py --kernel build/main/debug/kernel.elf \
+    --root build/main/debug/root --out build/main/qemu --filter a01_ --jobs 4
+make norme hdrcheck scan              contrôles statiques
+```
+
+Les journaux série et les captures de chaque scénario restent dans `build/main/qemu/<scénario>/`.
