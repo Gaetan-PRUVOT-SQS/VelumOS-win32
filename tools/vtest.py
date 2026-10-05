@@ -181,12 +181,31 @@ class VM:
 
     def capture(self, nom=None):
         self.capture_n += 1
-        chemin = self.dossier / (nom or f"{self.nom}.{self.capture_n}.ppm")
+        chemin = self.dossier / f"{self.nom}.{nom or str(self.capture_n) + '.ppm'}"
         self.moniteur(f"screendump {chemin}")
         fin = time.monotonic() + 5
         while not chemin.exists() and time.monotonic() < fin:
             time.sleep(0.05)
         return Image.lire_ppm(chemin)
+
+    def capture_quand(self, condition, delai=5.0, pause=0.05, nom=None):
+        fin = time.monotonic() + delai
+        while True:
+            image = self.capture(nom)
+            if condition(image) or time.monotonic() >= fin:
+                return image
+            time.sleep(pause)
+
+    def capture_stable(self, delai=5.0, pause=0.1, tolerance=200, nom=None):
+        fin = time.monotonic() + delai
+        precedente = self.capture(nom)
+        while time.monotonic() < fin:
+            time.sleep(pause)
+            courante = self.capture(nom)
+            if courante.differences(precedente) <= tolerance:
+                return courante
+            precedente = courante
+        return precedente
 
     def touche(self, nom):
         self.moniteur(f"sendkey {nom}")

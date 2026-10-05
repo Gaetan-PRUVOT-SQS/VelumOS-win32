@@ -45,21 +45,23 @@ def attendre_arret(vm, delai):
 
 def run(vm):
     vm.attendre(r"logon: écran de connexion prêt", delai=120)
-    ecran_connexion = vm.capture("connexion.ppm")
+    ecran_connexion = vm.capture_stable(nom="connexion.ppm")
     assert ecran_connexion.largeur == LARGEUR and ecran_connexion.hauteur == HAUTEUR
     verifier_ecran_de_connexion(ecran_connexion)
 
     vm.touche("ret")
     vm.attendre(r"logon: session ouverte", delai=60)
     vm.attendre(r"shell: bureau prêt", delai=60)
-    bureau = vm.capture("bureau.ppm")
+    bureau = vm.capture_stable(nom="bureau.ppm")
     verifier_barre_des_taches(bureau)
 
     vm.touche("meta_l")
-    menu = vm.capture("menu.ppm")
+    menu = vm.capture_quand(lambda i: i.differences(bureau) > PIXELS_MENU_MINI, nom="menu.ppm")
     assert menu.differences(bureau) > PIXELS_MENU_MINI, "le menu Démarrer doit s'afficher"
     vm.touche("esc")
-    ferme = vm.capture("menu_ferme.ppm")
+    ferme = vm.capture_quand(
+        lambda i: i.differences(bureau) < PIXELS_MENU_MINI, nom="menu_ferme.ppm"
+    )
     assert ferme.differences(bureau) < PIXELS_MENU_MINI, "Échap doit refermer le menu"
 
     vm.touche("meta_l")
