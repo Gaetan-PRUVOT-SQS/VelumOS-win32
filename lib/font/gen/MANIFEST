@@ -1,0 +1,8 @@
+genfont 1
+python 3.14.7
+pillow 12.3.0
+freetype 2.14.3
+font ui source=OpenSans-Regular.ttf source_sha256=8ab4aa561e7db0eb3e1af8b0bed2a315e0a33fe2ed3070e645d1b89f8efc1d5c size=11 weight=None ascent=12 descent=3 glyphs=330 bits=2759 c_sha256=d1bcd790a282f69adc98c7df7e126481ffcd56ac8580c0f771c06b97b961814f
+font ui_bold source=OpenSans-ExtraBold.ttf source_sha256=d55da7240f3411f7b26524dc1c99369602092a451636aaf10bbd94b868aead9f size=11 weight=None ascent=12 descent=3 glyphs=330 bits=2899 c_sha256=ef292842637eee47d44f87d5cce76b3ea72625abe21340557a6ccf1ba2649cec
+font title source=OpenSans-Bold.ttf source_sha256=1a6bc6775358bfed0e4191b6f2c4d7d75d122f0c6e5a255f264ab455c67237b7 size=13 weight=None ascent=13 descent=3 glyphs=330 bits=3464 c_sha256=0f0af22e2e6c1e7f80da06f1da815332982cd435656107c32078915b88620559
+font mono source=NotoSansMono-Variable.ttf source_sha256=3c874b97ce11dc54de004c81df02c8f0974033ed1b113377130cbdd71d478f11 size=13 weight=400 ascent=13 descent=3 glyphs=330 bits=3069 c_sha256=7248b6ed00644b875e94be6bcde67d0dc7f671f75114ea4c3bfedc78a3f673cb
