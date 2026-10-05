@@ -98,13 +98,13 @@ Les seuls aléas sont des graines affichées par les tests (listées au point 5)
 |--------|----------|
 | Compilation complète (`make -j8 all`) | 0 erreur, noyau, 8 applis, image Limine BIOS et UEFI |
 | Autotests noyau au démarrage | 17 sur 17 (`SELFTESTS PASS 17`), BIOS et UEFI |
-| Scénarios QEMU | 81 exécutions sur 81 (42 fichiers, deux firmwares pour la plupart), dernier passage complet en 2 min 48 s à -j4 |
+| Scénarios QEMU | 83 exécutions sur 83 (44 fichiers, deux firmwares pour la plupart), dernier passage complet en 2 min 35 s à -j6 |
 | Tests hôte | 530 exécutions de suites, 13,19 millions de vérifications, 0 échec au passage final (505 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
 | Norme 42 | 1 993 fichiers C et en-têtes sans erreur au dernier balayage complet, puis les fichiers touchés ensuite contrôlés un à un |
 | `make scan` (fonctions C dangereuses, secrets, idiomes risqués) | 0 alerte sur tout le dépôt |
 | ruff, ruff format, shellcheck, shfmt | propres |
 | `make hdrcheck` | tous les en-têtes sont autonomes |
-| États intermédiaires de l'historique git | 20 sur 20 compilent (`make all`) |
+| États intermédiaires de l'historique git | 15 sur 15 compilent (`make all`) |
 
 ### 4.2 Par lot
 
@@ -155,9 +155,10 @@ ce qui n'a pas tourné.
 | Premiers scénarios (79 exécutions) | 60 réussies, 19 en échec | tri : 16 exécutions de scénarios trop stricts, 2 d'un écart de spécification (`VALLOC` arrondit), 1 effet de QEMU sur la souris |
 | Après assouplissement des scénarios et du format `[TEST]` | 78 sur 79 | seul `a01_fault_stack` UEFI échoue, une fois dans la suite complète puis trois réussites seul : course de lecture sur `PANIC:` |
 | Après correction du harnais et ajout de la préemption | 81 sur 81 | suite figée |
+| Clone propre du dépôt public, puis rejeu en isolation | 82 sur 83, puis `a20_desktop` en échec 4 fois sur 8 | trois causes dans le harnais (T15), 46 exécutions sur 46 réussies après correction, suite complète 83 sur 83 |
 | Suite hôte complète | 529 suites vertes, 1 échec (`a06/mutex`) | critère de convoi relâché, suite verte |
 | Norme et contrôle de sécurité sur tout le dépôt | norme OK, 3 alertes | deux `strcpy` et un `strcat` des tests remplacés par des fonctions bornées, contrôle à 0 |
-| Historique git (20 états cumulatifs) | 1 état sur 20 ne liait pas | crochet faible `sched_irq_exit` dans le squelette |
+| Historique git (15 états cumulatifs) | 1 état ne liait pas avant le crochet, puis 15 sur 15 compilent | crochet faible `sched_irq_exit` dans le squelette |
 
 ### 4.5 Répartition automatisé et manuel
 
@@ -181,9 +182,41 @@ Les 8 fonctionnalités en mode M sont : le redémarrage ACPI, le FAT32 en lectur
 sont pas encore versionnés), la performance du dessin (bancs jamais lancés), la netteté des polices, la fidélité
 visuelle au style Luna, le démarrage sur matériel réel, l'endurance et la cohérence linguistique de l'interface.
 
-Statut des 21 cas manuels : aucun n'a été exécuté par une personne en session interactive. Trois ont été relus sur des
-captures d'écran (MT-01, MT-05, MT-14), un est partiel (MT-24 : la chaîne d'outils et l'image ont été reconstruites avec
-succès, mais pas sur une machine vierge), dix-sept restent à exécuter pour 14 h 35 au total, dont 8 h d'endurance.
+### 4.6 Exécution des cas manuels
+
+Les cas de [`tests/MANUEL.md`](tests/MANUEL.md) ont été joués le 5 octobre 2026 sous QEMU/KVM : le clavier et la souris
+sont injectés par le moniteur QEMU avec `tools/manuel.py`, chaque étape est relue sur une capture, et les mesures sont
+faites sur les pixels (`tools/contraste.py` pour les rapports de contraste). Rien n'a été joué sur du matériel réel ni par
+une personne devant l'écran. Résultat : 11 réussis, 4 en échec, 3 partiels, 1 bloqué, 2 à exécuter.
+
+| Cas | Titre | Résultat | Incident |
+|-----|-------|----------|----------|
+| MT-01 | Écran de démarrage | Réussi | - |
+| MT-02 | Démarrage en UEFI | Réussi | - |
+| MT-04 | Fidélité visuelle au style Luna | Partiel | - |
+| MT-05 | Lisibilité des polices | Partiel | - |
+| MT-06 | Manipulation des fenêtres à la souris | Réussi | - |
+| MT-07 | Menu Démarrer au clavier | Réussi | - |
+| MT-08 | Boîtes Exécuter et Éteindre | Réussi | - |
+| MT-09 | Redémarrage ACPI | Réussi | - |
+| MT-10 | Horloge de la barre des tâches | Réussi | - |
+| MT-11 | Saisie au clavier AZERTY | Réussi | - |
+| MT-13 | Session entière au clavier seul | Réussi | - |
+| MT-14 | Contraste des textes | Échec | P25 |
+| MT-16 | Plusieurs fenêtres dans la barre des tâches | Réussi | - |
+| MT-17 | Endurance | Échec | P27 |
+| MT-18 | Matériel réel | A exécuter | - |
+| MT-19 | Fluidité perçue | A exécuter | - |
+| MT-20 | Mort du serveur de fenêtres | Bloqué | - |
+| MT-21 | Lisibilité de l'écran d'arrêt | Réussi | - |
+| MT-22 | Revue linguistique de l'interface | Échec | P26 |
+| MT-23 | FAT32 sur une image réelle | Échec | P24 |
+| MT-24 | Construction sur une machine propre | Partiel | T15 |
+
+Ce qui reste à faire : la fluidité perçue (MT-19) demande une personne, le matériel réel (MT-18) une machine, l'endurance
+de 8 h (MT-17 n'a duré que 10 minutes) et la machine vierge (MT-24) du temps. MT-20 est bloqué : aucun outil de test ne
+permet d'arrêter le serveur de fenêtres, la relance par `init` n'est vérifiée que sur l'hôte. Le constat détaillé de chaque
+cas, avec ses observations, est dans sa fiche.
 
 ## 5. Registre des incidents
 
@@ -239,11 +272,29 @@ au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN 
 | T12 | tests a09, a12 | `strcpy` et `strcat` dans les fakes | fonctions bornées |
 | T13 | tests a14 | figeaient les défauts libk | attendu C17 rétabli |
 | T14 | norminette 3.3.60 | faux positifs : asm sans entrée contenant une variable, initialisations désignées, littéraux hexa commençant par `b`, avant-déclarations avant un typedef de pointeur de fonction | contournements décrits dans la section « Conventions de code » du README, exception `arch/x86_64/limine/` |
+| T15 | scénario `a20_desktop` | instable : 4 échecs sur 8 en séquentiel, 12 sur 30 en parallèle. Trois causes : capture juste après la touche avant le redessin, image de référence prise pendant le premier dessin du bureau, captures du BIOS et de l'UEFI écrites sous le même nom dans le même dossier | `capture_quand` et `capture_stable` dans `vtest.py`, noms de capture préfixés par la machine, 46 exécutions sur 46 réussies |
+| T16 | plan de tests manuels | étapes inexactes : Tab avant Entrée à la connexion (MT-13), `fault=panic` sans `selftest` (MT-21), formatage FAT32 sans `-F` (MT-23) | étapes corrigées dans les fiches |
+
+### 5.3 Défauts ouverts, trouvés par les cas manuels
+
+Ces défauts ne sont pas corrigés. Chacun renvoie au cas qui le reproduit, qui sert de test de régression tant qu'il
+n'est pas automatisé.
+
+| Réf | Élément | Attendu | Obtenu | Gravité | Cas |
+|-----|---------|---------|--------|---------|-----|
+| P24 | FAT32, compteur `FSInfo` | nombre de clusters libres exact après écriture, renommage et suppression | 128879 pour 128880 réels, `fsck.vfat -n` rend 1 | basse | MT-23 |
+| P25 | Luna, contraste | rapport de 4,5 au moins pour le texte courant | « démarrer » à 3,57, boutons inactifs de la barre des tâches à 3,91, titre de fenêtre inactive à 2,07 | basse | MT-14 |
+| P26 | textes de l'interface | espaces insécables avant `:`, `!`, `?` et dans les guillemets | espaces ordinaires, la ligne peut se couper là | basse | MT-22 |
+| P27 | serveur de fenêtres ou noyau, fenêtres ouvertes puis fermées | ressources rendues à la fermeture | après 222 ouvertures (128 Mo) puis plus aucune connexion, après 163 avec 64 Mo plus aucune fenêtre sans message | moyenne | MT-17 |
+
+P27 : pas de panique ni de gel, le bureau reste utilisable, mais plus aucune fenêtre ne s'ouvre. Le nombre de réussites
+dépend de la mémoire, ce qui évoque une ressource non rendue à la mort du client. La cause n'a pas été analysée. Rien dans
+le système ne montre la mémoire libre, il a fallu observer l'échec.
 
 ## 6. Écarts au plan et limites
 
-- Les 21 cas manuels ne sont pas exécutés en session interactive (voir 4.5) : la part manuelle est planifiée et décrite,
-  pas encore vérifiée.
+- Les cas manuels ont été joués sous QEMU/KVM avec des entrées injectées et des captures relues (voir 4.6), pas par
+  une personne devant l'écran ni sur du matériel. Quatre sont en échec, trois partiels, un bloqué, deux à faire.
 - Couverture non mesurée pour a04, a06, a07, a09, a10, a12, a15, a17, a18, a19, a20. Les critères de fin étaient
   « couverture mesurée », ils ne sont donc pas démontrés pour ces lots.
 - Mutation : faite pour a02, a08 (contrôle de la simulation), a13 et a16, partielle ou interrompue ailleurs.
@@ -256,7 +307,7 @@ au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN 
 - Scénarios QEMU absents pour a05, a12, a15, a17, a18, a19 : ces sous-systèmes sont couverts indirectement par
   `skel_boot`, `int_session` et `a20_souris`.
 - Dix tests hôte de a12 sont à découper (limite de 25 lignes par fonction de la norme) avant d'être remis dans
-  `tests/host/a12/`, et le scénario FAT32 n'existe pas : l'écriture FAT32 n'est jouée que contre des faux.
+  `tests/host/a12/`, et il n'existe pas de scénario FAT32 automatisé : l'écriture FAT32 est jouée contre des faux et une fois en manuel (MT-23).
 - Les vérifications de plusieurs sous-systèmes ont été limitées en durée (mutation interrompue, bancs de performance
   non lancés). Le point 4.2 liste, sous-système par sous-système, ce qui n'a pas tourné.
 

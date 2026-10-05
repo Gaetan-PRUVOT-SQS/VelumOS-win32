@@ -16,6 +16,8 @@ SOURCE = RACINE / "tests" / "matrice.toml"
 MATRICE = RACINE / "tests" / "MATRICE.md"
 MANUEL = RACINE / "tests" / "MANUEL.md"
 LIBELLES = {"A": "automatisé", "AM": "automatisé + complément manuel", "M": "manuel"}
+STATUTS = ("Réussi", "Échec", "Partiel", "Bloqué", "A exécuter")
+CHAMPS_EXECUTION = ("date", "moyen", "constat")
 
 
 class Erreur(Exception):
@@ -30,6 +32,7 @@ def charger():
     if len(ids) != len(set(ids)):
         raise Erreur("identifiants de fonctionnalité en double")
     connus = {m["id"] for m in manuels}
+    verifier_manuels(manuels)
     for f in fonctions:
         if f["mode"] not in LIBELLES:
             raise Erreur(f"{f['id']} : mode inconnu {f['mode']}")
@@ -48,6 +51,19 @@ def charger():
     if orphelins:
         raise Erreur(f"tests manuels sans fonctionnalité : {orphelins}")
     return fonctions, manuels
+
+
+def verifier_manuels(manuels):
+    for m in manuels:
+        if m["statut"] not in STATUTS:
+            raise Erreur(f"{m['id']} : statut inconnu {m['statut']}")
+        if m["statut"] == "A exécuter":
+            continue
+        for champ in CHAMPS_EXECUTION:
+            if not m.get(champ):
+                raise Erreur(f"{m['id']} : statut {m['statut']} sans {champ}")
+        if m["statut"] == "Échec" and not m.get("incidents"):
+            raise Erreur(f"{m['id']} : échec sans incident")
 
 
 def pourcent(n, total):
@@ -80,6 +96,11 @@ def resume(fonctions, manuels):
     inv = inventaire()
     auto_cas = inv["cas_hote"] + inv["scenarios"] + inv["pytests"]
     manuel_cas = len(manuels)
+    statuts = Counter(m["statut"] for m in manuels)
+    joues = sum(statuts[x] for x in ("Réussi", "Échec", "Partiel"))
+    detail = ", ".join(
+        f"{statuts[x]} {x.lower()}" for x in ("Réussi", "Échec", "Partiel") if statuts[x]
+    )
     lignes = [
         "| Mesure | Valeur |",
         "|--------|--------|",
@@ -91,6 +112,7 @@ def resume(fonctions, manuels):
         f"| Fonctionnalités qui demandent au moins un test manuel (AM + M) | {pourcent(modes['AM'] + modes['M'], n)} ({modes['AM'] + modes['M']}) |",
         f"| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | {auto_cas} |",
         f"| Cas de test manuels | {manuel_cas} |",
+        f"| Cas manuels joués | {joues} sur {manuel_cas} ({detail}) |",
         f"| Taux d'automatisation par nombre de cas | {pourcent(auto_cas, auto_cas + manuel_cas)} |",
     ]
     return "\n".join(lignes), inv
@@ -169,6 +191,17 @@ Inventaire des cas automatisés : {inv["suites"]} fichiers de tests unitaires co
 """
 
 
+def rendre_execution(m):
+    if m["statut"] == "A exécuter":
+        return ""
+    lignes = [f"\nExécution du {m['date']} : {m['moyen']}.", "", f"Constat : {m['constat']}"]
+    if m.get("observations"):
+        lignes += ["", "Observations :", ""] + [f"- {o}" for o in m["observations"]]
+    if m.get("incidents"):
+        lignes += ["", "Incidents : " + ", ".join(m["incidents"]) + " (voir `../TESTS.md`)."]
+    return "\n".join(lignes) + "\n"
+
+
 def ecrire_manuel(fonctions, manuels):
     statuts = Counter(m["statut"] for m in manuels)
     duree = sum(m["duree"] for m in manuels)
@@ -180,6 +213,7 @@ def ecrire_manuel(fonctions, manuels):
     for m in manuels:
         etapes = "\n".join(f"{i}. {e}" for i, e in enumerate(m["etapes"], start=1))
         note = f"\nNote : {m['note']}\n" if m.get("note") else ""
+        execution = rendre_execution(m)
         fiches.append(
             f"""### {m["id"]} : {m["titre"]}
 
@@ -192,9 +226,10 @@ def ecrire_manuel(fonctions, manuels):
 {etapes}
 
 Résultat attendu : {m["attendu"]}
-{note}"""
+{note}{execution}"""
         )
-    synthese = ", ".join(f"{n} {s.lower()}" for s, n in sorted(statuts.items()))
+    synthese = ", ".join(f"{statuts[s]} {s.lower()}" for s in STATUTS if statuts[s])
+    joues = sum(statuts[s] for s in ("Réussi", "Échec", "Partiel"))
     return (
         f"""# Plan de tests manuels
 
@@ -203,10 +238,13 @@ l'automatisation ne vérifie pas : jugement visuel, ergonomie, clavier et matér
 linguistique, reproductibilité sur machine propre. Les liens avec les fonctionnalités sont dans
 [`MATRICE.md`](MATRICE.md).
 
-Aucun de ces cas n'a été exécuté par une personne en session interactive. Les cas « Relu sur capture » ont été
-vérifiés le 5 octobre 2026 par inspection des captures produites par les scénarios, ce qui ne remplace pas une session
-réelle. À chaque exécution, noter la date, la version (identifiant de build affiché au démarrage), le résultat et les
-anomalies dans le registre des défauts de [`../TESTS.md`](../TESTS.md).
+Exécution : {joues} cas sur {len(manuels)} ont été joués le 5 octobre 2026 sous QEMU/KVM, avec le clavier et la souris
+injectés par le moniteur QEMU (`tools/manuel.py`) et des captures relues une par une. Aucun n'a été joué sur du matériel
+réel ni par une personne devant l'écran. Restent à faire : la fluidité perçue (MT-19), le matériel réel (MT-18), l'endurance
+de 8 h (MT-17 n'a duré que 10 minutes), la machine vierge (MT-24) et la comparaison avec de vraies captures d'époque
+(MT-04). MT-20 est bloqué faute d'outil pour arrêter le serveur de fenêtres. Un statut « Échec » renvoie à un incident
+du registre de [`../TESTS.md`](../TESTS.md). À chaque nouvelle exécution, noter la date, le résultat et les anomalies
+dans la fiche.
 
 {len(manuels)} cas, durée estimée {duree // 60} h {duree % 60:02d} min. Statuts : {synthese}.
 

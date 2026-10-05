@@ -597,8 +597,8 @@ mode = "AM"
 tests = ["tools/mkimage.py", "tools/build-toolchain.sh", "tests/tools/test_mkimage.py"]
 manuels = ["MT-24"]
 
-# Tests manuels. statut : "A exécuter", "Relu sur capture" (inspection visuelle faite le
-# 5 octobre 2026 sur des captures, à refaire en session réelle) ou "Partiel".
+# Tests manuels. statut : "Réussi", "Échec", "Partiel", "Bloqué" ou "A exécuter". Un cas déjà joué
+# porte aussi date, moyen, constat, observations et incidents (identifiants du registre de TESTS.md).
 
 [[manuel]]
 id = "MT-01"
@@ -607,7 +607,12 @@ objectif = "Vérifier l'aspect de l'écran de démarrage et la progression de la
 prerequis = "make all, image construite."
 etapes = ["Lancer make run.", "Observer l'écran dès l'ouverture de la fenêtre QEMU.", "Noter l'emblème, le nom, la barre à trois blocs et le texte."]
 attendu = "Fond noir, emblème centré, nom VelumOS, barre de progression qui avance, aucun artefact."
-statut = "Relu sur capture"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU sans KVM (émulation pure), 70 captures successives pendant le démarrage"
+constat = "Fond noir, emblème centré, nom VelumOS, barre à trois blocs et texte « Démarrage en cours ». Les blocs avancent d'une capture à l'autre (positions relevées : 382, 408 puis 547 px) et le filet sous la barre se remplit. Sous KVM l'écran ne reste affiché qu'environ 0,2 s, la progression n'est visible qu'en émulation lente."
+observations = ["Avant l'écran de démarrage, la console texte du BIOS reste visible environ une seconde."]
+incidents = []
 duree = 5
 
 [[manuel]]
@@ -617,7 +622,12 @@ objectif = "Vérifier que le système démarre avec OVMF et affiche la même ses
 prerequis = "OVMF installé, image construite."
 etapes = ["Lancer make run-uefi.", "Ouvrir la session.", "Comparer avec le démarrage BIOS."]
 attendu = "Même écran de démarrage, même bureau, mêmes entrées clavier et souris."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM avec OVMF, clavier et souris injectés par le moniteur, captures comparées au BIOS"
+constat = "L'écran de connexion est identique pixel pour pixel à celui du BIOS (0 pixel différent). Le bureau et le menu ne diffèrent que par l'heure (28 pixels). Clavier (Entrée, touche Windows, Échap) et souris (clic sur Démarrer) fonctionnent. Le journal série indique « boot: UEFI »."
+observations = []
+incidents = []
 duree = 10
 
 [[manuel]]
@@ -627,7 +637,12 @@ objectif = "Comparer les dimensions et les couleurs avec des captures de référ
 prerequis = "Captures de référence de l'interface d'époque (documentation publique)."
 etapes = ["Capturer le bureau, une fenêtre et le menu Démarrer à 1024x768.", "Mesurer barre des tâches, barre de titre, boutons de légende, bouton Démarrer.", "Noter les écarts en pixels."]
 attendu = "Écarts de un pixel au plus sur les dimensions, couleurs proches de la palette Luna."
-statut = "A exécuter"
+statut = "Partiel"
+date = "2026-10-05"
+moyen = "QEMU/KVM, mesures en pixels sur captures 1024x768"
+constat = "Barre des tâches 30 px, barre de titre 30 px, cadre 4 px, boutons de légende 21x21, bouton Démarrer 100 px et zone de notification 80 px : conformes aux valeurs documentées dans la justification a17. L'entrée du menu Démarrer mesure 30 px alors que 22 est documenté. Aucune capture de référence d'époque n'est disponible hors ligne, la comparaison à de vraies captures reste à faire."
+observations = ["Entrée de menu à 30 px contre 22 px documentés (valeur marquée incertaine dans la justification)."]
+incidents = []
 duree = 45
 
 [[manuel]]
@@ -637,7 +652,12 @@ objectif = "Vérifier la netteté des textes et le rendu des accents français."
 prerequis = "Session ouverte."
 etapes = ["Ouvrir la fenêtre Bonjour.", "Lire les libellés des icônes, le titre, le menu Démarrer.", "Vérifier é, è, ê, à, ç, œ, «, »."]
 attendu = "Textes lisibles à 100 %, accents complets, graisses régulières."
-statut = "Relu sur capture"
+statut = "Partiel"
+date = "2026-10-05"
+moyen = "QEMU/KVM, captures agrandies"
+constat = "Textes lisibles, é è ê à ç ù « » affichés correctement dans les boîtes, le menu et un champ de saisie. Le caractère œ n'a pas pu être vérifié à l'écran : aucune chaîne de l'interface ne le contient et la disposition clavier ne le produit pas. Sa présence dans la police est couverte par test_font_cover.c."
+observations = ["Le gras du texte de la fenêtre Bonjour est plus grossier que le texte normal (pixels visibles), celui de l'écran de connexion est lissé."]
+incidents = []
 duree = 10
 
 [[manuel]]
@@ -647,7 +667,12 @@ objectif = "Déplacer, redimensionner, réduire, agrandir, restaurer et fermer u
 prerequis = "Session ouverte, fenêtre Bonjour ouverte."
 etapes = ["Glisser la barre de titre.", "Redimensionner par les bords et les coins.", "Utiliser les trois boutons de légende.", "Cliquer une autre fenêtre et vérifier l'ordre."]
 attendu = "Mouvements fluides, tailles minimales respectées, ordre et focus cohérents."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, souris injectée par le moniteur (déplacements relatifs), captures relues"
+constat = "Glisser de la barre de titre (déplacement exact de 400 x 200 px), redimensionnement par le coin inférieur droit (agrandi de 62 x 82 px, puis réduit jusqu'à une taille minimale d'environ 110 x 130 px), réduire, agrandir (la zone de travail est remplie, le bouton devient « restaurer »), restaurer (ancienne taille et position), fermer par la croix. Quand on réduit ou ferme la fenêtre active, le focus passe à la fenêtre suivante."
+observations = ["Les nouvelles fenêtres s'ouvrent toutes au même endroit, sans décalage en cascade.", "À la taille minimale, le titre est tronqué sous les boutons de légende et le bouton Fermer est coupé.", "Le contenu ne se remet pas en page quand la fenêtre est agrandie : le bouton Fermer reste à sa place."]
+incidents = []
 duree = 15
 
 [[manuel]]
@@ -657,7 +682,12 @@ objectif = "Parcourir le menu avec les flèches, Entrée, Échap et la touche Wi
 prerequis = "Session ouverte."
 etapes = ["Appuyer sur la touche Windows.", "Naviguer avec les flèches, ouvrir Tous les programmes.", "Fermer avec Échap."]
 attendu = "Sélection visible, sous-menu ouvert et fermé correctement, focus rendu à la fenêtre précédente."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, clavier injecté par le moniteur, captures relues"
+constat = "La touche Windows ouvre le menu, les flèches haut et bas déplacent la sélection (visible en bleu), la flèche droite ou Entrée sur « Tous les programmes » ouvre la liste (Bonjour, Retour), la flèche gauche ou Échap revient au menu principal, un second Échap ferme le menu et le bureau redevient identique. Avec une fenêtre ouverte, son titre reste actif pendant et après l'ouverture du menu (0 pixel différent)."
+observations = ["La flèche droite sur « Fermer la session » ne passe pas à « Éteindre » : il faut la flèche bas."]
+incidents = []
 duree = 10
 
 [[manuel]]
@@ -667,7 +697,12 @@ objectif = "Vérifier les boutons Arrêter, Redémarrer et Annuler."
 prerequis = "Session ouverte."
 etapes = ["Menu Démarrer puis Éteindre.", "Essayer Annuler, puis Redémarrer, puis Arrêter.", "Ouvrir Exécuter et saisir une commande inconnue."]
 attendu = "Annuler ferme la boîte, Redémarrer relance le système, Arrêter coupe la machine, message d'erreur clair pour la commande."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM (BIOS pour Annuler et Arrêter, UEFI pour Redémarrer), clavier injecté, captures relues"
+constat = "Boîte « Éteindre l'ordinateur » : Annuler referme sans effet (bureau identique), Redémarrer relance la machine (second démarrage dans le journal), Arrêter éteint la machine (QEMU quitte, journal « power: extinction »). Exécuter avec « inconnu » affiche « Impossible de trouver « inconnu ». Vérifiez le nom, puis réessayez. »."
+observations = []
+incidents = []
 duree = 10
 
 [[manuel]]
@@ -677,7 +712,12 @@ objectif = "Vérifier que Redémarrer relance bien la machine."
 prerequis = "Image construite."
 etapes = ["Choisir Redémarrer dans la boîte d'extinction.", "Observer le redémarrage sous QEMU sans l'option -no-reboot."]
 attendu = "La machine redémarre et affiche de nouveau l'écran de démarrage."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM en UEFI, sans l'option -no-reboot"
+constat = "Redémarrer depuis le bureau : le journal affiche « power: redémarrage » puis « RESET_REG port 0xcf9 valeur 0xf », la machine redémarre et atteint l'écran de connexion, identique à celui du premier démarrage (0 pixel différent)."
+observations = []
+incidents = []
 duree = 5
 
 [[manuel]]
@@ -687,7 +727,12 @@ objectif = "Vérifier l'heure affichée et sa mise à jour."
 prerequis = "Session ouverte."
 etapes = ["Comparer l'heure affichée avec l'heure de l'hôte.", "Attendre un changement de minute."]
 attendu = "Heure cohérente (UTC pour l'instant), mise à jour à la minute."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, capture de la zone d'horloge comparée à date -u de l'hôte"
+constat = "Horloge à 16:52 pour une heure UTC de l'hôte de 16:52:54, puis 16:53 à 16:53:02 : mise à jour à la minute. L'heure affichée est l'UTC, soit deux heures de moins que l'heure locale de l'hôte (CEST)."
+observations = ["Limite connue : pas de fuseau horaire."]
+incidents = []
 duree = 5
 
 [[manuel]]
@@ -697,7 +742,12 @@ objectif = "Vérifier les caractères spéciaux, AltGr et touches mortes."
 prerequis = "Session ouverte, un champ de saisie (boîte Exécuter)."
 etapes = ["Taper les chiffres avec Maj.", "Taper @ # { [ | \\ ^ ] } avec AltGr.", "Taper ^e, ¨u, ~n et `a avec les touches mortes."]
 attendu = "Caractères conformes à la disposition française ; les touches mortes ~ et ` sont à confirmer."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, touches envoyées par le moniteur, champ de la boîte Exécuter agrandi"
+constat = "Chiffres avec Maj : 1234567890. AltGr : @ # { [ | \\ ^ ] }. Touches mortes : ^ puis e donne ê, ¨ puis u donne ü, ~ puis n donne ñ, ` puis a donne à ; les quatre accents isolés s'obtiennent avec la touche morte puis espace. Touches directes é è ç à ù, AltGr+E donne €, et $ £ µ ² sont corrects. Les touches mortes ~ et ` sont confirmées."
+observations = ["Une touche morte appuyée deux fois donne un seul accent (^ puis ^ donne ^)."]
+incidents = []
 duree = 15
 
 [[manuel]]
@@ -705,9 +755,14 @@ id = "MT-13"
 titre = "Session entière au clavier seul"
 objectif = "Parcourir connexion, bureau et menu sans souris."
 prerequis = "Image construite."
-etapes = ["Valider la connexion avec Tab et Entrée.", "Ouvrir le menu Démarrer, lancer Bonjour.", "Fermer la fenêtre et éteindre."]
+etapes = ["Valider la connexion avec Entrée (Tab déplace le focus sur « Éteindre l'ordinateur », Échap ferme la confirmation).", "Ouvrir le menu Démarrer avec la touche Windows, lancer Bonjour.", "Fermer la fenêtre et éteindre."]
 attendu = "Tout est atteignable au clavier, le focus est toujours visible."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, clavier seul"
+constat = "Connexion par Entrée (le compte a déjà le focus), menu par la touche Windows, lancement de Bonjour, fermeture par Entrée sur le bouton Fermer, extinction par le menu : QEMU quitte. Le focus est visible à chaque étape (liseré pointillé, sélection bleue)."
+observations = ["Tab déplace le focus sur « Éteindre l'ordinateur », Entrée y ouvre la confirmation, Échap la ferme. L'étape 1 du cas a été corrigée en conséquence."]
+incidents = []
 duree = 15
 
 [[manuel]]
@@ -717,7 +772,12 @@ objectif = "Vérifier la lisibilité des textes sur leurs arrière-plans."
 prerequis = "Session ouverte."
 etapes = ["Observer libellés d'icônes, horloge, invite de connexion, menu Démarrer."]
 attendu = "Aucun texte difficile à lire (rapport de contraste d'au moins 4,5 pour le texte courant)."
-statut = "Relu sur capture"
+statut = "Échec"
+date = "2026-10-05"
+moyen = "QEMU/KVM, 20 zones de texte mesurées avec tools/contraste.py sur les captures"
+constat = "17 textes sur 20 respectent 4,5 (de 5,44 à 21,00). Trois sont en dessous : « démarrer » blanc gras sur vert à 3,57, libellé des boutons inactifs de la barre des tâches à 3,91, titre d'une fenêtre inactive à 2,07."
+observations = ["Les couleurs reprennent le style Luna : corriger demande un arbitrage entre fidélité visuelle et lisibilité."]
+incidents = ["P25"]
 duree = 10
 
 [[manuel]]
@@ -727,7 +787,12 @@ objectif = "Vérifier le rétrécissement des boutons, l'activation et la réduc
 prerequis = "Session ouverte."
 etapes = ["Ouvrir plusieurs fois Bonjour.", "Cliquer les boutons de la barre des tâches.", "Réduire et restaurer."]
 attendu = "Boutons de largeur régulière, clic = activer ou réduire, ordre cohérent."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, clavier et souris injectés, captures relues"
+constat = "Trois puis treize fenêtres Bonjour : un bouton par fenêtre, de largeur régulière, dans l'ordre de création. Un clic sur un bouton inactif active et restaure la fenêtre, un clic sur le bouton actif la réduit. À treize fenêtres les boutons rétrécissent à largeur égale (environ 62 px) puis s'élargissent à la fermeture."
+observations = ["Le libellé est tronqué sans points de suspension (« Bonjo »).", "Un espace vide d'environ 24 px précède le libellé."]
+incidents = []
 duree = 10
 
 [[manuel]]
@@ -737,7 +802,12 @@ objectif = "Détecter fuites de mémoire et gels sur une longue durée."
 prerequis = "Session ouverte, journal série ouvert."
 etapes = ["Laisser le système tourner 8 heures avec des actions répétées (ouverture et fermeture de fenêtres).", "Relever mémoire libre et tas toutes les 30 minutes."]
 attendu = "Mémoire libre stable, aucun gel, aucune panique."
-statut = "A exécuter"
+statut = "Échec"
+date = "2026-10-05"
+moyen = "QEMU/KVM, boucle de 300 ouvertures et fermetures de la fenêtre Bonjour au clavier (environ 10 minutes), avec 128 Mo puis 64 Mo de RAM"
+constat = "Aucune panique, aucun gel, aucune ligne d'erreur dans le journal, le bureau reste intact (captures identiques aux cycles 50, 150 et 250 hors horloge). Mais le système cesse d'ouvrir des fenêtres : avec 128 Mo, la 223e tentative donne « hello: connexion au serveur de fenêtres impossible » (222 réussites), avec 64 Mo plus aucune fenêtre ne s'ouvre après la 163e, sans message. Le nombre de réussites dépend de la taille de la mémoire. L'endurance de 8 h n'a pas été jouée."
+observations = ["La mémoire libre n'est visible nulle part (ni à l'écran, ni dans le journal) : l'étape 2 du cas ne peut se faire qu'en observant l'échec.", "Quand le lancement échoue, le shell n'affiche aucun message à l'utilisateur."]
+incidents = ["P27"]
 duree = 480
 
 [[manuel]]
@@ -767,7 +837,12 @@ objectif = "Vérifier que init relance le serveur et la session."
 prerequis = "Session ouverte, accès à un moyen d'arrêter winsrv (outil de test)."
 etapes = ["Arrêter le processus winsrv.", "Observer l'écran et le journal."]
 attendu = "L'écran de connexion revient, le noyau ne panique pas, le journal montre la relance."
-statut = "A exécuter"
+statut = "Bloqué"
+date = "2026-10-05"
+moyen = "analyse des sources"
+constat = "Impossible à jouer : aucun outil de test ne permet d'arrêter winsrv. SYS_PROC_KILL prend un handle et un processus ne détient que ceux de ses enfants. init, seul parent de winsrv, n'a pas de commande d'arrêt. La relance n'est vérifiée que par test_init_policy sur l'hôte."
+observations = ["Il faut un point d'entrée de test, par exemple une option de ligne de commande qui fait quitter winsrv."]
+incidents = []
 duree = 15
 
 [[manuel]]
@@ -775,9 +850,14 @@ id = "MT-21"
 titre = "Lisibilité de l'écran d'arrêt"
 objectif = "Relire le texte de l'écran d'arrêt."
 prerequis = "Image construite."
-etapes = ["Démarrer avec l'option fault=panic.", "Lire l'écran."]
+etapes = ["Démarrer avec les options selftest et fault=panic.", "Lire l'écran."]
 attendu = "Fond bleu, texte en français lisible, code d'arrêt et identifiant de build présents."
-statut = "A exécuter"
+statut = "Réussi"
+date = "2026-10-05"
+moyen = "QEMU/KVM, capture relue"
+constat = "Avec « selftest fault=panic » : fond bleu (0, 0, 170), texte blanc en français, code d'arrêt 0x750F6822, message « a13: panne volontaire (fault=panic) », identifiant de build de 40 caractères et consigne finale. La machine reste figée sur l'écran."
+observations = ["Avec fault=panic sans selftest, rien ne se passe : l'étape 1 du cas a été corrigée."]
+incidents = []
 duree = 5
 
 [[manuel]]
@@ -787,7 +867,12 @@ objectif = "Relire tous les textes de l'interface."
 prerequis = "Session ouverte."
 etapes = ["Parcourir connexion, bureau, menu, boîtes de dialogue, fenêtre Bonjour.", "Noter fautes, espaces insécables, majuscules."]
 attendu = "Orthographe et typographie françaises correctes."
-statut = "A exécuter"
+statut = "Échec"
+date = "2026-10-05"
+moyen = "relecture des textes dans les sources et sur les captures (une quarantaine de chaînes)"
+constat = "Orthographe : aucune faute relevée. Typographie : aucune espace insécable. Les espaces avant « : », « ! » et « ? », à l'intérieur des guillemets « » et avant les unités (« 4 min 30 s ») sont des espaces ordinaires, la ligne peut se couper à cet endroit."
+observations = ["« Exécuter... » utilise trois points au lieu du caractère « … »."]
+incidents = ["P26"]
 duree = 20
 
 [[manuel]]
@@ -795,9 +880,14 @@ id = "MT-23"
 titre = "FAT32 sur une image réelle"
 objectif = "Vérifier lecture, écriture et cohérence d'un volume FAT32."
 prerequis = "mtools et dosfstools installés."
-etapes = ["Créer une image FAT32 avec mformat et y copier des fichiers (mcopy).", "La brancher en virtio-blk et démarrer avec selftest.", "Lire la ligne d'autotest du VFS.", "Contrôler l'image avec fsck.vfat."]
+etapes = ["Créer une image FAT32 avec mformat -F et y copier des fichiers (mcopy, mmd).", "La brancher en virtio-blk et démarrer avec selftest.", "Lire la ligne d'autotest du VFS.", "Contrôler l'image avec fsck.vfat -n."]
 attendu = "Autotest du VFS réussi, aucune erreur de fsck.vfat."
-statut = "A exécuter"
+statut = "Échec"
+date = "2026-10-05"
+moyen = "QEMU/KVM, image FAT32 de 64 Mo faite avec mformat, disque virtio-blk, contrôle avec fsck.vfat et mtools"
+constat = "Le noyau monte l'image (« vfs: fat32 sur /data, 129022 clusters », « /data monté sur vda ») et l'autotest passe (« vfs: autotest data ok » : lecture 8.3 et nom long, mkdir, écriture de 70 000 octets, relecture, renommage, suppression), SELFTESTS PASS 17. Après l'arrêt, mtools relit le fichier écrit (contenu conforme octet pour octet, nom long conservé), mais fsck.vfat -n rend le code 1 : « Free cluster summary wrong (128879 vs. really 128880) »."
+observations = ["Les dates écrites par le noyau sont en UTC (16:58) alors que mtools écrit l'heure locale (18:58) : FAT ne stocke pas de fuseau."]
+incidents = ["P24"]
 duree = 30
 
 [[manuel]]
@@ -808,5 +898,9 @@ prerequis = "Une distribution Linux récente."
 etapes = ["Installer les prérequis.", "Lancer tools/build-toolchain.sh.", "make limine, make all, make test-qemu."]
 attendu = "Chaque commande réussit sans intervention."
 statut = "Partiel"
-note = "La chaîne d'outils et l'image ont été reconstruites avec succès le 5 octobre 2026 sur la machine de développement, pas sur une machine vierge."
+date = "2026-10-05"
+moyen = "clone du dépôt public GitHub dans build/manuel/clone, machine de développement"
+constat = "Dépôt public cloné dans un dossier vide, puis make limine (téléchargement vérifié par empreinte, 0,9 s), make -j8 all (noyau, applis et image, 15 s) et make -j6 test-qemu : 82 scénarios sur 83 réussis. Le scénario a20_desktop a échoué : il était instable (corrigé depuis, voir T15). Le compilateur croisé déjà installé sur la machine a servi : tools/build-toolchain.sh n'a pas été rejoué ici (il l'avait été le même jour, avec succès)."
+observations = ["Ce n'est pas une machine vierge : les paquets du système et le compilateur croisé étaient déjà présents.", "Le clone a été fait avant le correctif de a20_desktop, il faudra refaire le passage sur le dépôt corrigé."]
+incidents = ["T15"]
 duree = 90

@@ -41,6 +41,19 @@ Un fragment `mk/lot-aNN.mk` déclare pour chacun ses sources compilées sur l'h�
 | `MATRICE.md` | matrice complète et taux de couverture, généré |
 | `MANUEL.md` | plan de tests manuels (étapes, résultat attendu, statut), généré |
 
+Les cas manuels se jouent avec deux outils du dépôt. `tools/manuel.py` garde une machine QEMU vivante entre deux
+commandes et permet d'envoyer des touches, de cliquer, de glisser, de capturer l'écran (avec zoom) et de lire le journal
+série ; tout est écrit dans `build/manuel/<nom>/`. `tools/contraste.py` mesure le rapport de contraste WCAG d'un texte
+dans une capture. Exemple :
+
+```
+python3 tools/manuel.py demarrer s1
+python3 tools/manuel.py touche s1 ret
+python3 tools/manuel.py capture s1 bureau
+python3 tools/contraste.py build/manuel/s1/bureau.png "horloge:955,743,1015,764"
+python3 tools/manuel.py arreter s1
+```
+
 `make matrice` régénère les deux rapports et échoue si un test cité n'existe pas ; `make matrice-check` échoue si
 les rapports ne sont pas à jour. Pour ajouter une fonctionnalité : une entrée `[[fonction]]` avec son mode et ses
 tests, puis `make matrice`. Une fonctionnalité en mode AM ou M doit citer au moins un cas manuel.
@@ -105,6 +118,8 @@ L'objet `vm` (`tools/vtest.py`) offre :
 | `attendre(motif, delai)` | attend une expression régulière dans le journal série, échoue sur `PANIC:`, sur l'arrêt de QEMU ou au délai |
 | `serie()` | journal série complet |
 | `capture(nom)` | capture d'écran, renvoyée comme `Image` (`pixel`, `compter`, `differences`, `enregistrer_png`) |
+| `capture_quand(condition, delai)` | recapture jusqu'à ce que la condition sur l'image soit vraie, ou jusqu'au délai |
+| `capture_stable(delai)` | recapture jusqu'à ce que deux images successives soient identiques (à 200 pixels près) |
 | `touche(nom)`, `souris_deplacer(dx, dy)`, `souris_bouton(masque)` | entrées par le moniteur QEMU |
 | `moniteur(commande)` | commande libre du moniteur QEMU |
 
@@ -141,6 +156,7 @@ Un test qui échoue une fois sur dix n'est pas toléré, il est analysé. Les ca
 | résultats périmés | image mise en cache non reconstruite quand seul l'initrd change | la date de l'initrd compte dans la décision |
 | `[TEST] x ... OK` introuvable | les journaux du test s'intercalent avant le `OK` | la ligne de résultat est écrite en entier sur sa propre ligne |
 | seuil de convoi dépassé | le seuil dépendait du nombre de cœurs de l'hôte | seuil réexprimé indépendamment du parallélisme |
+| `a20_desktop` échoue une fois sur deux | capture juste après la touche, référence prise pendant le premier dessin, captures du BIOS et de l'UEFI sous le même nom | `capture_quand`, `capture_stable`, noms préfixés par la machine |
 
 ## Lancer les tests
 
