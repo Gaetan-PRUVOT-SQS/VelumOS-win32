@@ -93,9 +93,8 @@ class VM:
         self.capture_n = 0
 
     def commande(self):
-        accel = (
-            ["-enable-kvm", "-cpu", "host"] if os.access("/dev/kvm", os.W_OK) else ["-cpu", "max"]
-        )
+        avec_kvm = os.access("/dev/kvm", os.W_OK) and not os.environ.get("VTEST_SANS_KVM")
+        accel = ["-enable-kvm", "-cpu", "host"] if avec_kvm else ["-cpu", "max"]
         base = [
             "qemu-system-x86_64",
             "-machine",

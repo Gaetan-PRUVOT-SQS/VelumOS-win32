@@ -81,6 +81,7 @@ help:
 	'  lot LOT=aNN   compile, norme et tests hôte du lot' \
 	'  test-host     tests unitaires hôte (ASan, UBSan)' \
 	'  test-qemu     scénarios QEMU (BIOS et UEFI)' \
+	'  ci            compilation avec le gcc du système, tests hôte, démarrage QEMU sans KVM' \
 	'  test-tools    tests des outils Python (pytest)' \
 	'  test          norme, outils, hôte, QEMU' \
 	'  run           lance QEMU avec fenêtre (run-uefi en UEFI)'

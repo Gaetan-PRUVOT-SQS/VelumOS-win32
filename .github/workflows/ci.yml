@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verification:
+    name: Compilation, tests hôte, démarrage QEMU
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer les dépendances
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential python3 python3-pil python3-pytest \
+            gdisk mtools dosfstools cpio git qemu-system-x86 ovmf curl xz-utils
+
+      - name: Lancer la vérification
+        run: tools/ci.sh
+
+      - name: Conserver les journaux et captures en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journaux-qemu
+          path: build/main/qemu
+          if-no-files-found: ignore

@@ -1,4 +1,4 @@
-.PHONY: norme hdrcheck matrice matrice-check scan test-tools test-qemu test run run-uefi lot lot-compile norme-lot
+.PHONY: norme hdrcheck matrice matrice-check scan test-tools test-qemu test ci run run-uefi lot lot-compile norme-lot
 
 norme:
 	tools/norme.sh
@@ -57,3 +57,6 @@ run-uefi: $(O)/disk.img
 	qemu-system-x86_64 -machine q35 -m 256M $(KVM) $(UEFI_FLAGS) \
 		-drive file=$(O)/disk.img,format=raw,snapshot=on \
 		-serial stdio -vga std -device isa-debug-exit,iobase=0xf4,iosize=0x04
+
+ci:
+	tools/ci.sh
