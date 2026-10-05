@@ -1,0 +1,29 @@
+SEL := $(or $(ONLY),$(LOTS))
+KSRC_ALL := $(foreach l,$(SEL),$(KSRC_$(l)))
+KOBJ := $(patsubst %,$(O)/obj/%.o,$(KSRC_ALL))
+KDEP := $(KOBJ:.o=.d)
+
+$(O)/obj/%.c.o: %.c
+	@mkdir -p $(dir $@)
+	@printf '  CC   %s\n' $<
+	$(Q)$(CC) $(KCFLAGS) -MMD -MP -c $< -o $@
+
+$(O)/obj/%.S.o: %.S
+	@mkdir -p $(dir $@)
+	@printf '  AS   %s\n' $<
+	$(Q)$(CC) $(KASFLAGS) -MMD -MP -c $< -o $@
+
+$(O)/kernel.elf: $(KOBJ) link/kernel.ld
+	@printf '  LD   %s\n' $@
+	$(Q)$(LD) -nostdlib -static -T link/kernel.ld -z max-page-size=0x1000 \
+		-z noexecstack -Wl,--build-id=sha1 -Wl,--gc-sections $(KOBJ) -lgcc -o $@
+
+$(O)/disk.img: $(O)/kernel.elf $(O)/rootfs.stamp tools/mkimage.py
+	@printf '  IMG  %s\n' $@
+	$(Q)python3 tools/mkimage.py --noyau $(O)/kernel.elf --sortie $@ \
+		--initrd $(O)/root --resolution $(MODE) --cmdline "$(CMDLINE)"
+
+.PHONY: kernel
+kernel: $(O)/kernel.elf
+
+-include $(KDEP)
