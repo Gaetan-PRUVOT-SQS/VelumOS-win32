@@ -145,6 +145,17 @@ chacun, `[TEST] <module> ...` puis `[TEST] <module> ... OK` ou `FAIL`, et pour f
 Les mesures (équité de l'ordonnanceur, précision du sommeil, nombre de pages libres avant et après) sont écrites
 dans le journal et vérifiées contre des tolérances.
 
+## Intégration continue
+
+`.github/workflows/ci.yml` installe les paquets sur Ubuntu 24.04 puis lance `tools/ci.sh`, le même script que `make ci`
+en local. Il compile avec le `gcc` du système (`CROSS=` vide), passe les tests des outils et les contrôles statiques,
+joue sept lots de tests hôte (`a02`, `a03`, `a04`, `a08`, `a09`, `a11`, `a13`) puis cinq scénarios QEMU : `a01_boot`,
+`skel_boot`, `int_session`, `a20_desktop` et `a12_fat32`. Les runners n'ont pas KVM : la variable `VTEST_SANS_KVM=1` force
+l'émulation pure (les scénarios durent quelques dizaines de secondes de plus).
+
+Ce n'est pas la suite complète : elle reste à lancer en local (`make test`). La chaîne croisée épinglée par
+`tools/build-toolchain.sh` n'est pas utilisée en CI, ce qui est une différence avec la construction de référence.
+
 ## Instabilités : comment on les traite
 
 Un test qui échoue une fois sur dix n'est pas toléré, il est analysé. Les causes rencontrées et leur traitement :
@@ -168,6 +179,7 @@ make test-qemu                        tous les scénarios, BIOS et UEFI
 python3 tools/run_scenarios.py --kernel build/main/debug/kernel.elf \
     --root build/main/debug/root --out build/main/qemu --filter a01_ --jobs 4
 make norme hdrcheck scan              contrôles statiques
+make ci                               sous-ensemble rejoué par l'intégration continue (tools/ci.sh)
 ```
 
 Les journaux série et les captures de chaque scénario restent dans `build/main/qemu/<scénario>/`.

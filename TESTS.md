@@ -98,7 +98,8 @@ Les seuls aléas sont des graines affichées par les tests (listées au point 5)
 |--------|----------|
 | Compilation complète (`make -j8 all`) | 0 erreur, noyau, 8 applis, image Limine BIOS et UEFI |
 | Autotests noyau au démarrage | 17 sur 17 (`SELFTESTS PASS 17`), BIOS et UEFI |
-| Scénarios QEMU | 83 exécutions sur 83 (44 fichiers, deux firmwares pour la plupart), dernier passage complet en 2 min 35 s à -j6 |
+| Scénarios QEMU | 84 exécutions sur 84 (45 fichiers, deux firmwares pour la plupart), dernier passage complet en 2 min 31 s à -j6 |
+| Intégration continue (`tools/ci.sh`) | rejouée dans un conteneur Ubuntu 24.04 (gcc 13, QEMU 8.2, sans KVM) : 13 tests d'outils, 7 lots de tests hôte, 5 scénarios (10 exécutions), tout vert |
 | Tests hôte | 530 exécutions de suites, 13,19 millions de vérifications, 0 échec au passage final (505 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
 | Norme 42 | 1 993 fichiers C et en-têtes sans erreur au dernier balayage complet, puis les fichiers touchés ensuite contrôlés un à un |
 | `make scan` (fonctions C dangereuses, secrets, idiomes risqués) | 0 alerte sur tout le dépôt |
@@ -124,7 +125,7 @@ ce qui n'a pas tourné.
 | a09 pci, aléa, crypto | 51 | 4 | vecteurs NIST, RFC 4231, 7914, 8439, khi-deux 246,3 pour 255 degrés, MSI de bout en bout sur l'appareil `edu` | non mesurée | fuzz de configuration PCI, mutation |
 | a10 clavier, souris | 34 | 1 | décodeur sur 100 000 octets aléatoires, tables us et fr complètes | non mesurée | `inputlog`, `input_boot_init` et changement de disposition non testés sur l'hôte |
 | a11 bloc, virtio | 16 | 2 | CRC32, GPT et MBR fabriquées (relues par `sgdisk -v` et `sfdisk`), faux appareil virtio complet | 97,4 % des 1 084 lignes, 90,1 % des branches, MC/DC à 100 % sur les bornes | MSI-X, partitions étendues |
-| a12 vfs, fat | 3 (10 à réintégrer) | 0 | cpio 405 vérifications (10 000 entrées, troncature à chaque octet), FAT32 : 400 images corrompues, 20 000 opérations avec contrôle fsck | non mesurée | 10 tests à découper pour la norme, scénario FAT32, recoupement mtools et `fsck.vfat` |
+| a12 vfs, fat | 3 (10 à réintégrer) | 1 | cpio 405 vérifications (10 000 entrées, troncature à chaque octet), FAT32 : 400 images corrompues, 20 000 opérations avec contrôle fsck | non mesurée | 10 tests à découper pour la norme |
 | a13 affichage | 37 | 4 | fuzz de 20 000 appels (graine 20261005), géométrie hostile, mutation (8 tuées sur 12) | 99,4 % des 880 lignes, 87,4 % des 546 branches | 2 mutants survivants renforcés mais non rejoués, chemin DISPI par ports jamais exécuté |
 | a14 libvelum | 63 | 1 | allocateur (churn, double libération), pile de départ, 68 vérifications de `vtest` dans QEMU | pile de départ et RELRO 100 %, allocateur 505 sur 526 lignes, libc pure 100 % des lignes | `crt0.S`, `guard.S`, `thread.S` seulement en QEMU |
 | a15 gfx | 30 | 0 | mélange exhaustif 16,7 millions de triplets, 1 million d'appels fuzz, régions contre modèle bitmap | non mesurée | `cov.sh`, bancs de performance |
@@ -170,17 +171,17 @@ le script `tools/matrice_couverture.py` vérifie que chaque test cité existe et
 | Mode | Sens | Fonctionnalités | Part |
 |------|------|-----------------|------|
 | A | automatisé, oracle automatique | 64 | 78,0 % |
-| AM | logique automatisée, complément manuel (visuel, ergonomie, vrai clavier) | 10 | 12,2 % |
-| M | manuel seulement | 8 | 9,8 % |
+| AM | logique automatisée, complément manuel (visuel, ergonomie, vrai clavier) | 11 | 13,4 % |
+| M | manuel seulement | 7 | 8,5 % |
 
-Couverture automatisée (A et AM) : **90,2 %**. Couverture manuelle seule : **9,8 %**. Au moins un test manuel
-est nécessaire pour 22,0 % des fonctionnalités. Par nombre de cas : 1 588 cas automatisés (1 516 cas unitaires nommés,
-44 scénarios QEMU, 28 tests Python) contre 21 cas manuels, soit 98,7 % ; ce taux est plus élevé parce que les cas
+Couverture automatisée (A et AM) : **91,5 %**. Couverture manuelle seule : **8,5 %**. Au moins un test manuel
+est nécessaire pour 22,0 % des fonctionnalités. Par nombre de cas : 1 593 cas automatisés (1 516 cas unitaires nommés,
+45 scénarios QEMU, 32 tests Python) contre 21 cas manuels, soit 98,7 % ; ce taux est plus élevé parce que les cas
 automatisés sont plus fins, le taux fonctionnel est la mesure à retenir.
 
-Les 8 fonctionnalités en mode M sont : le redémarrage ACPI, le FAT32 en lecture et écriture (des tests existent mais ne
-sont pas encore versionnés), la performance du dessin (bancs jamais lancés), la netteté des polices, la fidélité
-visuelle au style Luna, le démarrage sur matériel réel, l'endurance et la cohérence linguistique de l'interface.
+Les 7 fonctionnalités en mode M sont : le redémarrage ACPI, la performance du dessin (bancs jamais lancés), la netteté
+des polices, la fidélité visuelle au style Luna, le démarrage sur matériel réel, l'endurance et la cohérence linguistique
+de l'interface. Le FAT32 est passé de M à AM avec le scénario `a12_fat32` (image mtools, relecture par mtools, `fsck.vfat`).
 
 ### 4.6 Exécution des cas manuels
 
@@ -282,7 +283,7 @@ n'est pas automatisé.
 
 | Réf | Élément | Attendu | Obtenu | Gravité | Cas |
 |-----|---------|---------|--------|---------|-----|
-| P24 | FAT32, compteur `FSInfo` | nombre de clusters libres exact après écriture, renommage et suppression | 128879 pour 128880 réels, `fsck.vfat -n` rend 1 | basse | MT-23 |
+| P24 | FAT32, compteur `FSInfo` | nombre de clusters libres exact après écriture, renommage et suppression | 128879 pour 128880 réels, `fsck.vfat -n` rend 1 | basse | MT-23, `a12_fat32` (tolère P24) |
 | P25 | Luna, contraste | rapport de 4,5 au moins pour le texte courant | « démarrer » à 3,57, boutons inactifs de la barre des tâches à 3,91, titre de fenêtre inactive à 2,07 | basse | MT-14 |
 | P26 | textes de l'interface | espaces insécables avant `:`, `!`, `?` et dans les guillemets | espaces ordinaires, la ligne peut se couper là | basse | MT-22 |
 | P27 | serveur de fenêtres ou noyau, fenêtres ouvertes puis fermées | ressources rendues à la fermeture | après 222 ouvertures (128 Mo) puis plus aucune connexion, après 163 avec 64 Mo plus aucune fenêtre sans message | moyenne | MT-17 |
@@ -307,7 +308,7 @@ le système ne montre la mémoire libre, il a fallu observer l'échec.
 - Scénarios QEMU absents pour a05, a12, a15, a17, a18, a19 : ces sous-systèmes sont couverts indirectement par
   `skel_boot`, `int_session` et `a20_souris`.
 - Dix tests hôte de a12 sont à découper (limite de 25 lignes par fonction de la norme) avant d'être remis dans
-  `tests/host/a12/`, et il n'existe pas de scénario FAT32 automatisé : l'écriture FAT32 est jouée contre des faux et une fois en manuel (MT-23).
+  `tests/host/a12/`, et le scénario FAT32 (`a12_fat32`) ne tourne qu'en BIOS : l'écriture FAT32 est jouée contre des faux, dans ce scénario et en manuel (MT-23).
 - Les vérifications de plusieurs sous-systèmes ont été limitées en durée (mutation interrompue, bancs de performance
   non lancés). Le point 4.2 liste, sous-système par sous-système, ce qui n'a pas tourné.
 

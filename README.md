@@ -1,5 +1,7 @@
 # VelumOS
 
+[![CI](../../actions/workflows/ci.yml/badge.svg?branch=main)](../../actions/workflows/ci.yml)
+
 VelumOS est un système d'exploitation écrit de zéro, en C, pour x86-64. Cette édition (« win32 ») reproduit
 l'expérience de bureau de Windows XP : démarrage, ouverture de session, thème Luna, barre des tâches, menu
 Démarrer. Le nom désigne le style de l'interface. Le noyau n'a rien de commun avec celui de Windows et il
@@ -11,6 +13,7 @@ Les priorités du projet, dans l'ordre : sécurité, stabilité, rapidité, faib
 
 Le dépôt documente aussi sa campagne de tests, de l'unité à la machine virtuelle complète : voir
 [Campagne de tests](#campagne-de-tests), [`TESTS.md`](TESTS.md) et [`tests/README.md`](tests/README.md).
+Pressé ? Le [guide de lecture en cinq minutes](GUIDE-DE-LECTURE.md) indique trois fichiers à ouvrir.
 
 ![Écran de démarrage](assets/demarrage.png)
 
@@ -87,12 +90,13 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Mesure (5 octobre 2026) | Résultat |
 |-------------------------|----------|
 | Niveaux de test | 4 : unitaire sur l'hôte, autotests du noyau, scénarios système QEMU, contrôles statiques |
-| Couverture fonctionnelle automatisée | **90,2 %** des 82 fonctionnalités vérifiables (78,0 % entièrement automatisées, 12,2 % avec un complément manuel) |
-| Couverture manuelle seule | **9,8 %** (8 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
+| Couverture fonctionnelle automatisée | **91,5 %** des 82 fonctionnalités vérifiables (78,0 % entièrement automatisées, 13,4 % avec un complément manuel) |
+| Couverture manuelle seule | **8,5 %** (7 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
 | Cas manuels joués (sous QEMU/KVM) | 18 sur 21 : 11 réussis, 4 en échec, 3 partiels |
 | Tests unitaires | environ 530 exécutions de suites, 13,19 millions de vérifications, 0 échec (ASan et UBSan) |
-| Scénarios système | 83 exécutions sur 83 (44 scénarios, BIOS et UEFI) |
+| Scénarios système | 84 exécutions sur 84 (45 scénarios, BIOS et UEFI) |
 | Autotests du noyau | 17 sur 17 |
+| Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 7 lots de tests hôte, 5 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
 | Défauts trouvés et corrigés | 39 : 23 dans le produit (6 de gravité haute, 10 moyenne, 7 basse) et 16 dans l'infrastructure de test |
 | Défauts ouverts (cas manuels) | 4 : une gravité moyenne (les fenêtres cessent de s'ouvrir après 222 ouvertures et fermetures), trois basses |
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
@@ -109,11 +113,11 @@ liste des tests qui la couvrent.
 | Mode | Fonctionnalités | Part |
 |------|-----------------|------|
 | A : automatisé | 64 | 78,0 % |
-| AM : automatisé, avec un complément manuel (aspect visuel, ergonomie, vrai clavier) | 10 | 12,2 % |
-| M : manuel seulement | 8 | 9,8 % |
+| AM : automatisé, avec un complément manuel (aspect visuel, ergonomie, vrai clavier) | 11 | 13,4 % |
+| M : manuel seulement | 7 | 8,5 % |
 
-La couverture automatisée est donc de 90,2 % (A et AM), et 22,0 % des fonctionnalités appellent au moins un test
-manuel. Par nombre de cas, 1 588 cas sont automatisés (cas unitaires nommés, scénarios QEMU, tests Python) contre 21
+La couverture automatisée est donc de 91,5 % (A et AM), et 22,0 % des fonctionnalités appellent au moins un test
+manuel. Par nombre de cas, 1 593 cas sont automatisés (cas unitaires nommés, scénarios QEMU, tests Python) contre 21
 manuels, soit 98,7 % : ce second taux est beaucoup plus élevé parce que les cas automatisés sont fins, c'est le taux
 fonctionnel qu'il faut retenir.
 
@@ -228,6 +232,7 @@ make test-qemu          tous les scénarios, BIOS et UEFI (environ 3 minutes)
 make -j8 -k test-host   tous les tests unitaires (plus de 10 minutes la première fois)
 make test-tools         tests des outils Python
 make matrice            recalcule les taux de couverture automatisée et manuelle
+make ci                 ce que fait l'intégration continue (gcc du système, sept lots hôte, cinq scénarios sans KVM)
 make norme hdrcheck scan   contrôles statiques
 ```
 
