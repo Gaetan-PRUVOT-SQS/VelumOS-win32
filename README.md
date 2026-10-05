@@ -87,6 +87,8 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Mesure (5 octobre 2026) | Résultat |
 |-------------------------|----------|
 | Niveaux de test | 4 : unitaire sur l'hôte, autotests du noyau, scénarios système QEMU, contrôles statiques |
+| Couverture fonctionnelle automatisée | **90,2 %** des 82 fonctionnalités vérifiables (78,0 % entièrement automatisées, 12,2 % avec un complément manuel) |
+| Couverture manuelle seule | **9,8 %** (8 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
 | Tests unitaires | environ 530 exécutions de suites, 13,19 millions de vérifications, 0 échec (ASan et UBSan) |
 | Scénarios système | 81 exécutions sur 81 (42 scénarios, BIOS et UEFI) |
 | Autotests du noyau | 17 sur 17 |
@@ -94,6 +96,37 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
 | Test de mutation | mémoire physique (41 mutants définis, 31 joués), affichage (12), polices (22) |
 | Contrôles statiques | norminette sur 1 993 fichiers, en-têtes autonomes, contrôle de fonctions dangereuses, ruff, shellcheck : 0 erreur |
+
+### Automatisé et manuel
+
+Le principe : tout ce qui a un oracle automatique est automatisé, et seul ce qui demande un jugement humain, un
+vrai périphérique ou une durée longue reste manuel. La mesure est faite sur les fonctionnalités vérifiables du système
+(82, regroupées par sous-système), pas sur le nombre de tests : chaque fonctionnalité a un mode de vérification et la
+liste des tests qui la couvrent.
+
+| Mode | Fonctionnalités | Part |
+|------|-----------------|------|
+| A : automatisé | 64 | 78,0 % |
+| AM : automatisé, avec un complément manuel (aspect visuel, ergonomie, vrai clavier) | 10 | 12,2 % |
+| M : manuel seulement | 8 | 9,8 % |
+
+La couverture automatisée est donc de 90,2 % (A et AM), et 22,0 % des fonctionnalités appellent au moins un test
+manuel. Par nombre de cas, 1 588 cas sont automatisés (cas unitaires nommés, scénarios QEMU, tests Python) contre 21
+manuels, soit 98,7 % : ce second taux est beaucoup plus élevé parce que les cas automatisés sont fins, c'est le taux
+fonctionnel qu'il faut retenir.
+
+Ce qui reste en manuel : fidélité visuelle au style Luna, netteté des polices, manipulation des fenêtres à la souris,
+saisie au clavier réel (touches mortes), redémarrage ACPI, matériel réel, endurance, performance perçue, revue
+linguistique, FAT32 sur une image réelle, reproduction de la construction sur une machine propre. Chaque cas a ses
+étapes et son résultat attendu dans [`tests/MANUEL.md`](tests/MANUEL.md).
+
+Les taux ne sont pas écrits à la main : `make matrice` les recalcule depuis [`tests/matrice.toml`](tests/matrice.toml)
+et vérifie que chaque test cité existe. Le détail par sous-système et par fonctionnalité est dans
+[`tests/MATRICE.md`](tests/MATRICE.md).
+
+Statut des cas manuels : aucun n'a encore été exécuté par une personne en session interactive. Trois ont été relus sur
+des captures d'écran produites par les scénarios (écran de démarrage, lisibilité des polices, contraste), un est partiel
+(construction : chaîne d'outils et image reconstruites, mais pas sur une machine vierge), dix-sept restent à exécuter.
 
 ### Stratégie fondée sur les risques
 
@@ -174,6 +207,7 @@ du test, pas dans le produit. Correction : espacer les mouvements.
 ### Limites et risques résiduels
 
 - Pas de vérification sur du vrai matériel, un seul processeur, aucune mesure de performance en profil release.
+- Les 21 cas manuels sont décrits mais pas exécutés en session interactive.
 - Couverture non mesurée pour plusieurs sous-systèmes ; mutation partielle ; dix tests du système de fichiers à
   découper pour respecter la norme, et pas de scénario système pour l'écriture FAT32.
 - Les tests de durée (équité, sommeil) restent sensibles à la charge de l'hôte.
@@ -186,6 +220,7 @@ Le détail, sous-système par sous-système, figure dans [`TESTS.md`](TESTS.md).
 make test-qemu          tous les scénarios, BIOS et UEFI (environ 3 minutes)
 make -j8 -k test-host   tous les tests unitaires (plus de 10 minutes la première fois)
 make test-tools         tests des outils Python
+make matrice            recalcule les taux de couverture automatisée et manuelle
 make norme hdrcheck scan   contrôles statiques
 ```
 

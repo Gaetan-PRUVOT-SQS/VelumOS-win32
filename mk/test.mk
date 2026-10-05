@@ -1,4 +1,4 @@
-.PHONY: norme hdrcheck scan test-tools test-qemu test run run-uefi lot lot-compile norme-lot
+.PHONY: norme hdrcheck matrice matrice-check scan test-tools test-qemu test run run-uefi lot lot-compile norme-lot
 
 norme:
 	tools/norme.sh
@@ -23,6 +23,12 @@ lot: lot-compile host-$(LOT) norme-lot
 test-qemu: $(O)/kernel.elf $(O)/rootfs.stamp
 	python3 tools/run_scenarios.py --kernel $(O)/kernel.elf --root $(O)/root \
 		--out $(B)/qemu --resolution $(MODE)
+
+matrice:
+	python3 tools/matrice_couverture.py
+
+matrice-check:
+	python3 tools/matrice_couverture.py --check
 
 scan:
 	python3 tools/scan_securite.py

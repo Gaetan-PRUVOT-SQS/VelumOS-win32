@@ -77,6 +77,7 @@ help:
 	'  ONLY="skel aNN"  ne construit que ces lots (noyau, libs, applis)' \
 	'  norme         norminette sur tout le C' \
 	'  scan          contrôle statique de sécurité (fonctions dangereuses, secrets)' \
+	'  matrice       recalcule les taux de couverture automatisée et manuelle (tests/MATRICE.md)' \
 	'  lot LOT=aNN   compile, norme et tests hôte du lot' \
 	'  test-host     tests unitaires hôte (ASan, UBSan)' \
 	'  test-qemu     scénarios QEMU (BIOS et UEFI)' \

@@ -159,6 +159,32 @@ ce qui n'a pas tourné.
 | Norme et contrôle de sécurité sur tout le dépôt | norme OK, 3 alertes | deux `strcpy` et un `strcat` des tests remplacés par des fonctions bornées, contrôle à 0 |
 | Historique git (20 états cumulatifs) | 1 état sur 20 ne liait pas | crochet faible `sched_irq_exit` dans le squelette |
 
+### 4.5 Répartition automatisé et manuel
+
+La couverture est mesurée sur les fonctionnalités vérifiables du système (82, regroupées par sous-système), chacune avec
+un mode de vérification et la liste des tests qui la couvrent. Les données sont dans [`tests/matrice.toml`](tests/matrice.toml),
+le script `tools/matrice_couverture.py` vérifie que chaque test cité existe et calcule les taux, et il génère
+[`tests/MATRICE.md`](tests/MATRICE.md) (matrice complète) et [`tests/MANUEL.md`](tests/MANUEL.md) (plan de tests manuels).
+
+| Mode | Sens | Fonctionnalités | Part |
+|------|------|-----------------|------|
+| A | automatisé, oracle automatique | 64 | 78,0 % |
+| AM | logique automatisée, complément manuel (visuel, ergonomie, vrai clavier) | 10 | 12,2 % |
+| M | manuel seulement | 8 | 9,8 % |
+
+Couverture automatisée (A et AM) : **90,2 %**. Couverture manuelle seule : **9,8 %**. Au moins un test manuel
+est nécessaire pour 22,0 % des fonctionnalités. Par nombre de cas : 1 588 cas automatisés (1 516 cas unitaires nommés,
+44 scénarios QEMU, 28 tests Python) contre 21 cas manuels, soit 98,7 % ; ce taux est plus élevé parce que les cas
+automatisés sont plus fins, le taux fonctionnel est la mesure à retenir.
+
+Les 8 fonctionnalités en mode M sont : le redémarrage ACPI, le FAT32 en lecture et écriture (des tests existent mais ne
+sont pas encore versionnés), la performance du dessin (bancs jamais lancés), la netteté des polices, la fidélité
+visuelle au style Luna, le démarrage sur matériel réel, l'endurance et la cohérence linguistique de l'interface.
+
+Statut des 21 cas manuels : aucun n'a été exécuté par une personne en session interactive. Trois ont été relus sur des
+captures d'écran (MT-01, MT-05, MT-14), un est partiel (MT-24 : la chaîne d'outils et l'image ont été reconstruites avec
+succès, mais pas sur une machine vierge), dix-sept restent à exécuter pour 14 h 35 au total, dont 8 h d'endurance.
+
 ## 5. Registre des incidents
 
 Gravité : haute si le système gèle, panique ou perd l'isolation, moyenne si une fonction est fausse
@@ -216,6 +242,8 @@ au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN 
 
 ## 6. Écarts au plan et limites
 
+- Les 21 cas manuels ne sont pas exécutés en session interactive (voir 4.5) : la part manuelle est planifiée et décrite,
+  pas encore vérifiée.
 - Couverture non mesurée pour a04, a06, a07, a09, a10, a12, a15, a17, a18, a19, a20. Les critères de fin étaient
   « couverture mesurée », ils ne sont donc pas démontrés pour ces lots.
 - Mutation : faite pour a02, a08 (contrôle de la simulation), a13 et a16, partielle ou interrompue ailleurs.
@@ -246,6 +274,7 @@ make -j8 -k test-host                         suites hôte (la première fois pl
 make B=build/aNN lot LOT=aNN                  un lot seul
 tools/norme.sh                                norminette sur tout le C (quelques minutes)
 make hdrcheck                                 autonomie des en-têtes
+make matrice                                  recalcule les taux de couverture automatisée et manuelle
 make scan                                     contrôle statique de sécurité
 ruff check tools tests && ruff format --check tools tests
 ```

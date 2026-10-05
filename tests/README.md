@@ -33,6 +33,18 @@ Un fragment `mk/lot-aNN.mk` déclare pour chacun ses sources compilées sur l'h�
 | Scénario système (QEMU) | le système entier : démarrage BIOS et UEFI, fautes volontaires, session graphique | journal série, captures d'écran, code de sortie QEMU | `make test-qemu` |
 | Statique | le code et les outils | zéro erreur | `make norme`, `make hdrcheck`, `make scan`, `ruff` |
 
+## Matrice de couverture et tests manuels
+
+| Fichier | Rôle |
+|---------|------|
+| `matrice.toml` | source des données : fonctionnalités vérifiables (mode A, AM ou M, tests qui les couvrent) et cas manuels |
+| `MATRICE.md` | matrice complète et taux de couverture, généré |
+| `MANUEL.md` | plan de tests manuels (étapes, résultat attendu, statut), généré |
+
+`make matrice` régénère les deux rapports et échoue si un test cité n'existe pas ; `make matrice-check` échoue si
+les rapports ne sont pas à jour. Pour ajouter une fonctionnalité : une entrée `[[fonction]]` avec son mode et ses
+tests, puis `make matrice`. Une fonctionnalité en mode AM ou M doit citer au moins un cas manuel.
+
 ## Tests unitaires hôte
 
 Un fichier `test_<élément>.c` est un exécutable : il appelle `h_begin`, enchaîne des cas avec `h_run`, et se termine
@@ -74,6 +86,7 @@ Un scénario est un fichier Python qui déclare une machine et une fonction `run
 ```python
 NAME = "intégration : préemption et mort d'un processus qui boucle en anneau 3"
 CMDLINE = "init=/system/bin/spin"
+
 
 def run(vm):
     vm.attendre(r"SPIN start", delai=60)
