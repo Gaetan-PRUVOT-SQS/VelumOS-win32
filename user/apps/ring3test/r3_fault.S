@@ -27,4 +27,27 @@ r3_thread_tramp:
 	ud2
 .size r3_thread_tramp, . - r3_thread_tramp
 
+.globl r3_do_overflow
+.type r3_do_overflow, @function
+r3_do_overflow:
+	sub rsp, 4096
+	mov [rsp], rax
+	jmp r3_do_overflow
+.size r3_do_overflow, . - r3_do_overflow
+
+.globl r3_ovf_tramp
+.type r3_ovf_tramp, @function
+r3_ovf_tramp:
+	call r3_ovf_main
+	ud2
+.size r3_ovf_tramp, . - r3_ovf_tramp
+
+.globl r3_hold_tramp
+.type r3_hold_tramp, @function
+r3_hold_tramp:
+	mov rdi, [rsp]
+	call r3_hold_main
+	ud2
+.size r3_hold_tramp, . - r3_hold_tramp
+
 .section .note.GNU-stack,"",@progbits

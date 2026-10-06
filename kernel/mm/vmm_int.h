@@ -45,6 +45,9 @@
 # define HSPAN_MAX 130
 # define VM_PROT 0x07
 # define VM_KNOWN 0xff
+# define VM_RESERVED 0x100
+# define VM_HELD 0x200
+# define VM_KEPT 0x300
 # define VM_IO_OK 0x33
 # define KSTACK_MAX 256
 # define POOL_SLOTS 128
@@ -188,5 +191,7 @@ void		mmu_flush_global(void);
 uint64_t	mmu_gdt_base(void);
 uint32_t	mmu_cpuid_edx(uint32_t leaf);
 void		mmu_image_layout(uint64_t out[6]);
+bool		vmm_reg_has(t_aspace *as, uintptr_t lo, uintptr_t hi, uint32_t m);
+int			vmm_reg_drop(t_aspace *as, uintptr_t lo, uintptr_t hi, uint32_t k);
 
 #endif

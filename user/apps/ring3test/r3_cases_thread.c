@@ -2,6 +2,18 @@
 
 static volatile uint64_t	g_r3_shared;
 
+uint64_t	r3_shared(void)
+{
+	return (g_r3_shared);
+}
+
+void	r3_hold_main(uint64_t arg)
+{
+	*(volatile uint64_t *)arg = r3_stack_base(R3_TSTACK_SIZE);
+	while (1)
+		r3_sys(SYS_SLEEP, R3_NAP_NS, 0, 0);
+}
+
 void	r3_thread_main(uint64_t arg)
 {
 	*(volatile uint64_t *)arg = R3_MAGIC;

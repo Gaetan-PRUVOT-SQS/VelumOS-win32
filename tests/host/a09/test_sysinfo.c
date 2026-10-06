@@ -70,16 +70,20 @@ static void	collect_nprocs_cas_limites(void)
 	t_sysinfo	si;
 
 	fake_reset();
-	g_fake.nprocs = 300;
-	sysinfo_collect(&si);
-	h_eq_u64("plafond de 256 processus", si.nprocs, 256);
+	g_fake.nprocs = 7;
 	g_fake.alloc_fail = 1;
 	sysinfo_collect(&si);
-	h_eq_u64("allocation refusee : 0 et pas de panique", si.nprocs, 0);
+	h_eq_u64("tas refuse : compte juste, aucun tampon", si.nprocs, 7);
 	g_fake.alloc_fail = 0;
-	g_fake.proc_list_rc = -5;
+	g_fake.nprocs = 0;
 	sysinfo_collect(&si);
-	h_eq_u64("proc_list en erreur : 0", si.nprocs, 0);
+	h_eq_u64("aucun processus", si.nprocs, 0);
+	g_fake.nprocs = 256;
+	sysinfo_collect(&si);
+	h_eq_u64("table pleine", si.nprocs, 256);
+	g_fake.nprocs = 0xffffffffu;
+	sysinfo_collect(&si);
+	h_eq_u64("compte negatif : 0", si.nprocs, 0);
 }
 
 int	main(void)

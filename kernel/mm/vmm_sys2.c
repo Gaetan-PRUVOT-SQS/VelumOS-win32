@@ -70,7 +70,8 @@ static void	query_fill(t_aspace *as, uintptr_t va, t_vquery *q)
 	q->size = USER_TOP - page;
 	if (r && r->start <= page)
 	{
-		q->prot = PROT_R;
+		if (r->flags & VM_R)
+			q->prot = PROT_R;
 		if (r->flags & VM_W)
 			q->prot |= PROT_W;
 		if (r->flags & VM_X)

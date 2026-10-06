@@ -20,6 +20,12 @@ int	r3_child_main(const char *mode)
 		r3_do_null();
 	if (!strcmp(mode, "div0"))
 		r3_do_div0();
+	if (!strcmp(mode, "pile"))
+		return (r3_stack_child());
+	if (!strcmp(mode, "pileseq"))
+		return (r3_seq_child());
+	if (!strcmp(mode, "pilefil"))
+		return (r3_guard_child());
 	if (!strcmp(mode, "exit42"))
 		return (42);
 	if (!strcmp(mode, "noperm"))
@@ -40,6 +46,7 @@ int	main(int argc, char **argv)
 	t.skip = 0;
 	v_log(V_LOG_INFO, "RING3TEST début");
 	r3_suite_sys(&t);
+	r3_suite_stack(&t);
 	r3_suite_spawn(&t);
 	r3_suite_obj(&t);
 	r3_suite_child(&t);

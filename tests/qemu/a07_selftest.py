@@ -23,4 +23,5 @@ def run(vm):
     assert re.search(r"proc: 1000 lancements et fins en \d+ ms", texte), texte[-3000:]
     pages = re.search(r"proc: pages libres (\d+) avant, (\d+) apres", texte)
     assert pages and pages.group(1) == pages.group(2), texte[-3000:]
+    assert "proc: garde de pile réservée" in texte, texte[-3000:]
     assert "PANIC:" not in texte, texte[-3000:]

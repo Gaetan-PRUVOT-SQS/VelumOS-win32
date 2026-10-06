@@ -1,7 +1,9 @@
 #include "proc_int.h"
 #include "proc_sys.h"
 #include "velum/err.h"
+#include "velum/klog.h"
 #include "velum/libk.h"
+#include "velum/util.h"
 
 int64_t	sys_exit(const t_sysargs *a)
 {
@@ -64,6 +66,8 @@ int64_t	sys_thread_create(const t_sysargs *a)
 	t = proc_thread_add(p, &rq, &st);
 	if (t)
 		return (thread_result(p, t));
-	vmm_unmap(p->aspace, st.stack_va, st.stack_len);
+	if (vmm_stack_unmap(p->aspace, st.stack_va, st.stack_len - PAGE_SIZE) < 0)
+		klog_warn("proc: pile de fil %#llx non rendue",
+			(unsigned long long)st.stack_va);
 	return (E_AGAIN);
 }

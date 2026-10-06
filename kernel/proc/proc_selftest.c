@@ -101,7 +101,7 @@ static int	st_spawn_loop(const uint8_t *img, uint32_t n)
 	return (0);
 }
 
-int	proc_selftest(void)
+int	proc_spawn_selftest(void)
 {
 	uint8_t		*img;
 	uint64_t	before;

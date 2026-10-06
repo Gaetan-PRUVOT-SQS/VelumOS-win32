@@ -1,6 +1,8 @@
 #include "proc_int.h"
+#include "velum/klog.h"
 #include "velum/libk.h"
 #include "velum/panic.h"
+#include "velum/util.h"
 
 static void	leave_unlink(t_process *p, t_thread *t)
 {
@@ -53,8 +55,9 @@ void	proc_thread_leave(t_process *p, t_thread *t, int code)
 	spin_unlock_irqrestore(&p->lock, fl);
 	if (t->obj && obj_task_exited)
 		obj_task_exited(t->obj);
-	if (!last && slot.stack_len && p->aspace)
-		vmm_unmap(p->aspace, slot.stack_va, slot.stack_len);
+	if (!last && slot.stack_len && p->aspace && vmm_stack_unmap(p->aspace,
+			slot.stack_va, slot.stack_len - PAGE_SIZE) < 0)
+		klog_warn("proc: pile du fil %u non rendue", t->tid);
 	__atomic_store_n(&t->aspace, vmm_kernel_aspace(), __ATOMIC_RELEASE);
 	if (last)
 		reap_enqueue(p);

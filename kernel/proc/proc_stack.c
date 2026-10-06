@@ -71,8 +71,7 @@ int	proc_setup_stack(t_spawnctx *c)
 	int			rc;
 
 	st.top = stack_pick_top(c);
-	rc = vmm_alloc(c->p->aspace, st.top - USTACK_SIZE, USTACK_SIZE,
-			VM_USER | VM_R | VM_W);
+	rc = proc_stack_map(c->p->aspace, st.top);
 	if (rc < 0)
 		return (rc);
 	st.cap = USTACK_INIT_MAX;

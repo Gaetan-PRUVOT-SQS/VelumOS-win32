@@ -32,11 +32,16 @@ static bool	still_mapped(t_process *p, const t_umap *u)
 	return (vi.pa == g_display.phys);
 }
 
-static void	release(t_process *p, t_umap *u)
+static int	release(t_process *p, t_umap *u)
 {
+	int	rc;
+
+	rc = 0;
 	if (u->pid == p->pid && still_mapped(p, u))
-		vmm_unmap(p->aspace, (uintptr_t)u->va, (size_t)u->len);
-	u->pid = 0;
+		rc = vmm_unmap(p->aspace, (uintptr_t)u->va, (size_t)u->len);
+	if (rc == 0)
+		u->pid = 0;
+	return (rc);
 }
 
 static int64_t	install(t_process *p, t_umap *u, uint64_t va, uint64_t len)
@@ -72,8 +77,9 @@ int64_t	display_user_map(t_process *p, uint64_t hint)
 	if (u->pid == p->pid && u->gen == g_display.generation
 		&& still_mapped(p, u))
 		return ((int64_t)u->va);
-	release(p, u);
-	rc = umap_place(p->aspace, hint, len, &va);
+	rc = release(p, u);
+	if (rc == 0)
+		rc = umap_place(p->aspace, hint, len, &va);
 	if (rc < 0)
 		return (rc);
 	return (install(p, u, va, len));

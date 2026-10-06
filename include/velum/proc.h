@@ -60,5 +60,6 @@ int				proc_selftest(void);
 void			proc_return_check(void);
 _Noreturn void	proc_exit_current(int code);
 void			object_process_cleanup(t_process *p);
+int				proc_count(void);
 
 #endif

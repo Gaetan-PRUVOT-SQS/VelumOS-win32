@@ -1,7 +1,10 @@
 #include "rng_int.h"
 #include "velum/err.h"
+#include "velum/heap.h"
+#include "velum/irqflags.h"
 #include "velum/klog.h"
 #include "velum/libk.h"
+#include "velum/proc.h"
 
 static int	getrandom_checks(void)
 {
@@ -27,6 +30,21 @@ static int	getrandom_checks(void)
 	return (0);
 }
 
+static int	nprocs_without_heap(void)
+{
+	t_sysinfo	si;
+	uint64_t	irq;
+	uint32_t	n;
+
+	irq = irq_save();
+	heap_fail_after(0);
+	sysinfo_collect(&si);
+	heap_fail_after(-1);
+	n = (uint32_t)proc_count();
+	irq_restore(irq);
+	return (si.nprocs == n);
+}
+
 static int	sysinfo_checks(void)
 {
 	t_sysargs	a;
@@ -44,6 +62,8 @@ static int	sysinfo_checks(void)
 		return (7);
 	if (strcmp(si.os_name, "VelumOS"))
 		return (8);
+	if (!nprocs_without_heap())
+		return (9);
 	return (0);
 }
 

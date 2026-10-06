@@ -27,14 +27,9 @@ void	sysinfo_build(t_sysinfo *out, const t_sysinfo_in *in)
 
 static uint32_t	count_procs(void)
 {
-	t_procinfo	*buf;
-	int			n;
+	int	n;
 
-	buf = kcalloc(SYSINFO_PROC_MAX, sizeof(*buf));
-	if (!buf)
-		return (0);
-	n = proc_list(buf, SYSINFO_PROC_MAX);
-	kfree(buf);
+	n = proc_count();
 	if (n < 0)
 		return (0);
 	return ((uint32_t)n);

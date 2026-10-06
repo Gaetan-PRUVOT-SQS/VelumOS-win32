@@ -40,7 +40,8 @@ static int	protect_locked(t_aspace *as, uintptr_t va, size_t len, uint32_t p)
 		rc = E_INVAL;
 	if (rc == 0)
 		rc = all_mapped(as, va, va + len);
-	if (rc == 0 && !vmm_reg_allows(as, va, va + len, p))
+	if (rc == 0 && (vmm_reg_has(as, va, va + len, VM_KEPT)
+			|| !vmm_reg_allows(as, va, va + len, p)))
 		rc = E_ACCES;
 	if (rc == 0)
 		rc = vmm_pool_reserve(as, 2);

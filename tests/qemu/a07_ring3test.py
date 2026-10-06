@@ -10,4 +10,7 @@ def run(vm):
     assert "RING3TEST FAIL" not in texte, texte[-3000:]
     assert "processus ring3test" in texte and "#PF" in texte, texte[-3000:]
     assert "#DE" in texte, texte[-3000:]
+    assert "[ok] pile : mappage sur la garde refusé" in texte, texte[-3000:]
+    assert "[ok] pile : débordement tué par faute de page" in texte, texte[-3000:]
+    assert "[ok] nprocs revenu après la récolte" in texte, texte[-3000:]
     assert "PANIC:" not in texte, texte[-3000:]

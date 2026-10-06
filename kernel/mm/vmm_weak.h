@@ -16,6 +16,8 @@ t_process		*proc_current(void) __attribute__((weak));
 int				syscall_register(uint32_t n, t_sysfn f, const char *s)
 				__attribute__((weak));
 uint64_t		krandom_below(uint64_t bound) __attribute__((weak));
+void			secmaps_forget(t_process *p, uintptr_t va, uint64_t len)
+				__attribute__((weak));
 void			vmm_page_fault(t_regs *regs, void *ctx);
 t_aspace		*vmm_sys_caller(t_process **out);
 int				vmm_sys_prot(uint64_t prot, uint32_t *fl);

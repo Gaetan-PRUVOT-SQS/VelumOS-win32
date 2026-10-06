@@ -42,6 +42,8 @@ int	vmm_unmap_locked(t_aspace *as, uintptr_t va, size_t len)
 	int	rc;
 
 	rc = vmm_check_range(as, va, len);
+	if (rc == 0 && vmm_reg_has(as, va, va + len, VM_KEPT))
+		rc = E_ACCES;
 	if (rc == 0)
 		rc = vmm_pool_reserve(as, 2);
 	if (rc < 0)

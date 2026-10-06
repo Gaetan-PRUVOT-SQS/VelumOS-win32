@@ -63,5 +63,10 @@ int			strncpy_from_user(char *dst, t_uptr src, size_t max);
 bool		user_range_ok(t_uptr addr, size_t n);
 int			vmm_audit_wx(void);
 bool		vmm_hhdm_covers(uint64_t phys, uint64_t len);
+int			vmm_reserve(t_aspace *as, uintptr_t va, size_t len);
+uint64_t	vmm_region_count(t_aspace *as);
+int			vmm_unreserve(t_aspace *as, uintptr_t va, size_t len);
+int			vmm_stack_map(t_aspace *as, uintptr_t *va, size_t len);
+int			vmm_stack_unmap(t_aspace *as, uintptr_t va, size_t len);
 
 #endif

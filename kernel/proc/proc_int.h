@@ -23,6 +23,9 @@
 # define PT_LIVE 2
 # define PT_DEAD 3
 # define PT_RECLAIM 4
+# define BOOT_ARG_MAX 63
+# define BOOT_NARGS_MAX 8
+# define BOOT_ARGS_CAP 256
 
 typedef struct s_pthread
 {
@@ -115,5 +118,9 @@ int				reap_init(void);
 void			reap_enqueue(t_process *p);
 void			proc_finish(t_process *p);
 int				syscall_prio_check(uint64_t prio);
+int				proc_stack_map(t_aspace *as, uint64_t top);
+int				proc_spawn_selftest(void);
+uint32_t		boot_args_init(const char *cmdline, char *out,
+					uint32_t cap);
 
 #endif
