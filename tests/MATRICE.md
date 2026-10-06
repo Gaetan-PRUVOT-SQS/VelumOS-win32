@@ -29,7 +29,7 @@ Les cas manuels sont décrits dans [`MANUEL.md`](MANUEL.md).
 | Fonctionnalités qui demandent au moins un test manuel (AM + M) | 22,0 % (18) |
 | Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1761 |
 | Cas de test manuels | 21 |
-| Cas manuels joués | 19 sur 21 (13 réussi, 3 échec, 3 partiel) |
+| Cas manuels joués | 19 sur 21 (15 réussi, 4 partiel) |
 | Taux d'automatisation par nombre de cas | 98,8 % |
 
 Lecture : le taux par nombre de cas est très supérieur au taux fonctionnel parce que les cas automatisés sont fins

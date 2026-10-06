@@ -9,12 +9,12 @@ Exécution : 19 cas sur 21 ont été joués les 5 et 6 octobre 2026 sous QEMU/KV
 injectés par le moniteur QEMU (`tools/manuel.py`) et des captures relues une par une. Aucun n'a été joué sur du matériel
 réel ni par une personne devant l'écran. Restent à faire : la fluidité perçue (MT-19), le matériel réel (MT-18), l'endurance
 de 8 h (MT-17 n'a duré que 10 minutes), la machine vierge (MT-24) et la comparaison avec de vraies captures d'époque
-(MT-04). MT-14, MT-17 et MT-22 gardent leur échec du 5 octobre tant qu'ils ne sont pas rejoués, leurs défauts sont corrigés
-depuis le 6 octobre (voir la fiche). Un statut « Échec » renvoie à un incident
+(MT-04). MT-14, MT-17, MT-22 et MT-23, en échec le 5 octobre, ont été rejoués le 6 octobre après correction (voir leur
+fiche). Un statut « Échec » renvoie à un incident
 du registre de [`../TESTS.md`](../TESTS.md). À chaque nouvelle exécution, noter la date, le résultat et les anomalies
 dans la fiche.
 
-21 cas, durée estimée 14 h 35 min. Statuts : 13 réussi, 3 échec, 3 partiel, 2 a exécuter.
+21 cas, durée estimée 14 h 35 min. Statuts : 15 réussi, 4 partiel, 2 a exécuter.
 
 | ID | Cas | Durée (min) | Statut |
 |----|-----|-------------|--------|
@@ -29,14 +29,14 @@ dans la fiche.
 | MT-10 | Horloge de la barre des tâches | 5 | Réussi |
 | MT-11 | Saisie au clavier AZERTY | 15 | Réussi |
 | MT-13 | Session entière au clavier seul | 15 | Réussi |
-| MT-14 | Contraste des textes | 10 | Échec |
+| MT-14 | Contraste des textes | 10 | Réussi |
 | MT-16 | Plusieurs fenêtres dans la barre des tâches | 10 | Réussi |
-| MT-17 | Endurance | 480 | Échec |
+| MT-17 | Endurance | 480 | Partiel |
 | MT-18 | Matériel réel | 60 | A exécuter |
 | MT-19 | Fluidité perçue | 10 | A exécuter |
 | MT-20 | Mort du serveur de fenêtres | 15 | Réussi |
 | MT-21 | Lisibilité de l'écran d'arrêt | 5 | Réussi |
-| MT-22 | Revue linguistique de l'interface | 20 | Échec |
+| MT-22 | Revue linguistique de l'interface | 20 | Réussi |
 | MT-23 | FAT32 sur une image réelle | 30 | Réussi |
 | MT-24 | Construction sur une machine propre | 90 | Partiel |
 
@@ -279,20 +279,20 @@ Observations :
 - Objectif : Vérifier la lisibilité des textes sur leurs arrière-plans.
 - Préconditions : Session ouverte.
 - Durée estimée : 10 min
-- Statut : Échec
+- Statut : Réussi
 
 1. Observer libellés d'icônes, horloge, invite de connexion, menu Démarrer.
 
 Résultat attendu : Aucun texte difficile à lire (rapport de contraste d'au moins 4,5 pour le texte courant).
 
-Exécution du 2026-10-05 : QEMU/KVM, 20 zones de texte mesurées avec tools/contraste.py sur les captures.
+Exécution du 2026-10-06 : QEMU/KVM, 27 zones de texte mesurées avec tools/contraste.py sur 7 captures (connexion, bureau, menu Démarrer, sous-menu, boîtes Exécuter et Éteindre, fenêtres active et inactive).
 
-Constat : 17 textes sur 20 respectent 4,5 (de 5,44 à 21,00). Trois sont en dessous : « démarrer » blanc gras sur vert à 3,57, libellé des boutons inactifs de la barre des tâches à 3,91, titre d'une fenêtre inactive à 2,07.
+Constat : Les 27 textes respectent 4,5 (de 4,97 à 21,00). Les trois textes en échec le 5 octobre passent le seuil : « démarrer » à 5,36 (3,57 avant), libellé d'un bouton inactif de la barre des tâches à 5,34 (3,91 avant), titre d'une fenêtre inactive à 4,97 (2,07 avant).
 
 Observations :
 
-- Les couleurs reprennent le style Luna : corriger demande un arbitrage entre fidélité visuelle et lisibilité.
-- P25 corrigé le 6 octobre : les couleurs des trois textes passent le seuil de 4,5, vérifié par tests/host/a17/test_contrast_bar.c et test_contrast_win.c. Mesure sur capture à rejouer.
+- Échec le 5 octobre (P25), corrigé le 6 octobre en fonçant le fond sous le texte, puis rejoué.
+- Les états survolés ne sont pas mesurés sur capture (l'outil de pilotage ne place pas le curseur sans cliquer) : ils sont couverts par tests/host/a17/test_contrast_bar.c.
 
 Incidents : P25 (voir `../TESTS.md`).
 
@@ -325,22 +325,22 @@ Observations :
 - Objectif : Détecter fuites de mémoire et gels sur une longue durée.
 - Préconditions : Session ouverte, journal série ouvert.
 - Durée estimée : 480 min
-- Statut : Échec
+- Statut : Partiel
 
 1. Laisser le système tourner 8 heures avec des actions répétées (ouverture et fermeture de fenêtres).
 2. Relever mémoire libre et tas toutes les 30 minutes.
 
 Résultat attendu : Mémoire libre stable, aucun gel, aucune panique.
 
-Exécution du 2026-10-05 : QEMU/KVM, boucle de 300 ouvertures et fermetures de la fenêtre Bonjour au clavier (environ 10 minutes), avec 128 Mo puis 64 Mo de RAM.
+Exécution du 2026-10-06 : QEMU/KVM, boucle de 300 ouvertures (double-clic sur l'icône Bonjour) et fermetures (Alt+F4) en 20 minutes, sur deux machines : 128 Mo et 64 Mo de RAM.
 
-Constat : Aucune panique, aucun gel, aucune ligne d'erreur dans le journal, le bureau reste intact (captures identiques aux cycles 50, 150 et 250 hors horloge). Mais le système cesse d'ouvrir des fenêtres : avec 128 Mo, la 223e tentative donne « hello: connexion au serveur de fenêtres impossible » (222 réussites), avec 64 Mo plus aucune fenêtre ne s'ouvre après la 163e, sans message. Le nombre de réussites dépend de la taille de la mémoire. L'endurance de 8 h n'a pas été jouée.
+Constat : Les 300 fenêtres s'ouvrent et se ferment sur les deux machines (300 lignes « hello: fenêtre prête » chacune), aucune panique, aucun gel, aucune ligne d'erreur ni d'avertissement dans le journal. Les captures des cycles 50, 150, 250 et de la fin sont identiques hors horloge. Le 5 octobre, plus rien ne s'ouvrait après 222 fenêtres (128 Mo) ou 163 (64 Mo). L'endurance de 8 h n'a pas été jouée, d'où le statut partiel.
 
 Observations :
 
-- La mémoire libre n'est visible nulle part (ni à l'écran, ni dans le journal) : l'étape 2 du cas ne peut se faire qu'en observant l'échec.
-- Quand le lancement échoue, le shell n'affiche aucun message à l'utilisateur.
-- P27 corrigé le 6 octobre : tests/qemu/int_endurance_fenetres.py ouvre et ferme 320 fenêtres avec 64 Mo, mémoire libre identique avant et après. Cas manuel à rejouer.
+- Échec le 5 octobre (P27), corrigé le 6 octobre, puis rejoué.
+- La mémoire libre n'est toujours pas visible à l'écran : sa stabilité est mesurée par tests/qemu/int_endurance_fenetres.py (320 fenêtres avec 64 Mo, même valeur avant et après), pas par ce cas.
+- Quand un lancement échoue, le shell n'affiche aucun message à l'utilisateur (non revérifié, aucun échec cette fois).
 
 Incidents : P27 (voir `../TESTS.md`).
 
@@ -419,21 +419,23 @@ Observations :
 - Objectif : Relire tous les textes de l'interface.
 - Préconditions : Session ouverte.
 - Durée estimée : 20 min
-- Statut : Échec
+- Statut : Réussi
 
 1. Parcourir connexion, bureau, menu, boîtes de dialogue, fenêtre Bonjour.
 2. Noter fautes, espaces insécables, majuscules.
 
 Résultat attendu : Orthographe et typographie françaises correctes.
 
-Exécution du 2026-10-05 : relecture des textes dans les sources et sur les captures (une quarantaine de chaînes).
+Exécution du 2026-10-06 : relecture des textes dans les sources (une soixantaine de chaînes : shell, connexion, Bonjour, écran d'arrêt) et sur 8 captures.
 
-Constat : Orthographe : aucune faute relevée. Typographie : aucune espace insécable. Les espaces avant « : », « ! » et « ? », à l'intérieur des guillemets « » et avant les unités (« 4 min 30 s ») sont des espaces ordinaires, la ligne peut se couper à cet endroit.
+Constat : Orthographe : aucune faute relevée. Typographie : espace insécable devant « : », « ! » et « ? », à l'intérieur des guillemets et devant les unités (« 1 min 59 s »), dans les sources comme à l'écran, où elle s'affiche comme une espace (aucune boîte de remplacement).
 
 Observations :
 
-- « Exécuter... » utilise trois points au lieu du caractère « … ».
-- P26 corrigé le 6 octobre : espaces insécables posées, vérifiées par tests/host/a20/test_typographie.py. Relecture complète à rejouer.
+- Échec le 5 octobre (P26), corrigé le 6 octobre, puis rejoué.
+- « Exécuter... » garde trois points au lieu du caractère « … », comme l'interface d'origine.
+- Les apostrophes sont droites (U+0027), pas typographiques.
+- Les messages d'échec de connexion et l'écran d'arrêt n'ont été relus que dans les sources.
 
 Incidents : P26 (voir `../TESTS.md`).
 

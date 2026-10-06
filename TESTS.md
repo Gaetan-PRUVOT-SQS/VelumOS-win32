@@ -188,8 +188,8 @@ de l'interface. Le FAT32 est passé de M à AM avec le scénario `a12_fat32` (im
 Les cas de [`tests/MANUEL.md`](tests/MANUEL.md) ont été joués les 5 et 6 octobre 2026 sous QEMU/KVM : le clavier et la souris
 sont injectés par le moniteur QEMU avec `tools/manuel.py`, chaque étape est relue sur une capture, et les mesures sont
 faites sur les pixels (`tools/contraste.py` pour les rapports de contraste). Rien n'a été joué sur du matériel réel ni par
-une personne devant l'écran. Résultat : 13 réussis, 3 en échec, 3 partiels, 2 à exécuter. Les trois échecs datent du
-5 octobre : leurs défauts sont corrigés depuis (voir 5.3), les cas restent à rejouer.
+une personne devant l'écran. Résultat : 15 réussis, 4 partiels, 2 à exécuter, aucun échec. Les quatre cas en échec le
+5 octobre (MT-14, MT-17, MT-22, MT-23) ont été rejoués le 6 octobre après correction de leurs défauts (voir 5.3).
 
 | Cas | Titre | Résultat | Incident |
 |-----|-------|----------|----------|
@@ -204,19 +204,19 @@ une personne devant l'écran. Résultat : 13 réussis, 3 en échec, 3 partiels, 
 | MT-10 | Horloge de la barre des tâches | Réussi | - |
 | MT-11 | Saisie au clavier AZERTY | Réussi | - |
 | MT-13 | Session entière au clavier seul | Réussi | - |
-| MT-14 | Contraste des textes | Échec le 5 octobre, à rejouer | P25 (corrigé) |
+| MT-14 | Contraste des textes | Réussi (27 zones, de 4,97 à 21,00) | P25 (corrigé) |
 | MT-16 | Plusieurs fenêtres dans la barre des tâches | Réussi | - |
-| MT-17 | Endurance | Échec le 5 octobre, à rejouer | P27 (corrigé) |
+| MT-17 | Endurance | Partiel (300 fenêtres avec 128 Mo et avec 64 Mo, 8 h non jouées) | P27 (corrigé) |
 | MT-18 | Matériel réel | A exécuter | - |
 | MT-19 | Fluidité perçue | A exécuter | - |
 | MT-20 | Mort du serveur de fenêtres | Réussi | - |
 | MT-21 | Lisibilité de l'écran d'arrêt | Réussi | - |
-| MT-22 | Revue linguistique de l'interface | Échec le 5 octobre, à rejouer | P26 (corrigé) |
+| MT-22 | Revue linguistique de l'interface | Réussi | P26 (corrigé) |
 | MT-23 | FAT32 sur une image réelle | Réussi | P24 (corrigé) |
 | MT-24 | Construction sur une machine propre | Partiel | T15 |
 
 Ce qui reste à faire : la fluidité perçue (MT-19) demande une personne, le matériel réel (MT-18) une machine, l'endurance
-de 8 h (MT-17 n'a duré que 10 minutes) et la machine vierge (MT-24) du temps. MT-20, bloqué le 5 octobre, se joue depuis
+de 8 h (MT-17 n'a duré que 20 minutes) et la machine vierge (MT-24) du temps. MT-20, bloqué le 5 octobre, se joue depuis
 que `init` accepte l'option de test `init.mort-winsrv` (scénario `int_winsrv_mort`). Le constat détaillé de chaque cas,
 avec ses observations, est dans sa fiche.
 
@@ -292,8 +292,8 @@ Chaque défaut a d'abord été reproduit par un test qui échouait, puis corrig�
 ## 6. Écarts au plan et limites
 
 - Les cas manuels ont été joués sous QEMU/KVM avec des entrées injectées et des captures relues (voir 4.6), pas par
-  une personne devant l'écran ni sur du matériel. Trois gardent leur échec du 5 octobre et sont à rejouer, trois sont
-  partiels, deux à faire.
+  une personne devant l'écran ni sur du matériel. Quatre sont partiels (dont l'endurance, jouée 20 minutes au lieu de
+  8 h), deux à faire.
 - Couverture non mesurée pour a04, a06, a07, a09, a10, a12, a15, a17, a18, a19, a20. Les critères de fin étaient
   « couverture mesurée », ils ne sont donc pas démontrés pour ces lots.
 - Mutation : faite pour a02, a08 (contrôle de la simulation), a13 et a16, partielle ou interrompue ailleurs.

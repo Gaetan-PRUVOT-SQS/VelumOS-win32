@@ -242,8 +242,8 @@ Exécution : {joues} cas sur {len(manuels)} ont été joués les 5 et 6 octobre 
 injectés par le moniteur QEMU (`tools/manuel.py`) et des captures relues une par une. Aucun n'a été joué sur du matériel
 réel ni par une personne devant l'écran. Restent à faire : la fluidité perçue (MT-19), le matériel réel (MT-18), l'endurance
 de 8 h (MT-17 n'a duré que 10 minutes), la machine vierge (MT-24) et la comparaison avec de vraies captures d'époque
-(MT-04). MT-14, MT-17 et MT-22 gardent leur échec du 5 octobre tant qu'ils ne sont pas rejoués, leurs défauts sont corrigés
-depuis le 6 octobre (voir la fiche). Un statut « Échec » renvoie à un incident
+(MT-04). MT-14, MT-17, MT-22 et MT-23, en échec le 5 octobre, ont été rejoués le 6 octobre après correction (voir leur
+fiche). Un statut « Échec » renvoie à un incident
 du registre de [`../TESTS.md`](../TESTS.md). À chaque nouvelle exécution, noter la date, le résultat et les anomalies
 dans la fiche.
 

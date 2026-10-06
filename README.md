@@ -131,10 +131,10 @@ et vérifie que chaque test cité existe. Le détail par sous-système et par fo
 [`tests/MATRICE.md`](tests/MATRICE.md).
 
 Exécution des cas manuels (5 et 6 octobre 2026) : 19 cas sur 21 ont été joués sous QEMU/KVM, avec le clavier et la souris
-injectés par le moniteur QEMU et des captures relues une par une. 13 réussissent, 3 sont partiels, deux restent à faire
-(fluidité perçue et matériel réel). Trois gardent leur échec du 5 octobre (contraste de trois textes, espaces insécables,
-fenêtres qui cessent de s'ouvrir après 222 ouvertures et fermetures) : les défauts sont corrigés et couverts par des
-tests automatiques, les cas manuels restent à rejouer. Aucun cas n'a été joué sur du matériel réel ni par une personne devant l'écran. Le détail est dans
+injectés par le moniteur QEMU et des captures relues une par une. 15 réussissent, 4 sont partiels, deux restent à faire
+(fluidité perçue et matériel réel). Les quatre cas en échec le 5 octobre (contraste de trois textes, espaces insécables,
+compteur `FSInfo` du FAT32, fenêtres qui cessaient de s'ouvrir après 222 ouvertures et fermetures) ont été rejoués le
+6 octobre après correction : trois réussissent, l'endurance reste partielle (300 fenêtres en 20 minutes, pas 8 h). Aucun cas n'a été joué sur du matériel réel ni par une personne devant l'écran. Le détail est dans
 [`TESTS.md`](TESTS.md) (4.6 et 5.3) et dans [`tests/MANUEL.md`](tests/MANUEL.md).
 
 ### Stratégie fondée sur les risques
@@ -219,7 +219,7 @@ du test, pas dans le produit. Correction : espacer les mouvements.
 ### Limites et risques résiduels
 
 - Pas de vérification sur du vrai matériel, un seul processeur, aucune mesure de performance en profil release.
-- Les cas manuels ont été joués avec des entrées injectées sous QEMU, pas sur du matériel ni par une personne devant l'écran ; trois sont à rejouer après correction.
+- Les cas manuels ont été joués avec des entrées injectées sous QEMU, pas sur du matériel ni par une personne devant l'écran ; l'endurance n'a duré que 20 minutes.
 - Couverture non mesurée pour plusieurs sous-systèmes ; mutation partielle ; le scénario d'écriture FAT32 ne tourne
   qu'en BIOS.
 - Les tests de durée (équité, sommeil) restent sensibles à la charge de l'hôte.
