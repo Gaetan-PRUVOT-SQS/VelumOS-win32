@@ -55,5 +55,6 @@ void			pci_cfg_write8(const t_pcidev *d, uint16_t off, uint8_t v);
 int				pci_cap_next(const t_pcidev *d, uint8_t id, uint16_t prev);
 int				pci_io_port(const t_pcidev *d, uint32_t bar);
 int				pci_selftest(void);
+int				pci_intx_disable(const t_pcidev *d);
 
 #endif

@@ -49,5 +49,7 @@ void	pci_cfg_write32(const t_pcidev *d, uint16_t off, uint32_t v)
 		abort();
 	fk_le32(g_fkdev[i].cfg + off, v);
 	if (off == 4)
+		g_fkdev[i].raw_cmd_writes++;
+	if (off == 4)
 		g_fkdev[i].cmd = (uint16_t)v;
 }

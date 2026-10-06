@@ -30,6 +30,7 @@
 # define FK_GEN_FLAP 0x200
 # define FK_ENABLE_FAIL 0x400
 # define FK_MAP_FAIL 0x800
+# define FK_INTX_FAIL 0x1000
 # define FK_POLLS 4
 # define FK_RAM_SECTORS 4096
 # define FK_LOG 256
@@ -72,6 +73,8 @@ typedef struct s_fkdev
 	uint8_t		status;
 	uint8_t		gen;
 	uint16_t	cmd;
+	int			intx_calls;
+	int			raw_cmd_writes;
 	bool		pending;
 	int			requests;
 	int			flushes;
@@ -89,6 +92,7 @@ typedef struct s_fkram
 	int			writes;
 	int			flushes;
 	int			fail_rc;
+	uint64_t	fail_at;
 }	t_fkram;
 
 typedef struct s_fkpart
@@ -163,5 +167,7 @@ void		fk_pattern(uint8_t *part, uint32_t n);
 void		fk_le64(uint8_t *p, uint64_t v);
 t_fkdev		*fk_by_addr(volatile uint8_t *a, uint32_t *off);
 void		fk_mbr_entry(uint8_t *s, int slot, uint8_t type, const t_fkpart *p);
+void		fk_ebr_sector(uint8_t *s, const t_fkpart *l, const t_fkpart *n);
+void		fk_ebr_chain(t_fkram *r, uint64_t ext, uint32_t n, uint32_t stride);
 
 #endif

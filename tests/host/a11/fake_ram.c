@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fake.h"
+#include "velum/err.h"
 
 static int	ram_read(t_blkdev *d, uint64_t lba, uint32_t n, void *buf)
 {
@@ -15,6 +16,8 @@ static int	ram_read(t_blkdev *d, uint64_t lba, uint32_t n, void *buf)
 	r->last_n = n;
 	if (r->fail_rc)
 		return (r->fail_rc);
+	if (r->fail_at && lba == r->fail_at)
+		return (E_IO);
 	memcpy(buf, r->data + lba * d->sector_size, (size_t)n * d->sector_size);
 	return (0);
 }

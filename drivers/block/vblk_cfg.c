@@ -61,8 +61,6 @@ int	vblk_geometry(t_vblk *v)
 
 void	vblk_intx_off(const t_pcidev *d)
 {
-	uint32_t	cmd;
-
-	cmd = pci_cfg_read32(d, VBLK_PCI_COMMAND) & 0xffff;
-	pci_cfg_write32(d, VBLK_PCI_COMMAND, cmd | VBLK_PCI_INTX_OFF);
+	if (pci_intx_disable(d) < 0)
+		klog_warn("virtio-blk: INTx non coupée (bit 10 non retenu)");
 }

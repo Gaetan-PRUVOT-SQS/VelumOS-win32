@@ -65,10 +65,9 @@ static int	part_read_table(t_blkdev *d, t_partlist *pl)
 	rc = blk_read(d, 0, 1, sec);
 	if (rc == 0)
 		rc = mbr_parse(sec, d->nsectors, pl);
+	if (rc == 0 && !pl->gpt)
+		ebr_scan(d, sec, pl);
 	kfree(sec);
-	if (rc == 0 && pl->extended)
-		klog_info("block: %s: %u partition(s) étendue(s) non suivie(s)",
-			d->name, pl->extended);
 	if (rc == 0 && pl->gpt)
 		rc = gpt_scan(d, pl);
 	return (rc);

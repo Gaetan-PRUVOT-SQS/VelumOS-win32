@@ -16,6 +16,8 @@
 # define BLK_SS_MIN 512
 # define BLK_SS_MAX 4096
 # define BLK_PART_NUM_MAX 9999
+# define EBR_LINKS_MAX 32
+# define EBR_FIRST_NUM 5
 # define CRC32_INIT 0xffffffffu
 # define MBR_TABLE_OFF 446
 # define MBR_ENTRY_SIZE 16
@@ -50,7 +52,20 @@ typedef struct s_partlist
 	uint32_t	n;
 	uint32_t	extended;
 	bool		gpt;
+	uint64_t	ext_first;
+	uint64_t	ext_count;
+	bool		ext_overlap;
 }	t_partlist;
+
+typedef struct s_ebr
+{
+	uint64_t	ext_first;
+	uint64_t	ext_count;
+	uint64_t	cur;
+	uint64_t	min_next;
+	uint32_t	num;
+	uint32_t	links;
+}	t_ebr;
 
 typedef struct s_gptgeo
 {
@@ -103,5 +118,9 @@ int			gpt_header(const uint8_t *b, const t_gptgeo *g, t_gpthdr *h);
 int			gpt_entries(const uint8_t *a, const t_gpthdr *h, t_partlist *pl);
 int			gpt_scan(t_blkdev *d, t_partlist *pl);
 int			blk_selftest_write(void);
+bool		ebr_is_link(uint8_t type);
+int			ebr_note(const uint8_t *e, uint64_t nsectors, t_partlist *pl);
+int			ebr_step(const uint8_t *sec, t_ebr *c, t_partlist *pl);
+void		ebr_scan(t_blkdev *d, uint8_t *sec, t_partlist *pl);
 
 #endif

@@ -18,11 +18,6 @@ static bool	mbr_looks_valid(const uint8_t *sec)
 	return (true);
 }
 
-static bool	mbr_is_extended(uint8_t type)
-{
-	return (type == 0x05 || type == 0x0f || type == 0x85);
-}
-
 static int	mbr_entry(const uint8_t *e, uint64_t nsectors, uint32_t num,
 	t_partlist *pl)
 {
@@ -30,11 +25,8 @@ static int	mbr_entry(const uint8_t *e, uint64_t nsectors, uint32_t num,
 
 	if (e[4] == 0)
 		return (0);
-	if (mbr_is_extended(e[4]))
-	{
-		pl->extended++;
-		return (0);
-	}
+	if (ebr_is_link(e[4]))
+		return (ebr_note(e, nsectors, pl));
 	p.first = rd_le32(e + 8);
 	p.count = rd_le32(e + 12);
 	p.num = num;
@@ -57,6 +49,23 @@ static bool	mbr_protective(const uint8_t *sec)
 		i++;
 	}
 	return (false);
+}
+
+static void	mbr_fence_extended(t_partlist *pl)
+{
+	uint32_t	i;
+
+	i = 0;
+	while (pl->ext_count && i < pl->n)
+	{
+		if (pl->ext_first <= pl->p[i].first + (pl->p[i].count - 1)
+			&& pl->p[i].first <= pl->ext_first + (pl->ext_count - 1))
+		{
+			pl->ext_count = 0;
+			pl->ext_overlap = true;
+		}
+		i++;
+	}
 }
 
 int	mbr_parse(const uint8_t *sec, uint64_t nsectors, t_partlist *pl)
@@ -84,5 +93,6 @@ int	mbr_parse(const uint8_t *sec, uint64_t nsectors, t_partlist *pl)
 		}
 		i++;
 	}
+	mbr_fence_extended(pl);
 	return (0);
 }

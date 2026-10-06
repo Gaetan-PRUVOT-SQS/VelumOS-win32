@@ -26,8 +26,6 @@
 # define VBLK_TIMEOUT_NS 5000000000ull
 # define VBLK_MAX_DISKS 26
 # define VBLK_QUEUE_MIN 3
-# define VBLK_PCI_INTX_OFF 0x400
-# define VBLK_PCI_COMMAND 0x04
 
 typedef struct s_vblk
 {
