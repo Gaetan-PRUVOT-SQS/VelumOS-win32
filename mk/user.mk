@@ -41,7 +41,9 @@ endef
 $(foreach l,$(ULIBS),$(if $(filter $(ULIB_$(l)_LOT),$(SEL)),$(eval $(call ulib_rule,$(l)))))
 $(foreach a,$(UAPPS),$(if $(filter $(UAPP_$(a)_LOT),$(SEL)),$(eval $(call uapp_rule,$(a)))))
 
-UDEP := $(wildcard $(O)/uobj/*/*.d)
+USRC := $(foreach l,$(ULIBS),$(ULIB_$(l)_SRC)) \
+	$(foreach a,$(UAPPS),$(UAPP_$(a)_SRC))
+UDEP := $(patsubst %,$(O)/uobj/%.d,$(USRC))
 -include $(UDEP)
 
 ULOT_OBJ := $(foreach l,$(ULIBS),$(if $(filter $(ULIB_$(l)_LOT),$(LOT)),\
