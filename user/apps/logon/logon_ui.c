@@ -54,7 +54,7 @@ static int	add_dialog(t_logon *lg)
 
 	r = &lg->ui.root;
 	s = (t_ctlspec){CT_LABEL, LOGON_ID_DLG_TEXT, CTL_ENABLED, lg->lay.dlg_text,
-		LOGON_SHUTDOWN_ASK};
+		LOGON_POWER_ASK};
 	if (!ctl_add(r, r->root, &s))
 		return (-1);
 	s = (t_ctlspec){CT_BUTTON, CTL_ID_OK, CTL_ENABLED | CTL_FOCUSABLE

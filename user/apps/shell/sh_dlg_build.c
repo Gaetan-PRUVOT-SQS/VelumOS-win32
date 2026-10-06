@@ -1,4 +1,5 @@
 #include "velum/libk.h"
+#include "../common/typo.h"
 #include "shell.h"
 
 static int	add(t_ctlroot *r, t_ctlspec s)
@@ -13,7 +14,8 @@ static int	build_run(t_ctlroot *r)
 	vis = CTL_VISIBLE | CTL_ENABLED;
 	return (add(r, (t_ctlspec){CT_LABEL, 10, vis, {16, 16, 340, 18},
 			"Tapez le nom d'un programme, puis cliquez sur OK."})
-		&& add(r, (t_ctlspec){CT_LABEL, 11, vis, {16, 50, 52, 18}, "Ouvrir :"})
+		&& add(r, (t_ctlspec){CT_LABEL, 11, vis, {16, 50, 52, 18},
+			"Ouvrir" NBSP ":"})
 		&& add(r, (t_ctlspec){CT_EDIT, SH_ID_EDIT, vis | CTL_FOCUSABLE,
 			{72, 46, 284, 22}, ""})
 		&& add(r, (t_ctlspec){CT_BUTTON, CTL_ID_OK, vis | CTL_FOCUSABLE
@@ -28,7 +30,7 @@ static int	build_power(t_ctlroot *r)
 
 	vis = CTL_VISIBLE | CTL_ENABLED;
 	return (add(r, (t_ctlspec){CT_LABEL, 10, vis, {16, 16, 320, 18},
-			"Que voulez-vous que l'ordinateur fasse ?"})
+			"Que voulez-vous que l'ordinateur fasse" NBSP "?"})
 		&& add(r, (t_ctlspec){CT_BUTTON, SH_ID_HALT, vis | CTL_FOCUSABLE
 			| CTL_DEFAULT, {16, 62, 100, 26}, "Arrêter"})
 		&& add(r, (t_ctlspec){CT_BUTTON, SH_ID_REBOOT, vis | CTL_FOCUSABLE,

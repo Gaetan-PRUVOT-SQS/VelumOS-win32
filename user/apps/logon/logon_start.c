@@ -1,5 +1,6 @@
 #include "velum/abi/abi_syscall.h"
 #include "../common/platform.h"
+#include "../common/typo.h"
 #include "logon.h"
 
 static void	run(t_logon *lg)
@@ -32,7 +33,7 @@ int	main(void)
 
 	if (logon_boot(&lg) < 0)
 	{
-		os_log("logon: démarrage impossible (serveur de fenêtres ?)");
+		os_log("logon: démarrage impossible (serveur de fenêtres" NBSP "?)");
 		return (1);
 	}
 	os_log("logon: écran de connexion prêt");

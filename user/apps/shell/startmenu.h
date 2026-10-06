@@ -3,14 +3,17 @@
 
 # include <stdint.h>
 # include "velum/gfx.h"
+# include "sm_progs.h"
 
-# define SM_ITEMS 6
+# define SM_ITEMS 8
 # define SM_NO_ITEM -1
 # define SM_WIDTH 380
 # define SM_HEADER_H 54
 # define SM_FOOT_H 38
 # define SM_FOOT_ITEM_W 150
 # define SM_FOOT_MARGIN 8
+# define SM_IDX_PROG 1
+# define SM_IDX_BACK 2
 # define SM_IDX_LOGOFF 4
 # define SM_IDX_SHUTDOWN 5
 # define SM_PAD 6
@@ -28,7 +31,9 @@ typedef enum e_smcmd
 	SMC_LAUNCH_HELLO,
 	SMC_RUN,
 	SMC_LOGOFF,
-	SMC_SHUTDOWN
+	SMC_SHUTDOWN,
+	SMC_LAUNCH_B,
+	SMC_LAUNCH_C
 }	t_smcmd;
 
 typedef enum e_smcol

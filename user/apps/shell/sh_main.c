@@ -21,6 +21,7 @@ int	sh_boot(t_shell *sh, int argc, char **argv)
 	sh->selected = DESK_NONE;
 	sh->hot_task = -1;
 	sm_init(&sh->sm);
+	sh_load_programs(sh);
 	dc_reset(&sh->last_click);
 	set_user(sh, argc, argv);
 	luna_metrics(&sh->lm);

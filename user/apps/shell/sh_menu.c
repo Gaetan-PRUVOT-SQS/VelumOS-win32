@@ -45,8 +45,8 @@ void	sh_menu_toggle(t_shell *sh)
 void	sh_menu_run(t_shell *sh, int cmd)
 {
 	sync(sh);
-	if (cmd == SMC_LAUNCH_HELLO)
-		sh_launch(sh, SH_HELLO_PATH);
+	if (sm_prog_of((uint32_t)cmd) >= 0)
+		sh_launch_program(sh, (uint32_t)cmd);
 	else if (cmd == SMC_RUN)
 		sh_dlg_open(sh, SH_DLG_RUN, "Exécuter");
 	else if (cmd == SMC_LOGOFF)

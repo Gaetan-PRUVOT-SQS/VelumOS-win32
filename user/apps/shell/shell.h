@@ -52,6 +52,7 @@ typedef struct s_shell
 	t_surface		wall;
 	t_tasklist		tasks;
 	t_startmenu		sm;
+	t_smprogs		progs;
 	t_smlayout		sml;
 	t_tbregions		reg;
 	t_rect			cells[DESK_ICONS];
@@ -106,6 +107,8 @@ void	sh_menu_run(t_shell *sh, int cmd);
 void	sh_clock_arm(t_shell *sh);
 void	sh_clock_tick(t_shell *sh);
 int		sh_launch(t_shell *sh, const char *path);
+void	sh_load_programs(t_shell *sh);
+void	sh_launch_program(t_shell *sh, uint32_t cmd);
 void	sh_reap(t_shell *sh);
 void	sh_kill_children(t_shell *sh);
 void	sh_logoff(t_shell *sh);

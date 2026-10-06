@@ -3,19 +3,20 @@
 #include "velum/libk.h"
 #include "a20_test.h"
 #include "timefmt.h"
+#include "typo.h"
 
 static const t_clockrow	g_rows[] = {
-{0, "0 s"},
-{999999999ull, "0 s"},
-{59 * NS_SEC, "59 s"},
-{60 * NS_SEC, "1 min 00 s"},
-{61 * NS_SEC, "1 min 01 s"},
-{3599 * NS_SEC, "59 min 59 s"},
-{3600 * NS_SEC, "1 h 00 min 00 s"},
-{86399 * NS_SEC, "23 h 59 min 59 s"},
-{86400 * NS_SEC, "1 j 00 h 00 min 00 s"},
-{90061 * NS_SEC, "1 j 01 h 01 min 01 s"},
-{UINT64_MAX, "213503 j 23 h 34 min 33 s"}
+{0, "0" NBSP "s"},
+{999999999ull, "0" NBSP "s"},
+{59 * NS_SEC, "59" NBSP "s"},
+{60 * NS_SEC, "1" NBSP "min 00" NBSP "s"},
+{61 * NS_SEC, "1" NBSP "min 01" NBSP "s"},
+{3599 * NS_SEC, "59" NBSP "min 59" NBSP "s"},
+{3600 * NS_SEC, "1" NBSP "h 00" NBSP "min 00" NBSP "s"},
+{86399 * NS_SEC, "23" NBSP "h 59" NBSP "min 59" NBSP "s"},
+{86400 * NS_SEC, "1" NBSP "j 00" NBSP "h 00" NBSP "min 00" NBSP "s"},
+{90061 * NS_SEC, "1" NBSP "j 01" NBSP "h 01" NBSP "min 01" NBSP "s"},
+{UINT64_MAX, "213503" NBSP "j 23" NBSP "h 34" NBSP "min 33" NBSP "s"}
 };
 
 static void	uptime_partitions_et_limites(void)
@@ -38,9 +39,9 @@ static void	uptime_tampon_trop_petit(void)
 {
 	char	out[16];
 
-	h_eq_i64("exact", fmt_uptime(61 * NS_SEC, out, 11), 10);
-	h_eq_i64("un de moins", fmt_uptime(61 * NS_SEC, out, 10), -34);
-	h_eq_str("tronque", out, "1 min 01 ");
+	h_eq_i64("exact", fmt_uptime(61 * NS_SEC, out, 13), 12);
+	h_eq_i64("un de moins", fmt_uptime(61 * NS_SEC, out, 12), -34);
+	h_eq_str("tronque", out, "1" NBSP "min 01" NBSP);
 	h_eq_i64("taille 1", fmt_uptime(0, out, 1), -34);
 	h_eq_str("taille 1 vide", out, "");
 	out[0] = 'x';

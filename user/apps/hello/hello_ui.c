@@ -2,6 +2,7 @@
 #include "../common/platform.h"
 #include "../common/tbuf.h"
 #include "../common/timefmt.h"
+#include "../common/typo.h"
 #include "hello.h"
 
 static int	add_labels(t_ctlroot *r)
@@ -9,7 +10,7 @@ static int	add_labels(t_ctlroot *r)
 	t_ctlspec	s;
 
 	s = (t_ctlspec){CT_LABEL, HELLO_ID_TITLE, CTL_VISIBLE | CTL_ENABLED
-		| CTL_BOLD, {16, 16, 300, 20}, "Bonjour de VelumOS !"};
+		| CTL_BOLD, {16, 16, 300, 20}, "Bonjour de VelumOS" NBSP "!"};
 	if (!ctl_add(r, r->root, &s))
 		return (-1);
 	s = (t_ctlspec){CT_LABEL, HELLO_ID_UPTIME, CTL_VISIBLE | CTL_ENABLED
@@ -64,7 +65,7 @@ void	hello_tick(t_hello *app)
 		return ;
 	fmt_uptime(si.uptime_ns, up, sizeof(up));
 	tb_init(&b, text, sizeof(text));
-	tb_str(&b, "Temps de fonctionnement : ");
+	tb_str(&b, "Temps de fonctionnement" NBSP ": ");
 	tb_str(&b, up);
 	ctl_set_text(&app->ui.root, label, text);
 	uiwin_flush(&app->ui);

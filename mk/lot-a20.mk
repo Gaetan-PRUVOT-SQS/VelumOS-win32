@@ -5,7 +5,7 @@ A20_PURE_LOGON := $(addprefix user/apps/logon/,acc_line.c acc_parse.c acc_file.c
 	acc_verify.c limiter.c auth.c logon_flow.c logon_flow2.c logon_layout.c logon_text.c)
 A20_PURE_SHELL := $(addprefix user/apps/shell/,startmenu.c sm_items.c sm_nav.c \
 	sm_input.c sm_layout.c tasklist.c tasklist_apply.c taskbar.c desktop.c \
-	dblclick.c runcmd.c)
+	dblclick.c runcmd.c sm_progs.c)
 DIRS_a20 := user/apps/common user/apps/logon user/apps/shell user/apps/hello \
 	tests/host/a20 tests/host/a20/render
 HT_a20 := $(sort $(wildcard tests/host/a20/test_*.c))
@@ -60,7 +60,11 @@ $(B)/host/a20r/%: $(A20_RDIR)/%.c $(A20_ROBJ)
 a20-render: $(patsubst $(A20_RDIR)/%.c,$(B)/host/a20r/%,$(A20_RTESTS))
 	@for t in $^; do printf 'host %s\n' "$$t"; "$$t" || exit 1; done
 
-host-a20: a20-mkuser a20-render $(A20_FIXTURE) $(A20_FIXTURE_PW)
+.PHONY: a20-typo
+a20-typo:
+	python3 tests/host/a20/test_typographie.py
+
+host-a20: a20-mkuser a20-typo a20-render $(A20_FIXTURE) $(A20_FIXTURE_PW)
 
 ULIBS += a20kit
 ULIB_a20kit_LOT := a20

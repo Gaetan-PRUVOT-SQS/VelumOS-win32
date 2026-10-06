@@ -1,4 +1,5 @@
 #include "../common/tbuf.h"
+#include "../common/typo.h"
 #include "logon_flow.h"
 #include "logon_text.h"
 
@@ -6,7 +7,7 @@ static void	put_wait(t_tbuf *b, const char *lead, uint32_t seconds)
 {
 	tb_str(b, lead);
 	tb_num(b, seconds, 1);
-	tb_str(b, " s");
+	tb_str(b, NBSP "s");
 }
 
 int	logon_message(const t_logonflow *f, uint32_t remaining_s, char *out,

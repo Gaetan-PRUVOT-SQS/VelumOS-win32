@@ -2,6 +2,7 @@
 #include "velum/libk.h"
 #include "../common/platform.h"
 #include "../common/tbuf.h"
+#include "../common/typo.h"
 #include "../common/utf8.h"
 #include "runcmd.h"
 #include "shell.h"
@@ -15,7 +16,7 @@ void	sh_power(t_shell *sh, uint32_t op)
 {
 	if (os_power(op) < 0)
 		sh_note(sh, "Éteindre l'ordinateur",
-			"Impossible d'arrêter l'ordinateur : droit refusé.");
+			"Impossible d'arrêter l'ordinateur" NBSP ": droit refusé.");
 }
 
 void	sh_run_command(t_shell *sh, const char *text)
@@ -32,9 +33,9 @@ void	sh_run_command(t_shell *sh, const char *text)
 		return ;
 	utf8_clean_copy(shown, sizeof(shown), text, len);
 	tb_init(&b, msg, sizeof(msg));
-	tb_str(&b, "Impossible de trouver « ");
+	tb_str(&b, "Impossible de trouver «" NBSP);
 	tb_str(&b, shown);
-	tb_str(&b, " ».\nVérifiez le nom, puis réessayez.");
+	tb_str(&b, NBSP "».\nVérifiez le nom, puis réessayez.");
 	sh_note(sh, "Exécuter", msg);
 }
 

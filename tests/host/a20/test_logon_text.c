@@ -3,6 +3,7 @@
 #include "velum/libk.h"
 #include "a20_test.h"
 #include "logon_text.h"
+#include "typo.h"
 
 static void	text_messages_par_etat(void)
 {
@@ -16,11 +17,12 @@ static void	text_messages_par_etat(void)
 	logon_message(&f, 0, out, sizeof(out));
 	h_eq_str("echec", out, "Échec de la connexion. Réessayez.");
 	logon_message(&f, 7, out, sizeof(out));
-	h_eq_str("echec et attente", out, "Échec de la connexion. Patientez 7 s");
+	h_eq_str("echec et attente", out,
+		"Échec de la connexion. Patientez 7" NBSP "s");
 	f.msg = LMSG_WAIT;
 	f.wait_s = 30;
 	logon_message(&f, 0, out, sizeof(out));
-	h_eq_str("attente", out, "Trop d'échecs. Patientez 30 s");
+	h_eq_str("attente", out, "Trop d'échecs. Patientez 30" NBSP "s");
 	f.msg = LMSG_ERROR;
 	logon_message(&f, 0, out, sizeof(out));
 	h_eq_str("erreur", out, "Ce compte n'est pas disponible.");
@@ -46,7 +48,7 @@ static void	text_ne_revele_pas_la_cause(void)
 	f.msg = LMSG_WAIT;
 	f.wait_s = UINT32_MAX;
 	logon_message(&f, 0, out, sizeof(out));
-	h_true(strstr(out, "4294967295 s") != NULL, "grande attente rendue");
+	h_true(strstr(out, "4294967295" NBSP "s") != NULL, "grande attente rendue");
 }
 
 static void	text_tampon_trop_petit(void)

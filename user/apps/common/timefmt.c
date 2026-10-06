@@ -1,5 +1,6 @@
 #include "tbuf.h"
 #include "timefmt.h"
+#include "typo.h"
 
 static const char	*g_unit[4] = {"j", "h", "min", "s"};
 
@@ -27,7 +28,7 @@ static void	put_unit(t_tbuf *b, uint64_t v, int started, const char *unit)
 		width = 2;
 	}
 	tb_num(b, v, width);
-	tb_putc(b, ' ');
+	tb_str(b, NBSP);
 	tb_str(b, unit);
 }
 
