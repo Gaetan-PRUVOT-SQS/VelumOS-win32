@@ -149,8 +149,8 @@ dans le journal et vérifiées contre des tolérances.
 
 `.github/workflows/ci.yml` installe les paquets sur Ubuntu 24.04 puis lance `tools/ci.sh`, le même script que `make ci`
 en local. Il compile avec le `gcc` du système (`CROSS=` vide), passe les tests des outils et les contrôles statiques,
-joue sept lots de tests hôte (`a02`, `a03`, `a04`, `a08`, `a09`, `a11`, `a13`) puis cinq scénarios QEMU : `a01_boot`,
-`skel_boot`, `int_session`, `a20_desktop` et `a12_fat32`. Les runners n'ont pas KVM : la variable `VTEST_SANS_KVM=1` force
+joue dix lots de tests hôte (`a02`, `a03`, `a04`, `a08`, `a09`, `a11`, `a13`, `d00`, `d07`, `d11`) puis six scénarios QEMU : `a01_boot`,
+`skel_boot`, `int_session`, `a20_desktop`, `a12_fat32` et `int_apk_installation`. Les runners n'ont pas KVM : la variable `VTEST_SANS_KVM=1` force
 l'émulation pure (les scénarios durent quelques dizaines de secondes de plus).
 
 Ce n'est pas la suite complète : elle reste à lancer en local (`make test`). La chaîne croisée épinglée par

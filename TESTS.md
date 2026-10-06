@@ -96,12 +96,12 @@ Les seuls aléas sont des graines affichées par les tests (listées au point 5)
 
 | Mesure | Résultat |
 |--------|----------|
-| Compilation complète (`make -j8 all`) | 0 erreur, noyau, 9 applis, image Limine BIOS et UEFI |
+| Compilation complète (`make -j8 all`) | 0 erreur, noyau, 12 applis, image Limine BIOS et UEFI |
 | Autotests noyau au démarrage | 17 sur 17 (`SELFTESTS PASS 17`), BIOS et UEFI |
-| Scénarios QEMU | 89 exécutions sur 89 (48 fichiers, deux firmwares pour la plupart) |
+| Scénarios QEMU | 92 exécutions sur 92 (50 fichiers, deux firmwares pour la plupart) |
 | Intégration continue (`tools/ci.sh`) | rejouée dans un conteneur Ubuntu 24.04 (gcc 13, QEMU 8.2, sans KVM) : 13 tests d'outils, 7 lots de tests hôte, 5 scénarios (10 exécutions), tout vert |
-| Tests hôte | 597 exécutions de suites, 13,19 millions de vérifications, 0 échec au passage final, binaires reconstruits de zéro (560 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
-| Norme 42 | 2 086 fichiers C et en-têtes sans erreur au dernier balayage complet |
+| Tests hôte | 669 exécutions de suites, 13,26 millions de vérifications, 0 échec au passage final (632 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
+| Norme 42 | 2 390 fichiers C et en-têtes sans erreur au dernier balayage complet |
 | `make scan` (fonctions C dangereuses, secrets, idiomes risqués) | 0 alerte sur tout le dépôt |
 | ruff, ruff format, shellcheck, shfmt | propres |
 | `make hdrcheck` | tous les en-têtes sont autonomes |
@@ -163,20 +163,20 @@ ce qui n'a pas tourné.
 
 ### 4.5 Répartition automatisé et manuel
 
-La couverture est mesurée sur les fonctionnalités vérifiables du système (82, regroupées par sous-système), chacune avec
+La couverture est mesurée sur les fonctionnalités vérifiables du système (94, regroupées par sous-système), chacune avec
 un mode de vérification et la liste des tests qui la couvrent. Les données sont dans [`tests/matrice.toml`](tests/matrice.toml),
 le script `tools/matrice_couverture.py` vérifie que chaque test cité existe et calcule les taux, et il génère
 [`tests/MATRICE.md`](tests/MATRICE.md) (matrice complète) et [`tests/MANUEL.md`](tests/MANUEL.md) (plan de tests manuels).
 
 | Mode | Sens | Fonctionnalités | Part |
 |------|------|-----------------|------|
-| A | automatisé, oracle automatique | 64 | 78,0 % |
-| AM | logique automatisée, complément manuel (visuel, ergonomie, vrai clavier) | 11 | 13,4 % |
-| M | manuel seulement | 7 | 8,5 % |
+| A | automatisé, oracle automatique | 76 | 80,9 % |
+| AM | logique automatisée, complément manuel (visuel, ergonomie, vrai clavier) | 11 | 11,7 % |
+| M | manuel seulement | 7 | 7,4 % |
 
-Couverture automatisée (A et AM) : **91,5 %**. Couverture manuelle seule : **8,5 %**. Au moins un test manuel
-est nécessaire pour 22,0 % des fonctionnalités. Par nombre de cas : 1 593 cas automatisés (1 516 cas unitaires nommés,
-45 scénarios QEMU, 32 tests Python) contre 21 cas manuels, soit 98,7 % ; ce taux est plus élevé parce que les cas
+Couverture automatisée (A et AM) : **92,6 %**. Couverture manuelle seule : **7,4 %**. Au moins un test manuel
+est nécessaire pour 19,1 % des fonctionnalités. Par nombre de cas : 1 986 cas automatisés (1 861 cas unitaires nommés,
+50 scénarios QEMU, 75 tests Python) contre 21 cas manuels, soit 99,0 % ; ce taux est plus élevé parce que les cas
 automatisés sont plus fins, le taux fonctionnel est la mesure à retenir.
 
 Les 7 fonctionnalités en mode M sont : le redémarrage ACPI, la performance du dessin (bancs jamais lancés), la netteté
@@ -220,6 +220,44 @@ de 8 h (MT-17 n'a duré que 20 minutes) et la machine vierge (MT-24) du temps. M
 que `init` accepte l'option de test `init.mort-winsrv` (scénario `int_winsrv_mort`). Le constat détaillé de chaque cas,
 avec ses observations, est dans sa fiche.
 
+### 4.7 Couche APK (6 octobre)
+
+Douze lots écrits en trois vagues, chacun testé seul contre des faux, puis assemblés. La stratégie tient en une
+phrase : tout ce qui vient d'un APK est hostile. Chaque lecteur a donc, en plus de ses cas nominaux et de ses refus
+(un cas par règle), une troncature à chaque octet et des mutations à graine fixe, sous ASan et UBSan.
+
+| Lot | Élément | Vérifications | Ce qui a été le plus poussé | Non fait ou limite |
+|-----|---------|---------------|-----------------------------|--------------------|
+| d01 | ZIP, DEFLATE | 33 160 | archives et flux de référence faits par les modules `zipfile` et `zlib` de Python, 24 000 mutations | 4 096 entrées au plus, pas de ZIP64 |
+| d02 | XML binaire, ressources | 262 | tables UTF-8 et UTF-16, cycle de références, 20 000 mutations | entrées complexes refusées, fixtures du même auteur |
+| d03 | conteneur DEX | 1 492 | 20 000 mutations avec somme recalculée, dont plus de 1 000 acceptées puis parcourues en entier | tri des tables et SHA-1 non contrôlés |
+| d04 | bytecode | 1 483 | table de décision de 51 refus ; propriété : un code accepté ne fait jamais sortir un décodage ni un registre des bornes | pas de vérification de types (faite à l'exécution) |
+| d05 | RSA, X.509 | 11 146 | 53 vecteurs `openssl` (2048 à 4096 bits, e = 3 et 65537), contrefaçon classique par racine cubique refusée | exponentiation lente, non mesurée |
+| d07 | signature v2, manifeste | 130 | 30 APK fabriqués, 12 000 mutations d'un APK signé dont aucune n'est acceptée, second écrivain de signature indépendant | relecture à contexte vierge non faite |
+| d08 | objets, tas, ramasse-miettes | 242 | références hostiles, chaque allocation en échec une à une, code invalide refusé | type déclaré d'un champ référence non contrôlé à l'écriture |
+| d09 | interpréteur | 1 467 | division, décalages et conversions flottantes aux bornes, reste flottant comparé à celui de l'hôte | champs d'instance et appels virtuels testés à l'intégration seulement |
+| d10 | registre des paquets | 21 158 | panne injectée à chaque opération de chaque scénario : registre toujours ancien ou nouveau, jamais mêlé | fichier absent non détecté par la liste |
+| d11 | classes de base, vues | 264 | sept programmes d'essai aux résultats connus, 10 000 clics avec un tas de 1 Mio sans croissance | `StringBuilder` plafonné à 1 024 caractères |
+| d12 | `apkrun`, `apkinst` | 357 | mise en page sur arbres hostiles, renommage sûr avec panne à chaque étape | affichage prouvé par les scénarios seulement |
+| d00 | essais croisés | 47 | voir ci-dessous | |
+
+Essais croisés, qui sont la preuve d'intégration :
+
+- les fichiers DEX et APK fabriqués par les outils Python sont relus par les lecteurs C, écrits par d'autres mains
+  depuis les mêmes spécifications ; les deux tables d'instructions (256 entrées) sont comparées nom par nom ;
+- la machine virtuelle complète donne le résultat attendu des sept programmes d'essai (arithmétique, boucles,
+  tableaux, aiguillages, exceptions, appels virtuels et d'interface, chaînes) ;
+- un APK de 2,4 Mio est accepté, et un octet changé dans chacun de ses trois blocs de 1 Mio le fait refuser ;
+- `int_apk_installation` (QEMU, disque FAT32 fait par mtools) : installation d'un APK valide, deux fois ; refus
+  d'un APK altéré, non signé, signé par une autre clé, absent ; lancement de l'appli installée ; refus affiché au
+  lancement de l'APK altéré ; puis le disque est relu par mtools (APK identique octet pour octet, registre d'une
+  ligne) et contrôlé par `fsck.vfat` ;
+- `int_apk_menu` (QEMU, BIOS et UEFI) : l'appli d'exemple est lancée à la souris depuis le menu Démarrer, trois
+  clics donnent trois lignes de journal et « Clics : 3 » à l'écran, Alt+F4 la ferme.
+
+Limites de cette preuve : aucun APK produit par la chaîne officielle n'a été lu (elle n'est pas installée ici), et
+la relecture à contexte vierge du code de signature reste à faire.
+
 ## 5. Registre des incidents
 
 Gravité : haute si le système gèle, panique ou perd l'isolation, moyenne si une fonction est fausse
@@ -252,6 +290,7 @@ mais le système reste utilisable, basse si c'est cosmétique ou limité à un t
 | P21 | libvelum `v_spawnv` | `argv[0]` fourni par le noyau | chemin passé deux fois, le menu affichait `/system/bin/shell` à la place du nom | moyenne | `test_sys_spawnv`, capture du menu |
 | P22 | libvelum et noyau | `-pie` donne un ELF `ET_DYN` | `-static -pie` donnait `ET_EXEC` à l'adresse 0, applis inchargeables | haute | contrôle `readelf` dans `a14-elf`, `a07_ring3test` |
 | P23 | Luna bouton Démarrer | « démarrer » entier | « démar... » | basse | capture relue |
+| P28 | machine virtuelle des applis APK | un tas plein lève `OutOfMemoryError` | l'instance était un `Throwable` simple, créée avant que la classe existe : un `catch OutOfMemoryError` ne l'attrapait pas | basse | `tests/host/d00/test_croise_oom.c` |
 
 Preuve différentielle de P19 et P20 : sans les appels `sched_irq_exit()` et `proc_return_check()`, `int_preempt` échoue
 au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN PASS` à 0,42 s et `KILL PASS` à 0,30 s.
@@ -275,7 +314,8 @@ au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN 
 | T13 | tests a14 | figeaient les défauts libk | attendu C17 rétabli |
 | T14 | norminette 3.3.60 | faux positifs : asm sans entrée contenant une variable, initialisations désignées, littéraux hexa commençant par `b`, avant-déclarations avant un typedef de pointeur de fonction | contournements décrits dans la section « Conventions de code » du README, exception `arch/x86_64/limine/` |
 | T15 | scénario `a20_desktop` | instable : 4 échecs sur 8 en séquentiel, 12 sur 30 en parallèle. Trois causes : capture juste après la touche avant le redessin, image de référence prise pendant le premier dessin du bureau, captures du BIOS et de l'UEFI écrites sous le même nom dans le même dossier | `capture_quand` et `capture_stable` dans `vtest.py`, noms de capture préfixés par la machine, 46 exécutions sur 46 réussies |
-| T16 | `mk/user.mk`, `mk/host.mk` | les dépendances d'en-têtes n'étaient pas suivies : motif `wildcard` trop court pour les applis, aucune pour les tests hôte. Après un changement de `shell.h`, le shell était lié avec des objets périmés et les boîtes de dialogue ne s'ouvraient plus (`a20_desktop` et `a20_souris` en échec), et des tests hôte qui ne compilaient plus restaient verts | liste des `.d` tirée des sources, dépendances générées pour chaque test hôte, `tests/tools/test_dependances.py` |
+| T17 | `mk/user.mk`, `mk/host.mk` | les dépendances d'en-têtes n'étaient pas suivies : motif `wildcard` trop court pour les applis, aucune pour les tests hôte. Après un changement de `shell.h`, le shell était lié avec des objets périmés et les boîtes de dialogue ne s'ouvraient plus (`a20_desktop` et `a20_souris` en échec), et des tests hôte qui ne compilaient plus restaient verts | liste des `.d` tirée des sources, dépendances générées pour chaque test hôte, `tests/tools/test_dependances.py` |
+| T18 | `mk/lot-a20.mk`, banc de rendu | la colle APK ajoutée à `user/apps/common/` inclut un en-tête système que le banc de rendu de l'hôte n'a pas : `a20-render` ne compilait plus | fichiers `apkglue*.c` exclus du banc, comme les `os_*.c` |
 | T16 | plan de tests manuels | étapes inexactes : Tab avant Entrée à la connexion (MT-13), `fault=panic` sans `selftest` (MT-21), formatage FAT32 sans `-F` (MT-23) | étapes corrigées dans les fiches |
 
 ### 5.3 Défauts trouvés par les cas manuels, corrigés le 6 octobre

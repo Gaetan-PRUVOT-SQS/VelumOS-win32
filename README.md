@@ -33,11 +33,12 @@ ni approuvé par elle, et il n'exécute pas de programmes Windows.
 4. [Commandes](#commandes)
 5. [Architecture](#architecture)
 6. [Du clic à l'écran](#du-clic-à-lécran)
-7. [Décisions de conception](#décisions-de-conception)
-8. [Organisation du dépôt](#organisation-du-dépôt)
-9. [Conventions de code](#conventions-de-code)
-10. [Limites connues](#limites-connues)
-11. [Composants tiers et licence](#composants-tiers-et-licence)
+7. [Applis au format APK](#applis-au-format-apk)
+8. [Décisions de conception](#décisions-de-conception)
+9. [Organisation du dépôt](#organisation-du-dépôt)
+10. [Conventions de code](#conventions-de-code)
+11. [Limites connues](#limites-connues)
+12. [Composants tiers et licence](#composants-tiers-et-licence)
 
 ## État du projet
 
@@ -58,7 +59,10 @@ Ce qui fonctionne :
 - VFS avec initrd cpio et FAT32 en lecture et écriture (l'écriture n'est éprouvée que sur des disques simulés) ;
 - framebuffer, console noyau, écran d'arrêt, changement de mode sur l'adaptateur Bochs/QEMU ;
 - moteur de dessin 2D, polices bitmap UTF-8, thème Luna, serveur de fenêtres, bibliothèque de contrôles ;
-- écran de connexion avec mot de passe haché, bureau, barre des tâches, menu Démarrer, extinction.
+- écran de connexion avec mot de passe haché, bureau, barre des tâches, menu Démarrer, extinction ;
+- applis au format APK, pour un sous-ensemble : signature vérifiée, bytecode interprété par une machine
+  virtuelle maison, une activité avec texte et boutons dans une fenêtre du bureau (voir
+  [Applis au format APK](#applis-au-format-apk)).
 
 Ce qui manque est détaillé dans [Limites connues](#limites-connues).
 
@@ -66,16 +70,16 @@ En chiffres (C, en-têtes et assembleur) :
 
 | Partie | Lignes | Fichiers |
 |--------|--------|----------|
-| noyau portable (`kernel/`) | 20 800 | 318 |
+| noyau portable (`kernel/`) | 21 400 | 328 |
 | code propre à l'architecture (`arch/`) | 4 900 | 75 |
-| pilotes (`drivers/`) | 6 000 | 99 |
+| pilotes (`drivers/`) | 6 200 | 103 |
 | systèmes de fichiers (`fs/`) | 5 500 | 71 |
-| bibliothèques partagées (`lib/` : dessin, polices, thème, fenêtres, contrôles, crypto) | 14 100 | 212 |
-| libc et applis utilisateur (`user/`) | 11 800 | 239 |
-| en-têtes publics (`include/`) | 2 300 | 41 |
-| tests unitaires (`tests/host/`) | 64 500 | 971 |
+| bibliothèques partagées (`lib/` : dessin, polices, thème, fenêtres, contrôles, crypto, et les neuf de la couche APK pour 10 800 lignes) | 25 000 | 361 |
+| libc et applis utilisateur (`user/`) | 13 800 | 270 |
+| en-têtes publics (`include/`) | 3 500 | 53 |
+| tests unitaires (`tests/host/`) | 78 700 | 1 158 |
 
-Python (outils et scénarios système) : 3 400 lignes.
+Python (outils et scénarios système) : 8 900 lignes, dont 1 900 pour l'assembleur DEX et la fabrication d'APK.
 
 ## Campagne de tests
 
@@ -87,21 +91,21 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 
 ### En bref
 
-| Mesure (5 octobre 2026) | Résultat |
+| Mesure (6 octobre 2026) | Résultat |
 |-------------------------|----------|
 | Niveaux de test | 4 : unitaire sur l'hôte, autotests du noyau, scénarios système QEMU, contrôles statiques |
-| Couverture fonctionnelle automatisée | **91,5 %** des 82 fonctionnalités vérifiables (78,0 % entièrement automatisées, 13,4 % avec un complément manuel) |
-| Couverture manuelle seule | **8,5 %** (7 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
-| Cas manuels joués (sous QEMU/KVM) | 18 sur 21 : 11 réussis, 4 en échec, 3 partiels |
-| Tests unitaires | 597 exécutions de suites, 13,19 millions de vérifications, 0 échec (ASan et UBSan) |
-| Scénarios système | 89 exécutions sur 89 (48 scénarios, BIOS et UEFI) |
+| Couverture fonctionnelle automatisée | **92,6 %** des 94 fonctionnalités vérifiables (80,9 % entièrement automatisées, 11,7 % avec un complément manuel) |
+| Couverture manuelle seule | **7,4 %** (7 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
+| Cas manuels joués (sous QEMU/KVM) | 19 sur 21 : 15 réussis, 4 partiels |
+| Tests unitaires | 669 exécutions de suites, 13,26 millions de vérifications, 0 échec (ASan et UBSan) |
+| Scénarios système | 92 exécutions sur 92 (50 scénarios, BIOS et UEFI) |
 | Autotests du noyau | 17 sur 17 |
-| Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 7 lots de tests hôte, 5 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
-| Défauts trouvés et corrigés | 44 : 27 dans le produit (6 de gravité haute, 11 moyenne, 10 basse) et 17 dans l'infrastructure de test |
+| Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 10 lots de tests hôte, 6 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
+| Défauts trouvés et corrigés | 46 : 28 dans le produit (6 de gravité haute, 11 moyenne, 11 basse) et 18 dans l'infrastructure de test |
 | Défauts ouverts | aucun au registre ; les 4 défauts trouvés par les cas manuels sont corrigés, chacun avec son test de régression |
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
 | Test de mutation | mémoire physique (41 mutants définis, 31 joués), affichage (12), polices (22) |
-| Contrôles statiques | norminette sur 1 993 fichiers, en-têtes autonomes, contrôle de fonctions dangereuses, ruff, shellcheck : 0 erreur |
+| Contrôles statiques | norminette sur 2 390 fichiers, en-têtes autonomes, contrôle de fonctions dangereuses, ruff, shellcheck : 0 erreur |
 
 ### Automatisé et manuel
 
@@ -112,11 +116,11 @@ liste des tests qui la couvrent.
 
 | Mode | Fonctionnalités | Part |
 |------|-----------------|------|
-| A : automatisé | 64 | 78,0 % |
-| AM : automatisé, avec un complément manuel (aspect visuel, ergonomie, vrai clavier) | 11 | 13,4 % |
-| M : manuel seulement | 7 | 8,5 % |
+| A : automatisé | 76 | 80,9 % |
+| AM : automatisé, avec un complément manuel (aspect visuel, ergonomie, vrai clavier) | 11 | 11,7 % |
+| M : manuel seulement | 7 | 7,4 % |
 
-La couverture automatisée est donc de 91,5 % (A et AM), et 22,0 % des fonctionnalités appellent au moins un test
+La couverture automatisée est donc de 92,6 % (A et AM), et 19,1 % des fonctionnalités appellent au moins un test
 manuel. Par nombre de cas, 1 593 cas sont automatisés (cas unitaires nommés, scénarios QEMU, tests Python) contre 21
 manuels, soit 98,7 % : ce second taux est beaucoup plus élevé parce que les cas automatisés sont fins, c'est le taux
 fonctionnel qu'il faut retenir.
@@ -179,13 +183,13 @@ refuse`, et les sections de `TESTS.md` relient chaque sous-système à ses techn
 |---------|--------|----------|
 | Haute | 6 | processus qui boucle en anneau 3 sans préemption (gel de la machine), processus tué qui survit, #GP noyau quand un espace d'adressage est détruit avant son dernier fil, allocateur utilisateur qui prend une adresse valide pour une double libération, `ET_EXEC` à l'adresse 0 au lieu de `ET_DYN`, copie de pixels qui ignore la ligne de départ |
 | Moyenne | 11 | `printf` qui n'écrit aucun chiffre pour 0, lecture au-delà d'une chaîne non terminée avec `%.3s`, deux types de cache sur une même page, recherche de nom insensible à la casse limitée à l'ASCII |
-| Basse | 10 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
+| Basse | 11 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
 
 Les quatre derniers ont été trouvés par les cas manuels, puis corrigés avec un test de régression (voir `TESTS.md`, 5.3).
 
 Classement indicatif du niveau où chaque défaut est apparu en premier : 15 aux tests unitaires, 4 en scénario système
-(démarrage et préemption), 4 à l'intégration (lecture du journal, inspection de l'ELF, captures d'écran), 4 par les
-cas manuels.
+(démarrage et préemption), 5 à l'intégration (lecture du journal, inspection de l'ELF, captures d'écran, essai croisé
+de la couche APK), 4 par les cas manuels.
 
 ### Trois histoires
 
@@ -426,6 +430,53 @@ Ce que traverse un clic sur le bouton Démarrer, du matériel au pixel :
 Aucun de ces échanges ne passe par un appel système graphique : le noyau ne voit que des handles, des messages
 et des pages partagées.
 
+## Applis au format APK
+
+VelumOS sait installer et lancer une appli au format APK quand elle reste dans un sous-ensemble précis.
+Tout est écrit ici, depuis les formats publics (ZIP, DEFLATE, DEX, bytecode Dalvik, schéma de signature
+v2, RSA) : il n'y a aucune ligne de code d'Android dans le dépôt, et ce n'est pas une compatibilité
+Android. Une appli du commerce ne tournera pas : elle emploie des milliers de classes que cette tranche
+ne fournit pas.
+
+Ce qui tourne aujourd'hui : une `Activity`, des `TextView`, `Button` et `LinearLayout` construits par le
+code, un clic, des chaînes (`String`, `StringBuilder`), des exceptions, `android.util.Log`. L'appli
+d'exemple `user/apk/bonjour` est dans l'image, au menu Démarrer sous « Tous les programmes ».
+
+```
+fichier .apk
+  -> lib/zip      archive et décompression
+  -> lib/apk      signature v2 (lib/rsa, SHA-256), manifeste (lib/axml)
+  -> lib/dex      conteneur DEX          -> lib/dexcode  vérification du bytecode
+  -> lib/dvm      machine virtuelle : classes, objets, ramasse-miettes, interpréteur
+  -> lib/droid    classes de base et modèle des vues
+  -> apkrun       un processus par appli, une fenêtre Luna, des contrôles du bureau
+```
+
+Les règles de sécurité, chacune tenue par un test :
+
+- un APK est une entrée hostile : chaque lecteur borne tailles et décalages, et passe des milliers de
+  fichiers tronqués ou altérés sans plantage ;
+- rien ne s'exécute sans signature v2 valide sur le fichier entier (un octet changé, et l'appli est
+  refusée avec une phrase à l'écran) ;
+- aucun code natif d'un APK n'est exécuté : une archive qui en contient est refusée ;
+- la machine virtuelle ne manipule pas de pointeurs venus de l'appli : une référence est un indice vérifié,
+  le type est contrôlé à chaque accès, registres et sauts sont vérifiés avant la première exécution ;
+- tas, pile d'appels et nombre d'instructions par événement sont plafonnés ;
+- le processus de l'appli n'a aucun privilège : ni fichiers, ni réseau, ni lancement d'autres programmes.
+
+Pour essayer : « Bonjour APK » dans le menu Démarrer, ou « Exécuter » avec le chemin d'un fichier `.apk`.
+`apkinst <fichier>` installe un APK sous `/data/apps` (même signataire exigé pour une mise à jour).
+Les fichiers d'essai sont fabriqués par deux outils de l'hôte, `tools/dexasm.py` (assembleur DEX) et
+`tools/mkapk.py` (manifeste, ressources, archive, signature), parce que la chaîne officielle n'est pas
+requise pour construire le projet.
+
+Ce que cette tranche ne fait pas : code natif, plusieurs fichiers DEX, mises en page XML, services,
+fichiers, réseau, signatures autres que RSA PKCS#1 v1.5 SHA-256 à un signataire, applis installées
+listées au menu (elles se lancent par « Exécuter »). Aucun APK produit par la chaîne officielle
+d'Android n'a encore été essayé : lecteurs et outils d'essai sont deux écritures séparées des mêmes
+spécifications, ce qui les recoupe l'un l'autre, pas contre un tiers. La clé qui signe l'appli d'exemple
+est tirée à chaque build, donc cette partie de l'image n'est pas reproductible à l'octet.
+
 ## Décisions de conception
 
 | Décision | Raison | Alternative écartée |
@@ -448,12 +499,15 @@ arch/x86_64/    code propre à l'architecture : entrée, processeur, ACPI, APIC,
 kernel/         noyau portable : mm (pmm, vmm, tas), sched, proc, obj, time, irq, input, random, kcon
 drivers/        pci, input (PS/2), block, virtio, display
 fs/             VFS, initrd cpio, FAT32, appels système de fichiers
-lib/            libk (chaînes et printf du noyau), crypto, gfx, font, luna, wm, ctl
-user/           libvelum (appels système, libc, crt0), include, apps (init, winsrv, logon, shell, hello, ...)
+lib/            libk (chaînes et printf du noyau), crypto, gfx, font, luna, wm, ctl ;
+                couche APK : zip, axml, dex, dexcode, rsa, apk, dvm, droid, pm
+user/           libvelum (appels système, libc, crt0), include, apps (init, winsrv, logon, shell, hello, apkrun, ...),
+                apk/ (sources des applis APK d'exemple et d'essai)
 include/velum/  en-têtes publics entre couches, dont abi/ pour l'interface avec les applis
 mk/             fragments de Makefile : un par sous-système (lot-aNN.mk) et la mécanique commune
 link/           script d'édition de liens du noyau
-tools/          image disque, scénarios QEMU, contrôle de la norme, génération des polices, chaîne d'outils
+tools/          image disque, scénarios QEMU, contrôle de la norme, génération des polices, chaîne d'outils,
+                assembleur DEX et fabrication d'APK
 tests/          host/ (tests unitaires par sous-système), qemu/ (scénarios système)
 third_party/    en-tête du protocole Limine et polices sources
 assets/         captures d'écran du README
@@ -474,6 +528,10 @@ Chaque sous-système a son fragment `mk/lot-aNN.mk` (sources, tests, applis) et 
 | a08 | objets, canaux, sections | a18 | serveur de fenêtres |
 | a09 | PCI, aléa, crypto | a19 | contrôles |
 | a10 | clavier, souris | a20 | connexion, bureau |
+
+La couche APK suit le même découpage, de `d01` à `d12` (archive, ressources, conteneur DEX, bytecode, RSA,
+façade et signature, objets de la machine virtuelle, interpréteur, registre des paquets, classes de base et
+vues, `apkrun` et `apkinst`), plus `d00` pour les essais croisés entre ces lots.
 
 Les en-têtes de `include/velum/` sont le contrat entre ces sous-systèmes : on peut y ajouter des déclarations,
 jamais en retirer ni en changer le sens sans changer la version de l'ABI.
@@ -510,6 +568,8 @@ Pièges connus de `norminette` 3.3.60 sur du code noyau, avec leur contournement
 - Pas d'USB (le clavier et la souris sont en PS/2), pas de réseau, pas de NVMe ni d'AHCI, un seul adaptateur
   graphique à mode réglable (Bochs/QEMU).
 - Pas de compatibilité avec les programmes Windows.
+- Applis APK : un sous-ensemble seulement (voir [Applis au format APK](#applis-au-format-apk)), sans code natif
+  ni mise en page XML, jamais essayé avec un APK produit par la chaîne officielle.
 - Le noyau monte une partition FAT32 sur `/data` si elle existe, mais l'image fournie n'en contient pas, et
   l'écriture FAT32 n'est testée que sur des disques simulés. Il n'y a ni récupération de mot de passe ni gestion
   de plusieurs comptes.

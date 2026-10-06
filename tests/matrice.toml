@@ -601,6 +601,93 @@ manuels = ["MT-24"]
 # Tests manuels. statut : "Réussi", "Échec", "Partiel", "Bloqué" ou "A exécuter". Un cas déjà joué
 # porte aussi date, moyen, constat, observations et incidents (identifiants du registre de TESTS.md).
 
+[[fonction]]
+id = "F83"
+sous_systeme = "apk"
+titre = "Archive ZIP hostile et décompression DEFLATE"
+mode = "A"
+tests = ["tests/host/d01/test_zip.c", "tests/host/d01/test_inflate.c", "tests/host/d01/test_zip_fuzz.c", "tests/host/d01/test_inflate_fuzz.c"]
+
+[[fonction]]
+id = "F84"
+sous_systeme = "apk"
+titre = "XML binaire, table de chaînes et ressources d'un APK"
+mode = "A"
+tests = ["tests/host/d02/test_respool.c", "tests/host/d02/test_axml.c", "tests/host/d02/test_axml_refus.c", "tests/host/d02/test_arsc.c", "tests/host/d02/test_fuzz.c"]
+
+[[fonction]]
+id = "F85"
+sous_systeme = "apk"
+titre = "Conteneur DEX hostile"
+mode = "A"
+tests = ["tests/host/d03/test_open.c", "tests/host/d03/test_class.c", "tests/host/d03/test_code.c", "tests/host/d03/test_hostile.c", "tests/host/d03/test_fuzz.c", "tests/host/d00/test_croise_dex.c"]
+
+[[fonction]]
+id = "F86"
+sous_systeme = "apk"
+titre = "Décodage et vérification structurelle du bytecode"
+mode = "A"
+tests = ["tests/host/d04/test_table.c", "tests/host/d04/test_decode.c", "tests/host/d04/test_refus.c", "tests/host/d04/test_verify.c", "tests/host/d04/test_fuzz.c", "tests/tools/test_croise_opcodes.py"]
+
+[[fonction]]
+id = "F87"
+sous_systeme = "apk"
+titre = "Clé publique X.509 et vérification RSA PKCS#1 v1.5"
+mode = "A"
+tests = ["tests/host/d05/test_vec.c", "tests/host/d05/test_fuzz.c"]
+
+[[fonction]]
+id = "F88"
+sous_systeme = "apk"
+titre = "Signature v2 d'un APK, refus et manifeste"
+mode = "A"
+tests = ["tests/host/d07/test_verify.c", "tests/host/d07/test_open.c", "tests/host/d07/test_manifest.c", "tests/host/d07/test_fuzz.c", "tests/host/d00/test_croise_gros.c", "tests/host/d00/test_croise_apk.c"]
+note = "Signature RSA PKCS#1 v1.5 SHA-256 seulement, un signataire."
+
+[[fonction]]
+id = "F89"
+sous_systeme = "apk"
+titre = "Machine virtuelle : classes, objets, tas et ramasse-miettes"
+mode = "A"
+tests = ["tests/host/d08/test_objets.c", "tests/host/d08/test_classes.c", "tests/host/d08/test_dex.c", "tests/host/d08/test_acces.c", "tests/host/d08/test_appels.c", "tests/host/d08/test_gc.c", "tests/host/d08/test_plafond.c", "tests/host/d08/test_malloc.c", "tests/host/d00/test_croise_oom.c"]
+
+[[fonction]]
+id = "F90"
+sous_systeme = "apk"
+titre = "Interpréteur de bytecode et sémantique Java"
+mode = "A"
+tests = ["tests/host/d09/test_arith.c", "tests/host/d09/test_div.c", "tests/host/d09/test_conv.c", "tests/host/d09/test_float.c", "tests/host/d09/test_exc.c", "tests/host/d09/test_pile.c", "tests/host/d09/test_natif.c", "tests/host/d00/test_croise_vm.c", "tests/host/d11/test_essais.c"]
+
+[[fonction]]
+id = "F91"
+sous_systeme = "apk"
+titre = "Bibliothèque de base et modèle des vues d'une appli"
+mode = "A"
+tests = ["tests/host/d11/test_lang.c", "tests/host/d11/test_texte.c", "tests/host/d11/test_tableaux.c", "tests/host/d11/test_vues.c", "tests/host/d11/test_fautes.c", "tests/host/d11/test_bonjour.c"]
+note = "Sous-ensemble d'API : une activité, texte, bouton, empilement, journal."
+
+[[fonction]]
+id = "F92"
+sous_systeme = "apk"
+titre = "Registre des paquets et installation d'un APK sur /data"
+mode = "A"
+tests = ["tests/host/d10/test_install.c", "tests/host/d10/test_panne.c", "tests/host/d10/test_registre.c", "tests/host/d10/test_champs.c", "tests/host/d10/test_fuzz.c", "tests/host/d12/test_fs.c", "tests/host/d12/test_fs_panne.c", "tests/host/d12/test_inspect.c", "tests/qemu/int_apk_installation.py"]
+
+[[fonction]]
+id = "F93"
+sous_systeme = "apk"
+titre = "Appli APK lancée du menu Démarrer dans une fenêtre, clics, refus affiché"
+mode = "A"
+tests = ["tests/qemu/int_apk_menu.py", "tests/qemu/int_apk_installation.py", "tests/host/d12/test_lay.c", "tests/host/d12/test_lay_hostile.c", "tests/host/a20/test_programmes_arg.c", "tests/host/a20/test_runcmd_apk.c"]
+
+[[fonction]]
+id = "F94"
+sous_systeme = "apk"
+titre = "Outils de l'hôte : assembleur DEX, fabrication et signature d'APK"
+mode = "A"
+tests = ["tests/tools/test_dexasm.py", "tests/tools/test_mkapk.py", "tests/tools/test_croise_opcodes.py"]
+note = "Outils et lecteurs écrits séparément depuis les mêmes spécifications."
+
 [[manuel]]
 id = "MT-01"
 titre = "Écran de démarrage"

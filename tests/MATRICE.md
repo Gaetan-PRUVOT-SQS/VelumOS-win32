@@ -21,23 +21,23 @@ Les cas manuels sont décrits dans [`MANUEL.md`](MANUEL.md).
 
 | Mesure | Valeur |
 |--------|--------|
-| Fonctionnalités vérifiables recensées | 82 |
-| Couverture automatisée (A + AM) | **91,5 %** (75 sur 82) |
-| dont automatisée seule (A) | 78,0 % (64) |
-| dont automatisée avec complément manuel (AM) | 13,4 % (11) |
-| Couverture manuelle seule (M) | **8,5 %** (7 sur 82) |
-| Fonctionnalités qui demandent au moins un test manuel (AM + M) | 22,0 % (18) |
-| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1761 |
+| Fonctionnalités vérifiables recensées | 94 |
+| Couverture automatisée (A + AM) | **92,6 %** (87 sur 94) |
+| dont automatisée seule (A) | 80,9 % (76) |
+| dont automatisée avec complément manuel (AM) | 11,7 % (11) |
+| Couverture manuelle seule (M) | **7,4 %** (7 sur 94) |
+| Fonctionnalités qui demandent au moins un test manuel (AM + M) | 19,1 % (18) |
+| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1986 |
 | Cas de test manuels | 21 |
 | Cas manuels joués | 19 sur 21 (15 réussi, 4 partiel) |
-| Taux d'automatisation par nombre de cas | 98,8 % |
+| Taux d'automatisation par nombre de cas | 99,0 % |
 
 Lecture : le taux par nombre de cas est très supérieur au taux fonctionnel parce que les cas automatisés sont fins
 (une valeur limite, une partition) alors que les cas manuels sont des sessions complètes. Le taux fonctionnel est
 la mesure à retenir.
 
-Inventaire des cas automatisés : 567 fichiers de tests unitaires contenant 1665 cas nommés
-(`h_run`), 48 scénarios QEMU et 48 tests Python.
+Inventaire des cas automatisés : 639 fichiers de tests unitaires contenant 1861 cas nommés
+(`h_run`), 50 scénarios QEMU et 75 tests Python.
 
 ## Par sous-système
 
@@ -64,6 +64,7 @@ Inventaire des cas automatisés : 567 fichiers de tests unitaires contenant 1665
 | a19 | 5 | 4 | 1 | 0 | 100,0 % |
 | a20 | 5 | 2 | 3 | 0 | 100,0 % |
 | transverse | 7 | 3 | 1 | 3 | 57,1 % |
+| apk | 12 | 12 | 0 | 0 | 100,0 % |
 
 ## Matrice complète
 
@@ -151,3 +152,15 @@ Inventaire des cas automatisés : 567 fichiers de tests unitaires contenant 1665
 | F80 | transverse | Endurance : exécution prolongée sans fuite ni gel | M | aucun | MT-17 |
 | F81 | transverse | Cohérence linguistique et typographique de l'interface | M | aucun | MT-22 |
 | F82 | transverse | Reproductibilité de la construction sur une machine propre | AM | [mkimage.py](../tools/mkimage.py)<br>[build-toolchain.sh](../tools/build-toolchain.sh)<br>[test_mkimage.py](tools/test_mkimage.py) | MT-24 |
+| F83 | apk | Archive ZIP hostile et décompression DEFLATE | A | [test_zip.c](host/d01/test_zip.c)<br>[test_inflate.c](host/d01/test_inflate.c)<br>[test_zip_fuzz.c](host/d01/test_zip_fuzz.c)<br>[test_inflate_fuzz.c](host/d01/test_inflate_fuzz.c) | aucun |
+| F84 | apk | XML binaire, table de chaînes et ressources d'un APK | A | [test_respool.c](host/d02/test_respool.c)<br>[test_axml.c](host/d02/test_axml.c)<br>[test_axml_refus.c](host/d02/test_axml_refus.c)<br>[test_arsc.c](host/d02/test_arsc.c)<br>[test_fuzz.c](host/d02/test_fuzz.c) | aucun |
+| F85 | apk | Conteneur DEX hostile | A | [test_open.c](host/d03/test_open.c)<br>[test_class.c](host/d03/test_class.c)<br>[test_code.c](host/d03/test_code.c)<br>[test_hostile.c](host/d03/test_hostile.c)<br>[test_fuzz.c](host/d03/test_fuzz.c)<br>[test_croise_dex.c](host/d00/test_croise_dex.c) | aucun |
+| F86 | apk | Décodage et vérification structurelle du bytecode | A | [test_table.c](host/d04/test_table.c)<br>[test_decode.c](host/d04/test_decode.c)<br>[test_refus.c](host/d04/test_refus.c)<br>[test_verify.c](host/d04/test_verify.c)<br>[test_fuzz.c](host/d04/test_fuzz.c)<br>[test_croise_opcodes.py](tools/test_croise_opcodes.py) | aucun |
+| F87 | apk | Clé publique X.509 et vérification RSA PKCS#1 v1.5 | A | [test_vec.c](host/d05/test_vec.c)<br>[test_fuzz.c](host/d05/test_fuzz.c) | aucun |
+| F88 | apk | Signature v2 d'un APK, refus et manifeste (Signature RSA PKCS#1 v1.5 SHA-256 seulement, un signataire.) | A | [test_verify.c](host/d07/test_verify.c)<br>[test_open.c](host/d07/test_open.c)<br>[test_manifest.c](host/d07/test_manifest.c)<br>[test_fuzz.c](host/d07/test_fuzz.c)<br>[test_croise_gros.c](host/d00/test_croise_gros.c)<br>[test_croise_apk.c](host/d00/test_croise_apk.c) | aucun |
+| F89 | apk | Machine virtuelle : classes, objets, tas et ramasse-miettes | A | [test_objets.c](host/d08/test_objets.c)<br>[test_classes.c](host/d08/test_classes.c)<br>[test_dex.c](host/d08/test_dex.c)<br>[test_acces.c](host/d08/test_acces.c)<br>[test_appels.c](host/d08/test_appels.c)<br>[test_gc.c](host/d08/test_gc.c)<br>[test_plafond.c](host/d08/test_plafond.c)<br>[test_malloc.c](host/d08/test_malloc.c)<br>[test_croise_oom.c](host/d00/test_croise_oom.c) | aucun |
+| F90 | apk | Interpréteur de bytecode et sémantique Java | A | [test_arith.c](host/d09/test_arith.c)<br>[test_div.c](host/d09/test_div.c)<br>[test_conv.c](host/d09/test_conv.c)<br>[test_float.c](host/d09/test_float.c)<br>[test_exc.c](host/d09/test_exc.c)<br>[test_pile.c](host/d09/test_pile.c)<br>[test_natif.c](host/d09/test_natif.c)<br>[test_croise_vm.c](host/d00/test_croise_vm.c)<br>[test_essais.c](host/d11/test_essais.c) | aucun |
+| F91 | apk | Bibliothèque de base et modèle des vues d'une appli (Sous-ensemble d'API : une activité, texte, bouton, empilement, journal.) | A | [test_lang.c](host/d11/test_lang.c)<br>[test_texte.c](host/d11/test_texte.c)<br>[test_tableaux.c](host/d11/test_tableaux.c)<br>[test_vues.c](host/d11/test_vues.c)<br>[test_fautes.c](host/d11/test_fautes.c)<br>[test_bonjour.c](host/d11/test_bonjour.c) | aucun |
+| F92 | apk | Registre des paquets et installation d'un APK sur /data | A | [test_install.c](host/d10/test_install.c)<br>[test_panne.c](host/d10/test_panne.c)<br>[test_registre.c](host/d10/test_registre.c)<br>[test_champs.c](host/d10/test_champs.c)<br>[test_fuzz.c](host/d10/test_fuzz.c)<br>[test_fs.c](host/d12/test_fs.c)<br>[test_fs_panne.c](host/d12/test_fs_panne.c)<br>[test_inspect.c](host/d12/test_inspect.c)<br>[int_apk_installation.py](qemu/int_apk_installation.py) | aucun |
+| F93 | apk | Appli APK lancée du menu Démarrer dans une fenêtre, clics, refus affiché | A | [int_apk_menu.py](qemu/int_apk_menu.py)<br>[int_apk_installation.py](qemu/int_apk_installation.py)<br>[test_lay.c](host/d12/test_lay.c)<br>[test_lay_hostile.c](host/d12/test_lay_hostile.c)<br>[test_programmes_arg.c](host/a20/test_programmes_arg.c)<br>[test_runcmd_apk.c](host/a20/test_runcmd_apk.c) | aucun |
+| F94 | apk | Outils de l'hôte : assembleur DEX, fabrication et signature d'APK (Outils et lecteurs écrits séparément depuis les mêmes spécifications.) | A | [test_dexasm.py](tools/test_dexasm.py)<br>[test_mkapk.py](tools/test_mkapk.py)<br>[test_croise_opcodes.py](tools/test_croise_opcodes.py) | aucun |
