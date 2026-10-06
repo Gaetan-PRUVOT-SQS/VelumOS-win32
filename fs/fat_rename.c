@@ -27,7 +27,7 @@ int	fat_op_remove(void *fs, const char *rel)
 		rc = fdir_del(fs, pn.first, &ent);
 	if (rc == 0 && n.first)
 		rc = fat_free_chain(fs, n.first);
-	return (rc);
+	return (fat_commit(fs, rc));
 }
 
 static int	subtree_ok(t_fat *fs, uint32_t src, uint32_t dest)
@@ -114,5 +114,5 @@ int	fat_op_rename(void *fs, const char *from, const char *to)
 		rc = rename_check(fs, &r);
 	if (rc == 0)
 		rc = rename_apply(fs, &r);
-	return (rc);
+	return (fat_commit(fs, rc));
 }

@@ -99,11 +99,12 @@ int	fat_op_create(void *fs, const char *rel, uint32_t t, t_vnode *o)
 	if (rc == 0)
 		rc = create_raw(fs, pn.first, t, &ent);
 	if (rc < 0)
-		return (rc);
+		return (fat_commit(fs, rc));
 	c = (le16(ent.raw + 20) << 16) | le16(ent.raw + 26);
 	rc = fdir_add(fs, pn.first, name, &ent);
 	if (rc < 0 && c)
 		fat_free_chain(fs, c);
+	rc = fat_commit(fs, rc);
 	if (rc < 0)
 		return (rc);
 	return (fat_node_from(fs, &ent, o));

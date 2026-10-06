@@ -57,14 +57,14 @@ int	fat_set(t_fat *fs, uint32_t c, uint32_t v)
 			rc = set_copy(fs, i, c, v);
 		i++;
 	}
-	if (rc < 0)
+	if (rc < 0 || fs->free_count == FAT_UNKNOWN || (old == 0) == (v == 0))
 		return (rc);
-	if (fs->free_count != FAT_UNKNOWN && old == 0 && v != 0
-		&& fs->free_count > 0)
+	if (v != 0 && fs->free_count > 0)
 		fs->free_count--;
-	else if (fs->free_count != FAT_UNKNOWN && old != 0 && v == 0
-		&& fs->free_count < fs->nclus)
+	else if (v == 0 && fs->free_count < fs->nclus)
 		fs->free_count++;
+	else
+		return (0);
 	fs->info_dirty = 1;
 	return (0);
 }
@@ -88,8 +88,8 @@ int	fat_alloc(t_fat *fs, uint32_t *out)
 		if (v == 0)
 		{
 			*out = c;
+			fs->info_dirty |= (fs->next_free != c + 1);
 			fs->next_free = c + 1;
-			fs->info_dirty = 1;
 			return (0);
 		}
 		c++;

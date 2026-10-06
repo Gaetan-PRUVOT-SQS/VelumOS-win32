@@ -21,6 +21,7 @@ t_fakeblk	*fakeblk_new(uint64_t nsec, uint32_t ssz)
 	b->dev.priv = b;
 	b->wfail = -1;
 	b->rfail = -1;
+	b->watch = -1;
 	i = 0;
 	while (i < FAKE_DEVS && g_devs[i])
 		i++;

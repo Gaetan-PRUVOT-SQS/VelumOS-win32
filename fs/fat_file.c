@@ -69,7 +69,7 @@ int64_t	fat_op_write(void *fs, t_vnode *n, t_vio *io)
 		rc = fat_fill_zero(f, n, io->off);
 	if (rc == 0)
 		rc = write_body(f, n, io, len);
-	rs = fat_node_sync(f, n, 1);
+	rs = fat_commit(f, fat_node_sync(f, n, 1));
 	if (rc >= 0 && rs < 0)
 		return (rs);
 	return (rc);

@@ -14,6 +14,8 @@
 # define FAKE_HANDLES 512
 # define FAKE_KADDR 0xffff800000001000ull
 # define FAKE_SEC_MIN 66600
+# define FAKE_FSI_FREE 488
+# define FAKE_FSI_NEXT 492
 
 typedef struct s_fakeblk
 {
@@ -24,6 +26,9 @@ typedef struct s_fakeblk
 	uint64_t	writes;
 	int64_t		wfail;
 	int64_t		rfail;
+	int64_t		watch;
+	uint64_t	watch_writes;
+	uint32_t	watch_fail;
 }	t_fakeblk;
 
 typedef struct s_fakeh
@@ -126,5 +131,11 @@ void			model_expect(t_model *m, int64_t got, int64_t want);
 void			model_write(t_model *m, t_mfile *f);
 void			model_trunc(t_model *m, t_mfile *f);
 void			model_rename(t_model *m, t_mfile *a, t_mfile *b);
+uint32_t		fake_fsi(const t_fakeblk *b, uint32_t off);
+void			fake_fsi_set(t_fakeblk *b, uint32_t off, uint32_t v);
+uint32_t		fake_fat_at(const t_fakeblk *b, uint32_t c);
+uint32_t		fake_free_real(const t_fakeblk *b);
+int64_t			fake_free_gap(const t_fakeblk *b);
+uint64_t		fake_warns(void);
 
 #endif

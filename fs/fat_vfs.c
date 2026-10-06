@@ -26,6 +26,22 @@ static int	write_info(t_fat *fs)
 	return (fat_bput(fs, fs->fsinfo, b));
 }
 
+int	fat_commit(t_fat *fs, int rc)
+{
+	if (fs->ro || fs->fsinfo == 0 || !fs->info_dirty)
+		return (rc);
+	if (write_info(fs) == 0)
+	{
+		fs->info_dirty = 0;
+		return (rc);
+	}
+	fs->info_fails++;
+	if ((fs->info_fails & (fs->info_fails - 1)) == 0)
+		klog_warn("vfs: fat32, FSInfo non écrit (%u échecs)",
+			fs->info_fails);
+	return (rc);
+}
+
 int	fat_op_sync(void *fs)
 {
 	t_fat	*f;
@@ -34,11 +50,9 @@ int	fat_op_sync(void *fs)
 	f = fs;
 	if (f->ro)
 		return (0);
-	rc = 0;
+	rc = fat_commit(f, 0);
 	if (f->fsinfo && f->info_dirty)
-		rc = write_info(f);
-	if (rc == 0)
-		f->info_dirty = 0;
+		rc = E_IO;
 	if (blk_flush && blk_flush(f->dev) < 0 && rc == 0)
 		rc = E_IO;
 	return (rc);

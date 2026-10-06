@@ -12,6 +12,15 @@ static int	range_ok(t_fakeblk *b, uint64_t lba, uint32_t n)
 	return (1);
 }
 
+static int	watched_fails(t_fakeblk *b, uint64_t lba, uint32_t n)
+{
+	if (b->watch < 0 || (uint64_t)b->watch < lba
+		|| (uint64_t)b->watch - lba >= n)
+		return (0);
+	b->watch_writes++;
+	return (b->watch_fail != 0);
+}
+
 int	blk_read(t_blkdev *d, uint64_t lba, uint32_t n, void *buf)
 {
 	t_fakeblk	*b;
@@ -38,7 +47,7 @@ int	blk_write(t_blkdev *d, uint64_t lba, uint32_t n, const void *buf)
 	if (d->flags & BLK_RO)
 		return (E_PERM);
 	b->writes++;
-	if (b->wfail == 0)
+	if (b->wfail == 0 || watched_fails(b, lba, n))
 		return (E_IO);
 	if (b->wfail > 0)
 		b->wfail--;

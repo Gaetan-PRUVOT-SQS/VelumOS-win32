@@ -14,7 +14,6 @@ TAILLE_OCTETS = 64 * 1024 * 1024
 LONGUEUR_MOTIF = 70000
 FICHIER_ECRIT = "::velum/ecrit par velum.txt"
 LISTE_ATTENDUE = ["::/velum/ecrit par velum.txt"]
-DEFAUT_CONNU_P24 = "Free cluster summary wrong"
 LIGNES_SANS_GRAVITE = ("fsck.fat", "Leaving filesystem unchanged", "Auto-correcting")
 OUTILS = ("mformat", "mcopy", "mmd", "mdir", "fsck.vfat")
 IMAGE = []
@@ -107,9 +106,7 @@ def anomalies_fsck(sortie):
     return [
         ligne
         for ligne in lignes
-        if not ligne.startswith(LIGNES_SANS_GRAVITE)
-        and not ligne.startswith(DEFAUT_CONNU_P24)
-        and " files, " not in ligne
+        if not ligne.startswith(LIGNES_SANS_GRAVITE) and " files, " not in ligne
     ]
 
 
@@ -118,11 +115,9 @@ def verifier_fsck(image):
         [_outil("fsck.vfat"), "-n", str(image)], capture_output=True, text=True, check=False
     )
     sortie = resultat.stdout + resultat.stderr
-    assert resultat.returncode in (0, 1), f"fsck.vfat code {resultat.returncode}\n{sortie}"
     autres = anomalies_fsck(sortie)
     assert not autres, f"anomalies de structure FAT32 : {autres}"
-    if resultat.returncode == 1:
-        assert DEFAUT_CONNU_P24 in sortie, f"fsck.vfat signale autre chose que P24\n{sortie}"
+    assert resultat.returncode == 0, f"fsck.vfat code {resultat.returncode}\n{sortie}"
 
 
 def run(vm):

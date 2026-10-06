@@ -59,10 +59,10 @@ int	fat_op_truncate(void *fs, t_vnode *n, uint64_t size)
 	if (size > n->size)
 		rc = fat_fill_zero(f, n, size);
 	else if (size < n->size && keep == 0)
-		return (shrink_all(f, n));
+		return (fat_commit(f, shrink_all(f, n)));
 	else if (size < n->size)
-		return (shrink_part(f, n, size, (uint32_t)keep));
+		return (fat_commit(f, shrink_part(f, n, size, (uint32_t)keep)));
 	if (fat_node_sync(f, n, 1) < 0 && rc == 0)
-		return (E_IO);
-	return (rc);
+		rc = E_IO;
+	return (fat_commit(f, rc));
 }

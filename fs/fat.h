@@ -75,6 +75,7 @@ typedef struct s_fat
 	uint32_t	ratio;
 	uint32_t	ro;
 	uint32_t	info_dirty;
+	uint32_t	info_fails;
 	uint32_t	tick;
 	int32_t		xerr;
 	uint8_t		*slab;
@@ -225,5 +226,6 @@ int			fat_op_rename(void *fs, const char *from, const char *to);
 int			fat_op_truncate(void *fs, t_vnode *n, uint64_t size);
 int			fat_op_sync(void *fs);
 void		fat_op_release(void *fs);
+int			fat_commit(t_fat *fs, int rc);
 
 #endif
