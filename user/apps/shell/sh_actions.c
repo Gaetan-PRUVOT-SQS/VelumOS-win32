@@ -19,6 +19,15 @@ void	sh_power(t_shell *sh, uint32_t op)
 			"Impossible d'arrêter l'ordinateur" NBSP ": droit refusé.");
 }
 
+static int	run_apk(t_shell *sh, const char *text, size_t len)
+{
+	char	apk[RUN_APK_MAX];
+
+	if (run_apk_path(text, len, apk, sizeof(apk)) < 0)
+		return (0);
+	return (sh_launch_arg(sh, SH_APKRUN_PATH, apk) == 0);
+}
+
 void	sh_run_command(t_shell *sh, const char *text)
 {
 	char	path[RUN_NAME_MAX + 16];
@@ -28,6 +37,8 @@ void	sh_run_command(t_shell *sh, const char *text)
 	size_t	len;
 
 	len = strnlen(text, CTL_TEXT_MAX);
+	if (run_apk(sh, text, len))
+		return ;
 	if (run_resolve(text, len, path, sizeof(path)) == 0
 		&& sh_launch(sh, path) == 0)
 		return ;

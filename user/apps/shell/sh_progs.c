@@ -27,5 +27,5 @@ void	sh_launch_program(t_shell *sh, uint32_t cmd)
 
 	i = sm_prog_of(cmd);
 	if (i >= 0 && (uint32_t)i < sh->progs.count)
-		sh_launch(sh, sh->progs.list[i].path);
+		sh_launch_arg(sh, sh->progs.list[i].path, sh->progs.list[i].arg);
 }

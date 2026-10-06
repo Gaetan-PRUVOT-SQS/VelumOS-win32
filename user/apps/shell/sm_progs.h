@@ -5,7 +5,7 @@
 # include <stdint.h>
 
 # define SM_PROGS_MAX 3
-# define SM_PROGS_FILE_MAX 288
+# define SM_PROGS_FILE_MAX 480
 # define SM_PROG_NAME_MAX 32
 # define SM_PROG_PATH_MAX 64
 # define SM_PROG_ROOT "/system/"
@@ -18,6 +18,7 @@ typedef struct s_smprog
 {
 	char	name[SM_PROG_NAME_MAX];
 	char	path[SM_PROG_PATH_MAX];
+	char	arg[SM_PROG_PATH_MAX];
 }	t_smprog;
 
 typedef struct s_smprogs
@@ -26,6 +27,7 @@ typedef struct s_smprogs
 	t_smprog	list[SM_PROGS_MAX];
 }	t_smprogs;
 
+int		sm_progs_line(t_smprog *p, const char *s, size_t n);
 int		sm_progs_parse(const char *buf, size_t len, t_smprogs *out);
 void	sm_progs_default(t_smprogs *out);
 int		sm_set_programs(const t_smprogs *p);

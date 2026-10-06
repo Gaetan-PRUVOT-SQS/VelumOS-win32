@@ -5,7 +5,7 @@ A20_PURE_LOGON := $(addprefix user/apps/logon/,acc_line.c acc_parse.c acc_file.c
 	acc_verify.c limiter.c auth.c logon_flow.c logon_flow2.c logon_layout.c logon_text.c)
 A20_PURE_SHELL := $(addprefix user/apps/shell/,startmenu.c sm_items.c sm_nav.c \
 	sm_input.c sm_layout.c tasklist.c tasklist_apply.c taskbar.c desktop.c \
-	dblclick.c runcmd.c sm_progs.c)
+	dblclick.c runcmd.c sm_progs.c sm_progs_line.c)
 DIRS_a20 := user/apps/common user/apps/logon user/apps/shell user/apps/hello \
 	tests/host/a20 tests/host/a20/render
 HT_a20 := $(sort $(wildcard tests/host/a20/test_*.c))
@@ -36,7 +36,7 @@ a20-mkuser: $(A20_FIXTURE) $(A20_FIXTURE_PW)
 A20_RDIR := tests/host/a20/render
 A20_RTESTS := $(sort $(wildcard $(A20_RDIR)/test_*.c))
 A20_RFAKES := $(sort $(filter-out $(A20_RTESTS),$(wildcard $(A20_RDIR)/*.c)))
-A20_RAPP := $(filter-out user/apps/common/os_%.c,$(sort $(wildcard \
+A20_RAPP := $(filter-out user/apps/common/os_%.c user/apps/common/apkglue%.c,$(sort $(wildcard \
 	user/apps/common/*.c))) $(filter-out %_start.c,$(sort $(wildcard \
 	user/apps/shell/*.c user/apps/logon/*.c user/apps/hello/*.c)))
 A20_RLIBS := $(sort $(wildcard lib/gfx/*.c lib/font/*.c lib/font/gen/*.c \

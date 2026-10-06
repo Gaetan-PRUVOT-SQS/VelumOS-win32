@@ -25,6 +25,7 @@
 # define SHA_REBOOT 3
 # define SHA_CLOSE 4
 # define SH_HELLO_PATH "/system/bin/hello"
+# define SH_APKRUN_PATH "/system/bin/apkrun"
 # define SH_DEFAULT_USER "Utilisateur"
 # define SH_WALL_COLOR 0xff3a6ea5u
 # define SH_DLG_RUN 1
@@ -107,6 +108,7 @@ void	sh_menu_run(t_shell *sh, int cmd);
 void	sh_clock_arm(t_shell *sh);
 void	sh_clock_tick(t_shell *sh);
 int		sh_launch(t_shell *sh, const char *path);
+int		sh_launch_arg(t_shell *sh, const char *path, const char *arg);
 void	sh_load_programs(t_shell *sh);
 void	sh_launch_program(t_shell *sh, uint32_t cmd);
 void	sh_reap(t_shell *sh);

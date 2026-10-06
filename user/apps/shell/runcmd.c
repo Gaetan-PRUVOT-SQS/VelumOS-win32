@@ -61,3 +61,28 @@ int	run_resolve(const char *input, size_t len, char *path, size_t size)
 	path[dir + len] = '\0';
 	return (0);
 }
+
+int	run_apk_path(const char *input, size_t len, char *path, size_t size)
+{
+	size_t	i;
+
+	if (!input || !path || len > RUN_INPUT_MAX)
+		return (E_INVAL);
+	trim(&input, &len);
+	if (len < 6 || len >= size || len >= RUN_APK_MAX || input[0] != '/'
+		|| memcmp(input + len - 4, ".apk", 4) != 0)
+		return (E_INVAL);
+	i = 0;
+	while (i < len)
+	{
+		if ((unsigned char)input[i] <= 0x20
+			|| (unsigned char)input[i] >= 0x7f
+			|| (input[i] == '.' && i + 1 < len && input[i + 1] == '.')
+			|| (input[i] == '/' && i + 1 < len && input[i + 1] == '/'))
+			return (E_INVAL);
+		i++;
+	}
+	memcpy(path, input, len);
+	path[len] = '\0';
+	return (0);
+}

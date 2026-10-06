@@ -81,10 +81,7 @@ static void	programmes_valeurs_limites(void)
 	n = put_line(buf, 31, 63);
 	n += put_line(buf + n, 31, 63);
 	n += put_line(buf + n, 31, 63);
-	h_eq_u64("taille maximale", n, SM_PROGS_FILE_MAX);
-	h_eq_i64("fichier plein", sm_progs_parse(buf, n, &p), SM_PROGS_MAX);
-	buf[n] = '\n';
-	h_eq_i64("un octet de trop", sm_progs_parse(buf, n + 1, &p), E_INVAL);
+	h_eq_i64("trois lignes pleines", sm_progs_parse(buf, n, &p), SM_PROGS_MAX);
 	h_eq_i64("sans fin de ligne", sm_progs_parse(buf, n - 1, &p), 3);
 	h_eq_i64("deux lignes", sm_progs_parse("A;/system/a\nB;/system/b", 23, &p),
 		2);

@@ -22,7 +22,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential python3 python3-pil python3-pytest \
-            gdisk mtools dosfstools cpio git qemu-system-x86 ovmf curl xz-utils
+            gdisk mtools dosfstools cpio git qemu-system-x86 ovmf curl xz-utils \
+            openssl unzip
 
       - name: Lancer la vérification
         run: tools/ci.sh
