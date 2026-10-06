@@ -93,12 +93,12 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Couverture fonctionnelle automatisée | **91,5 %** des 82 fonctionnalités vérifiables (78,0 % entièrement automatisées, 13,4 % avec un complément manuel) |
 | Couverture manuelle seule | **8,5 %** (7 fonctionnalités), plus 21 cas de test manuels décrits dans [`tests/MANUEL.md`](tests/MANUEL.md) |
 | Cas manuels joués (sous QEMU/KVM) | 18 sur 21 : 11 réussis, 4 en échec, 3 partiels |
-| Tests unitaires | environ 530 exécutions de suites, 13,19 millions de vérifications, 0 échec (ASan et UBSan) |
-| Scénarios système | 84 exécutions sur 84 (45 scénarios, BIOS et UEFI) |
+| Tests unitaires | 597 exécutions de suites, 13,19 millions de vérifications, 0 échec (ASan et UBSan) |
+| Scénarios système | 89 exécutions sur 89 (48 scénarios, BIOS et UEFI) |
 | Autotests du noyau | 17 sur 17 |
 | Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 7 lots de tests hôte, 5 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
-| Défauts trouvés et corrigés | 39 : 23 dans le produit (6 de gravité haute, 10 moyenne, 7 basse) et 16 dans l'infrastructure de test |
-| Défauts ouverts (cas manuels) | 4 : une gravité moyenne (les fenêtres cessent de s'ouvrir après 222 ouvertures et fermetures), trois basses |
+| Défauts trouvés et corrigés | 44 : 27 dans le produit (6 de gravité haute, 11 moyenne, 10 basse) et 17 dans l'infrastructure de test |
+| Défauts ouverts | aucun au registre ; les 4 défauts trouvés par les cas manuels sont corrigés, chacun avec son test de régression |
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
 | Test de mutation | mémoire physique (41 mutants définis, 31 joués), affichage (12), polices (22) |
 | Contrôles statiques | norminette sur 1 993 fichiers, en-têtes autonomes, contrôle de fonctions dangereuses, ruff, shellcheck : 0 erreur |
@@ -130,11 +130,11 @@ Les taux ne sont pas écrits à la main : `make matrice` les recalcule depuis [`
 et vérifie que chaque test cité existe. Le détail par sous-système et par fonctionnalité est dans
 [`tests/MATRICE.md`](tests/MATRICE.md).
 
-Exécution des cas manuels (5 octobre 2026) : 18 cas sur 21 ont été joués sous QEMU/KVM, avec le clavier et la souris
-injectés par le moniteur QEMU et des captures relues une par une. 11 réussissent, 4 échouent (contraste de trois
-textes, espaces insécables, compteur `FSInfo` du FAT32, fenêtres qui cessent de s'ouvrir après 222 ouvertures et fermetures),
-3 sont partiels, un est bloqué (aucun outil pour arrêter le serveur de fenêtres), deux restent à faire (fluidité
-perçue et matériel réel). Aucun cas n'a été joué sur du matériel réel ni par une personne devant l'écran. Le détail est dans
+Exécution des cas manuels (5 et 6 octobre 2026) : 19 cas sur 21 ont été joués sous QEMU/KVM, avec le clavier et la souris
+injectés par le moniteur QEMU et des captures relues une par une. 13 réussissent, 3 sont partiels, deux restent à faire
+(fluidité perçue et matériel réel). Trois gardent leur échec du 5 octobre (contraste de trois textes, espaces insécables,
+fenêtres qui cessent de s'ouvrir après 222 ouvertures et fermetures) : les défauts sont corrigés et couverts par des
+tests automatiques, les cas manuels restent à rejouer. Aucun cas n'a été joué sur du matériel réel ni par une personne devant l'écran. Le détail est dans
 [`TESTS.md`](TESTS.md) (4.6 et 5.3) et dans [`tests/MANUEL.md`](tests/MANUEL.md).
 
 ### Stratégie fondée sur les risques
@@ -178,13 +178,14 @@ refuse`, et les sections de `TESTS.md` relient chaque sous-système à ses techn
 | Gravité | Nombre | Exemples |
 |---------|--------|----------|
 | Haute | 6 | processus qui boucle en anneau 3 sans préemption (gel de la machine), processus tué qui survit, #GP noyau quand un espace d'adressage est détruit avant son dernier fil, allocateur utilisateur qui prend une adresse valide pour une double libération, `ET_EXEC` à l'adresse 0 au lieu de `ET_DYN`, copie de pixels qui ignore la ligne de départ |
-| Moyenne | 10 | `printf` qui n'écrit aucun chiffre pour 0, lecture au-delà d'une chaîne non terminée avec `%.3s`, deux types de cache sur une même page, recherche de nom insensible à la casse limitée à l'ASCII |
-| Basse | 7 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
+| Moyenne | 11 | `printf` qui n'écrit aucun chiffre pour 0, lecture au-delà d'une chaîne non terminée avec `%.3s`, deux types de cache sur une même page, recherche de nom insensible à la casse limitée à l'ASCII |
+| Basse | 10 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
 
-Quatre défauts supplémentaires, trouvés par les cas manuels, sont ouverts (voir `TESTS.md`, 5.3).
+Les quatre derniers ont été trouvés par les cas manuels, puis corrigés avec un test de régression (voir `TESTS.md`, 5.3).
 
 Classement indicatif du niveau où chaque défaut est apparu en premier : 15 aux tests unitaires, 4 en scénario système
-(démarrage et préemption), 4 à l'intégration (lecture du journal, inspection de l'ELF, captures d'écran).
+(démarrage et préemption), 4 à l'intégration (lecture du journal, inspection de l'ELF, captures d'écran), 4 par les
+cas manuels.
 
 ### Trois histoires
 
@@ -218,9 +219,9 @@ du test, pas dans le produit. Correction : espacer les mouvements.
 ### Limites et risques résiduels
 
 - Pas de vérification sur du vrai matériel, un seul processeur, aucune mesure de performance en profil release.
-- Les cas manuels ont été joués avec des entrées injectées sous QEMU, pas sur du matériel ni par une personne devant l'écran ; quatre sont en échec et ouverts.
-- Couverture non mesurée pour plusieurs sous-systèmes ; mutation partielle ; dix tests du système de fichiers à
-  découper pour respecter la norme, et pas de scénario système pour l'écriture FAT32.
+- Les cas manuels ont été joués avec des entrées injectées sous QEMU, pas sur du matériel ni par une personne devant l'écran ; trois sont à rejouer après correction.
+- Couverture non mesurée pour plusieurs sous-systèmes ; mutation partielle ; le scénario d'écriture FAT32 ne tourne
+  qu'en BIOS.
 - Les tests de durée (équité, sommeil) restent sensibles à la charge de l'hôte.
 
 Le détail, sous-système par sous-système, figure dans [`TESTS.md`](TESTS.md).

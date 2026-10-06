@@ -26,11 +26,13 @@ n'existe pas.
 
 ## 3. Un défaut documenté (2 minutes) : P27 dans `TESTS.md` (section 5.3), puis la fiche MT-17 de `tests/MANUEL.md`
 
-Après plusieurs centaines d'ouvertures et de fermetures de fenêtres, le système cesse d'en ouvrir : pas de panique, pas de
-gel, mais plus aucune fenêtre. Le cas a été trouvé par un test d'endurance manuel, et mesuré avec deux tailles de mémoire
-(222 ouvertures avec 128 Mo, 163 avec 64 Mo).
+Après plusieurs centaines d'ouvertures et de fermetures de fenêtres, le système cessait d'en ouvrir : pas de panique, pas
+de gel, mais plus aucune fenêtre. Le cas a été trouvé par un test d'endurance manuel, et mesuré avec deux tailles de mémoire
+(222 ouvertures avec 128 Mo, 163 avec 64 Mo). La cause était dans le noyau : démapper une surface partagée ne rendait
+pas la référence sur sa mémoire.
 
-À regarder : ce que le rapport affirme (le comportement, les chiffres) et ce qu'il dit ne pas savoir (la cause).
+À regarder : le chemin du constat au test de régression (`tests/qemu/int_endurance_fenetres.py` et l'appli
+`user/apps/wstress`), écrit avant la correction.
 
 ## Ce que le dépôt ne prouve pas
 

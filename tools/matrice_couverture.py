@@ -238,11 +238,12 @@ l'automatisation ne vérifie pas : jugement visuel, ergonomie, clavier et matér
 linguistique, reproductibilité sur machine propre. Les liens avec les fonctionnalités sont dans
 [`MATRICE.md`](MATRICE.md).
 
-Exécution : {joues} cas sur {len(manuels)} ont été joués le 5 octobre 2026 sous QEMU/KVM, avec le clavier et la souris
+Exécution : {joues} cas sur {len(manuels)} ont été joués les 5 et 6 octobre 2026 sous QEMU/KVM, avec le clavier et la souris
 injectés par le moniteur QEMU (`tools/manuel.py`) et des captures relues une par une. Aucun n'a été joué sur du matériel
 réel ni par une personne devant l'écran. Restent à faire : la fluidité perçue (MT-19), le matériel réel (MT-18), l'endurance
 de 8 h (MT-17 n'a duré que 10 minutes), la machine vierge (MT-24) et la comparaison avec de vraies captures d'époque
-(MT-04). MT-20 est bloqué faute d'outil pour arrêter le serveur de fenêtres. Un statut « Échec » renvoie à un incident
+(MT-04). MT-14, MT-17 et MT-22 gardent leur échec du 5 octobre tant qu'ils ne sont pas rejoués, leurs défauts sont corrigés
+depuis le 6 octobre (voir la fiche). Un statut « Échec » renvoie à un incident
 du registre de [`../TESTS.md`](../TESTS.md). À chaque nouvelle exécution, noter la date, le résultat et les anomalies
 dans la fiche.
 

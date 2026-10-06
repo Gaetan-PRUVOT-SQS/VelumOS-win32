@@ -27,17 +27,17 @@ Les cas manuels sont décrits dans [`MANUEL.md`](MANUEL.md).
 | dont automatisée avec complément manuel (AM) | 13,4 % (11) |
 | Couverture manuelle seule (M) | **8,5 %** (7 sur 82) |
 | Fonctionnalités qui demandent au moins un test manuel (AM + M) | 22,0 % (18) |
-| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1593 |
+| Cas de test automatisés (cas unitaires, scénarios QEMU, tests Python) | 1761 |
 | Cas de test manuels | 21 |
-| Cas manuels joués | 18 sur 21 (11 réussi, 4 échec, 3 partiel) |
-| Taux d'automatisation par nombre de cas | 98,7 % |
+| Cas manuels joués | 19 sur 21 (13 réussi, 3 échec, 3 partiel) |
+| Taux d'automatisation par nombre de cas | 98,8 % |
 
 Lecture : le taux par nombre de cas est très supérieur au taux fonctionnel parce que les cas automatisés sont fins
 (une valeur limite, une partition) alors que les cas manuels sont des sessions complètes. Le taux fonctionnel est
 la mesure à retenir.
 
-Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516 cas nommés
-(`h_run`), 45 scénarios QEMU et 32 tests Python.
+Inventaire des cas automatisés : 567 fichiers de tests unitaires contenant 1665 cas nommés
+(`h_run`), 48 scénarios QEMU et 48 tests Python.
 
 ## Par sous-système
 
@@ -80,7 +80,7 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | F09 | a03 | Mappage, protection et W^X | A | [test_map.c](host/a03/test_map.c)<br>[test_protect.c](host/a03/test_protect.c)<br>[test_unmap.c](host/a03/test_unmap.c)<br>[test_audit.c](host/a03/test_audit.c) | aucun |
 | F10 | a03 | Copies utilisateur sans faute possible | A | [test_user.c](host/a03/test_user.c)<br>[test_ustr.c](host/a03/test_ustr.c)<br>[test_check.c](host/a03/test_check.c) | aucun |
 | F11 | a03 | Échec d'allocation en cours d'opération sans fuite | A | [test_fail.c](host/a03/test_fail.c)<br>[test_pool.c](host/a03/test_pool.c)<br>[test_model.c](host/a03/test_model.c) | aucun |
-| F12 | a03 | Page de garde et faute de page noyau | A | [a03_guard.py](qemu/a03_guard.py)<br>[a03_vmm.py](qemu/a03_vmm.py) | aucun |
+| F12 | a03 | Page de garde et faute de page noyau | A | [a03_guard.py](qemu/a03_guard.py)<br>[a03_vmm.py](qemu/a03_vmm.py)<br>[test_ustack.c](host/a03/test_ustack.c)<br>[test_reserve.c](host/a03/test_reserve.c) | aucun |
 | F13 | a04 | Allocation par classes, alignements, redimensionnement | A | [test_class_small.c](host/a04/test_class_small.c)<br>[test_class_large.c](host/a04/test_class_large.c)<br>[test_align.c](host/a04/test_align.c)<br>[test_realloc.c](host/a04/test_realloc.c) | aucun |
 | F14 | a04 | Détection de corruption et de double libération | A | [test_check_debug.c](host/a04/test_check_debug.c)<br>[test_free_debug.c](host/a04/test_free_debug.c)<br>[test_check_slab.c](host/a04/test_check_slab.c) | aucun |
 | F15 | a04 | Absence de fuite et injection d'échec à chaque rang | A | [test_fail_rank.c](host/a04/test_fail_rank.c)<br>[test_stats.c](host/a04/test_stats.c)<br>[test_meta.c](host/a04/test_meta.c)<br>[a04_heap.py](qemu/a04_heap.py)<br>[a04_heap_petite_ram.py](qemu/a04_heap_petite_ram.py) | aucun |
@@ -97,21 +97,21 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | F26 | a07 | Validation des arguments des appels système | A | [test_syscall_table.c](host/a07/test_syscall_table.c)<br>[test_sysret.c](host/a07/test_sysret.c)<br>[test_args.c](host/a07/test_args.c)<br>[a07_ring3test.py](qemu/a07_ring3test.py) | aucun |
 | F27 | a07 | Fautes utilisateur sans conséquence pour le noyau | A | [a07_ring3test.py](qemu/a07_ring3test.py)<br>[a07_selftest.py](qemu/a07_selftest.py)<br>[a07_init_absent.py](qemu/a07_init_absent.py) | aucun |
 | F28 | a07 | Préemption et arrêt d'un processus qui boucle en anneau 3 | A | [int_preempt.py](qemu/int_preempt.py) | aucun |
-| F29 | a07 | Supervision et relance des services de session par init (La politique de relance est testée sur l'hôte, la mort réelle de winsrv ne l'est pas.) | AM | [test_init_policy.c](host/a07/test_init_policy.c)<br>[int_session.py](qemu/int_session.py) | MT-20 |
+| F29 | a07 | Supervision et relance des services de session par init (La mort réelle de winsrv est provoquée par l'option de test init.mort-winsrv et jouée par int_winsrv_mort.) | AM | [test_init_policy.c](host/a07/test_init_policy.c)<br>[int_session.py](qemu/int_session.py)<br>[test_init_killtest.c](host/a07/test_init_killtest.c)<br>[test_init_session.c](host/a07/test_init_session.c)<br>[int_winsrv_mort.py](qemu/int_winsrv_mort.py) | MT-20 |
 | F30 | a08 | Table de handles, droits et génération | A | [test_htab.c](host/a08/test_htab.c)<br>[test_htab2.c](host/a08/test_htab2.c)<br>[test_object.c](host/a08/test_object.c) | aucun |
 | F31 | a08 | Canaux, messages et transfert de handles | A | [test_chan.c](host/a08/test_chan.c)<br>[test_msgq.c](host/a08/test_msgq.c)<br>[test_xfer.c](host/a08/test_xfer.c)<br>[test_port.c](host/a08/test_port.c)<br>[test_sysipc.c](host/a08/test_sysipc.c) | aucun |
 | F32 | a08 | Attente multiple sans réveil perdu | A | [test_wait.c](host/a08/test_wait.c)<br>[test_waitsim.c](host/a08/test_waitsim.c)<br>[test_pulse.c](host/a08/test_pulse.c) | aucun |
-| F33 | a08 | Sections de mémoire partagée | A | [test_section.c](host/a08/test_section.c)<br>[test_section2.c](host/a08/test_section2.c)<br>[test_ipcmem.c](host/a08/test_ipcmem.c)<br>[a08_objets.py](qemu/a08_objets.py) | aucun |
-| F34 | a09 | Énumération PCI, BAR, capacités, MSI | A | [test_pci_enum_basic.c](host/a09/test_pci_enum_basic.c)<br>[test_pci_enum_bridges.c](host/a09/test_pci_enum_bridges.c)<br>[test_pci_bar.c](host/a09/test_pci_bar.c)<br>[test_pci_cap.c](host/a09/test_pci_cap.c)<br>[test_pci_msi_encode.c](host/a09/test_pci_msi_encode.c)<br>[a09_pci.py](qemu/a09_pci.py)<br>[a09_pci_legacy.py](qemu/a09_pci_legacy.py)<br>[a09_pci_edu.py](qemu/a09_pci_edu.py) | aucun |
+| F33 | a08 | Sections de mémoire partagée | A | [test_section.c](host/a08/test_section.c)<br>[test_section2.c](host/a08/test_section2.c)<br>[test_ipcmem.c](host/a08/test_ipcmem.c)<br>[a08_objets.py](qemu/a08_objets.py)<br>[test_section3.c](host/a08/test_section3.c)<br>[test_section4.c](host/a08/test_section4.c)<br>[test_section5.c](host/a08/test_section5.c)<br>[test_section6.c](host/a08/test_section6.c)<br>[int_endurance_fenetres.py](qemu/int_endurance_fenetres.py) | aucun |
+| F34 | a09 | Énumération PCI, BAR, capacités, MSI | A | [test_pci_enum_basic.c](host/a09/test_pci_enum_basic.c)<br>[test_pci_enum_bridges.c](host/a09/test_pci_enum_bridges.c)<br>[test_pci_bar.c](host/a09/test_pci_bar.c)<br>[test_pci_cap.c](host/a09/test_pci_cap.c)<br>[test_pci_msi_encode.c](host/a09/test_pci_msi_encode.c)<br>[a09_pci.py](qemu/a09_pci.py)<br>[a09_pci_legacy.py](qemu/a09_pci_legacy.py)<br>[a09_pci_edu.py](qemu/a09_pci_edu.py)<br>[test_pci_intx.c](host/a09/test_pci_intx.c)<br>[test_pci_intx_wr.c](host/a09/test_pci_intx_wr.c) | aucun |
 | F35 | a09 | Générateur aléatoire (amorçage, réensemencement, uniformité) | A | [test_rng_core.c](host/a09/test_rng_core.c)<br>[test_rng_reseed.c](host/a09/test_rng_reseed.c)<br>[test_rng_below.c](host/a09/test_rng_below.c)<br>[a09_random.py](qemu/a09_random.py) | aucun |
 | F36 | a09 | SHA-256, HMAC et PBKDF2 contre les vecteurs officiels | A | [test_sha256_nist.c](host/a09/test_sha256_nist.c)<br>[test_hmac_rfc4231.c](host/a09/test_hmac_rfc4231.c)<br>[test_pbkdf2_kat.c](host/a09/test_pbkdf2_kat.c)<br>[test_chacha20.c](host/a09/test_chacha20.c) | aucun |
-| F37 | a10 | Décodeur clavier (jeu 2) et souris PS/2 avec resynchronisation | A | [test_scan2_basic.c](host/a10/test_scan2_basic.c)<br>[test_scan2_e1.c](host/a10/test_scan2_e1.c)<br>[test_scan2_fuzz.c](host/a10/test_scan2_fuzz.c)<br>[test_mouse_dec.c](host/a10/test_mouse_dec.c) | aucun |
+| F37 | a10 | Décodeur clavier (jeu 2) et souris PS/2 avec resynchronisation | A | [test_scan2_basic.c](host/a10/test_scan2_basic.c)<br>[test_scan2_e1.c](host/a10/test_scan2_e1.c)<br>[test_scan2_fuzz.c](host/a10/test_scan2_fuzz.c)<br>[test_mouse_dec.c](host/a10/test_mouse_dec.c)<br>[test_kbd_lost.c](host/a10/test_kbd_lost.c)<br>[test_sys_priv.c](host/a10/test_sys_priv.c) | aucun |
 | F38 | a10 | Dispositions AZERTY et QWERTY, touches mortes (Les touches mortes ~ et ` ont été écrites de mémoire, à confirmer sur un vrai clavier.) | AM | [test_layout_fr.c](host/a10/test_layout_fr.c)<br>[test_layout_us.c](host/a10/test_layout_us.c)<br>[test_dead.c](host/a10/test_dead.c) | MT-11 |
 | F39 | a10 | Entrées clavier et souris injectées dans QEMU | A | [a10_input.py](qemu/a10_input.py) | aucun |
-| F40 | a11 | Partitions GPT et MBR, bornes des E/S | A | [test_gpt.c](host/a11/test_gpt.c)<br>[test_gpt_hdr.c](host/a11/test_gpt_hdr.c)<br>[test_mbr.c](host/a11/test_mbr.c)<br>[test_blk_bounds.c](host/a11/test_blk_bounds.c) | aucun |
+| F40 | a11 | Partitions GPT et MBR, bornes des E/S | A | [test_gpt.c](host/a11/test_gpt.c)<br>[test_gpt_hdr.c](host/a11/test_gpt_hdr.c)<br>[test_mbr.c](host/a11/test_mbr.c)<br>[test_blk_bounds.c](host/a11/test_blk_bounds.c)<br>[test_ebr.c](host/a11/test_ebr.c)<br>[test_ebr_hostile.c](host/a11/test_ebr_hostile.c)<br>[test_ebr_scan.c](host/a11/test_ebr_scan.c)<br>[a11_etendue.py](qemu/a11_etendue.py) | aucun |
 | F41 | a11 | Pilote virtio-blk (lecture, écriture, appareil hostile) | A | [test_virtq.c](host/a11/test_virtq.c)<br>[test_vblk_io.c](host/a11/test_vblk_io.c)<br>[test_vblk_neg.c](host/a11/test_vblk_neg.c)<br>[test_vblk_fault.c](host/a11/test_vblk_fault.c)<br>[a11_virtio_blk.py](qemu/a11_virtio_blk.py)<br>[a11_absent.py](qemu/a11_absent.py) | aucun |
 | F42 | a12 | Analyse de l'initrd cpio hostile et des chemins | A | [test_cpio.c](host/a12/test_cpio.c)<br>[test_cpio_big.c](host/a12/test_cpio_big.c)<br>[test_path.c](host/a12/test_path.c) | aucun |
-| F43 | a12 | FAT32 en lecture et écriture, noms longs, appels système de fichiers (Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat. Les tests hôte de a12 sont à découper pour la norme avant d'être versionnés.) | AM | [a12_fat32.py](qemu/a12_fat32.py)<br>[test_a12_fat32.py](tools/test_a12_fat32.py) | MT-23 |
+| F43 | a12 | FAT32 en lecture et écriture, noms longs, appels système de fichiers (Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat (code 0 exigé). Tests hôte sur un faux disque en mémoire.) | AM | [a12_fat32.py](qemu/a12_fat32.py)<br>[test_a12_fat32.py](tools/test_a12_fat32.py)<br>[test_fat_fsinfo.c](host/a12/test_fat_fsinfo.c)<br>[test_fat_rw.c](host/a12/test_fat_rw.c)<br>[test_fat_lfn.c](host/a12/test_fat_lfn.c)<br>[test_fat_corrupt.c](host/a12/test_fat_corrupt.c) | MT-23 |
 | F44 | a13 | Console noyau : texte, défilement, UTF-8, entrées hostiles | A | [test_kcon_scroll.c](host/a13/test_kcon_scroll.c)<br>[test_kcon_utf8.c](host/a13/test_kcon_utf8.c)<br>[test_kcon_hostile.c](host/a13/test_kcon_hostile.c)<br>[test_kcon_wrap.c](host/a13/test_kcon_wrap.c)<br>[a13_console.py](qemu/a13_console.py) | aucun |
 | F45 | a13 | Écran d'arrêt | AM | [test_bsod_paint.c](host/a13/test_bsod_paint.c)<br>[test_bsod_table.c](host/a13/test_bsod_table.c)<br>[a13_panic.py](qemu/a13_panic.py) | MT-21 |
 | F46 | a13 | Changement de mode graphique et validation de géométrie | A | [test_dispi_mode.c](host/a13/test_dispi_mode.c)<br>[test_fbgeom.c](host/a13/test_fbgeom.c)<br>[test_display_modes.c](host/a13/test_display_modes.c)<br>[a13_modes.py](qemu/a13_modes.py) | aucun |
@@ -124,8 +124,8 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | F53 | a15 | Régions de rectangles contre un modèle bitmap | A | [test_region.c](host/a15/test_region.c)<br>[test_region_model.c](host/a15/test_region_model.c) | aucun |
 | F54 | a15 | Robustesse du dessin (fuzz, arguments extrêmes) | A | [test_fuzz.c](host/a15/test_fuzz.c)<br>[test_invalid.c](host/a15/test_invalid.c) | aucun |
 | F55 | a15 | Performance du dessin plein écran (Bancs écrits, jamais lancés.) | M | aucun | MT-19 |
-| F56 | a16 | Décodage UTF-8 strict et recherche de glyphe | A | [test_utf8_valid.c](host/a16/test_utf8_valid.c)<br>[test_utf8_invalid.c](host/a16/test_utf8_invalid.c)<br>[test_utf8_random.c](host/a16/test_utf8_random.c)<br>[test_glyph_lookup.c](host/a16/test_glyph_lookup.c) | aucun |
-| F57 | a16 | Mesure et rendu du texte | A | [test_width.c](host/a16/test_width.c)<br>[test_fit.c](host/a16/test_fit.c)<br>[test_render.c](host/a16/test_render.c)<br>[test_draw_clip.c](host/a16/test_draw_clip.c)<br>[a16_console_font.py](qemu/a16_console_font.py) | aucun |
+| F56 | a16 | Décodage UTF-8 strict et recherche de glyphe | A | [test_utf8_valid.c](host/a16/test_utf8_valid.c)<br>[test_utf8_invalid.c](host/a16/test_utf8_invalid.c)<br>[test_utf8_random.c](host/a16/test_utf8_random.c)<br>[test_glyph_lookup.c](host/a16/test_glyph_lookup.c)<br>[test_nbsp.c](host/a16/test_nbsp.c) | aucun |
+| F57 | a16 | Mesure et rendu du texte | A | [test_width.c](host/a16/test_width.c)<br>[test_fit.c](host/a16/test_fit.c)<br>[test_render.c](host/a16/test_render.c)<br>[test_draw_clip.c](host/a16/test_draw_clip.c)<br>[a16_console_font.py](qemu/a16_console_font.py)<br>[test_font_bounds.c](host/a16/test_font_bounds.c) | aucun |
 | F58 | a16 | Netteté et lisibilité des polices | M | aucun | MT-05, MT-14 |
 | F59 | a17 | Partition des zones d'une fenêtre (hit-test) | A | [test_hit_table.c](host/a17/test_hit_table.c)<br>[test_hit_sweep.c](host/a17/test_hit_sweep.c)<br>[test_hit_meta.c](host/a17/test_hit_meta.c) | aucun |
 | F60 | a17 | Métriques et géométrie du thème | A | [test_metrics.c](host/a17/test_metrics.c)<br>[test_geo_table.c](host/a17/test_geo_table.c)<br>[test_geo_inv.c](host/a17/test_geo_inv.c) | aucun |
@@ -140,9 +140,9 @@ Inventaire des cas automatisés : 512 fichiers de tests unitaires contenant 1516
 | F69 | a19 | Échec d'allocation et absence de fuite des contrôles | A | [test_alloc_fail.c](host/a19/test_alloc_fail.c)<br>[test_remove.c](host/a19/test_remove.c)<br>[test_storm.c](host/a19/test_storm.c) | aucun |
 | F70 | a19 | Accessibilité de la session entière au clavier seul | AM | [test_a11y.c](host/a19/test_a11y.c)<br>[a20_desktop.py](qemu/a20_desktop.py) | MT-13 |
 | F71 | a20 | Comptes, hachage PBKDF2 et limiteur d'essais | A | [test_acc_verify.c](host/a20/test_acc_verify.c)<br>[test_acc_hostile.c](host/a20/test_acc_hostile.c)<br>[test_auth.c](host/a20/test_auth.c)<br>[test_limiter.c](host/a20/test_limiter.c) | aucun |
-| F72 | a20 | Connexion à la souris, bureau, menu Démarrer, extinction | A | [a20_souris.py](qemu/a20_souris.py)<br>[a20_desktop.py](qemu/a20_desktop.py)<br>[int_session.py](qemu/int_session.py)<br>[int_captures.py](qemu/int_captures.py) | aucun |
+| F72 | a20 | Connexion à la souris, bureau, menu Démarrer, extinction | A | [a20_souris.py](qemu/a20_souris.py)<br>[a20_desktop.py](qemu/a20_desktop.py)<br>[int_session.py](qemu/int_session.py)<br>[int_captures.py](qemu/int_captures.py)<br>[test_programmes.c](host/a20/test_programmes.c) | aucun |
 | F73 | a20 | Barre des tâches et liste des fenêtres | AM | [test_taskbar.c](host/a20/test_taskbar.c)<br>[test_taskbar_sweep.c](host/a20/test_taskbar_sweep.c)<br>[test_tasklist.c](host/a20/test_tasklist.c) | MT-16 |
-| F74 | a20 | Boîtes de dialogue (Exécuter, Éteindre l'ordinateur) | AM | [test_runcmd.c](host/a20/test_runcmd.c)<br>[test_logon_flow.c](host/a20/test_logon_flow.c)<br>[test_sm_model.c](host/a20/test_sm_model.c) | MT-07, MT-08 |
+| F74 | a20 | Boîtes de dialogue (Exécuter, Éteindre l'ordinateur) | AM | [test_runcmd.c](host/a20/test_runcmd.c)<br>[test_logon_flow.c](host/a20/test_logon_flow.c)<br>[test_sm_model.c](host/a20/test_sm_model.c)<br>[test_typographie.py](host/a20/test_typographie.py) | MT-07, MT-08 |
 | F75 | a20 | Horloge de la zone de notification et formats de date | AM | [test_timefmt_clock.c](host/a20/test_timefmt_clock.c)<br>[test_timefmt_uptime.c](host/a20/test_timefmt_uptime.c) | MT-10 |
 | F76 | transverse | Construction du noyau, des applis et de l'image bootable (BIOS et UEFI) | A | [skel_boot.py](qemu/skel_boot.py)<br>[test_mkimage.py](tools/test_mkimage.py)<br>[Makefile](../Makefile) | aucun |
 | F77 | transverse | Qualité du code : norme, en-têtes autonomes, sécurité statique | A | [norme.sh](../tools/norme.sh)<br>[scan_securite.py](../tools/scan_securite.py)<br>[test.mk](../mk/test.mk) | aucun |

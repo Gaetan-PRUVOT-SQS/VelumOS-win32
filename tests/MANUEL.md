@@ -5,15 +5,16 @@ l'automatisation ne vérifie pas : jugement visuel, ergonomie, clavier et matér
 linguistique, reproductibilité sur machine propre. Les liens avec les fonctionnalités sont dans
 [`MATRICE.md`](MATRICE.md).
 
-Exécution : 18 cas sur 21 ont été joués le 5 octobre 2026 sous QEMU/KVM, avec le clavier et la souris
+Exécution : 19 cas sur 21 ont été joués les 5 et 6 octobre 2026 sous QEMU/KVM, avec le clavier et la souris
 injectés par le moniteur QEMU (`tools/manuel.py`) et des captures relues une par une. Aucun n'a été joué sur du matériel
 réel ni par une personne devant l'écran. Restent à faire : la fluidité perçue (MT-19), le matériel réel (MT-18), l'endurance
 de 8 h (MT-17 n'a duré que 10 minutes), la machine vierge (MT-24) et la comparaison avec de vraies captures d'époque
-(MT-04). MT-20 est bloqué faute d'outil pour arrêter le serveur de fenêtres. Un statut « Échec » renvoie à un incident
+(MT-04). MT-14, MT-17 et MT-22 gardent leur échec du 5 octobre tant qu'ils ne sont pas rejoués, leurs défauts sont corrigés
+depuis le 6 octobre (voir la fiche). Un statut « Échec » renvoie à un incident
 du registre de [`../TESTS.md`](../TESTS.md). À chaque nouvelle exécution, noter la date, le résultat et les anomalies
 dans la fiche.
 
-21 cas, durée estimée 14 h 35 min. Statuts : 11 réussi, 4 échec, 3 partiel, 1 bloqué, 2 a exécuter.
+21 cas, durée estimée 14 h 35 min. Statuts : 13 réussi, 3 échec, 3 partiel, 2 a exécuter.
 
 | ID | Cas | Durée (min) | Statut |
 |----|-----|-------------|--------|
@@ -33,10 +34,10 @@ dans la fiche.
 | MT-17 | Endurance | 480 | Échec |
 | MT-18 | Matériel réel | 60 | A exécuter |
 | MT-19 | Fluidité perçue | 10 | A exécuter |
-| MT-20 | Mort du serveur de fenêtres | 15 | Bloqué |
+| MT-20 | Mort du serveur de fenêtres | 15 | Réussi |
 | MT-21 | Lisibilité de l'écran d'arrêt | 5 | Réussi |
 | MT-22 | Revue linguistique de l'interface | 20 | Échec |
-| MT-23 | FAT32 sur une image réelle | 30 | Échec |
+| MT-23 | FAT32 sur une image réelle | 30 | Réussi |
 | MT-24 | Construction sur une machine propre | 90 | Partiel |
 
 ## Fiches
@@ -291,6 +292,7 @@ Constat : 17 textes sur 20 respectent 4,5 (de 5,44 à 21,00). Trois sont en dess
 Observations :
 
 - Les couleurs reprennent le style Luna : corriger demande un arbitrage entre fidélité visuelle et lisibilité.
+- P25 corrigé le 6 octobre : les couleurs des trois textes passent le seuil de 4,5, vérifié par tests/host/a17/test_contrast_bar.c et test_contrast_win.c. Mesure sur capture à rejouer.
 
 Incidents : P25 (voir `../TESTS.md`).
 
@@ -338,6 +340,7 @@ Observations :
 
 - La mémoire libre n'est visible nulle part (ni à l'écran, ni dans le journal) : l'étape 2 du cas ne peut se faire qu'en observant l'échec.
 - Quand le lancement échoue, le shell n'affiche aucun message à l'utilisateur.
+- P27 corrigé le 6 octobre : tests/qemu/int_endurance_fenetres.py ouvre et ferme 320 fenêtres avec 64 Mo, mémoire libre identique avant et après. Cas manuel à rejouer.
 
 Incidents : P27 (voir `../TESTS.md`).
 
@@ -372,22 +375,22 @@ Résultat attendu : Pas de saccade visible ni de retard notable.
 
 - Fonctionnalités : F29
 - Objectif : Vérifier que init relance le serveur et la session.
-- Préconditions : Session ouverte, accès à un moyen d'arrêter winsrv (outil de test).
+- Préconditions : Image construite, option de ligne de commande init.mort-winsrv.
 - Durée estimée : 15 min
-- Statut : Bloqué
+- Statut : Réussi
 
 1. Arrêter le processus winsrv.
 2. Observer l'écran et le journal.
 
 Résultat attendu : L'écran de connexion revient, le noyau ne panique pas, le journal montre la relance.
 
-Exécution du 2026-10-05 : analyse des sources.
+Exécution du 2026-10-06 : QEMU/KVM, BIOS et UEFI, scénario tests/qemu/int_winsrv_mort.py (session ouverte au clavier, captures comparées).
 
-Constat : Impossible à jouer : aucun outil de test ne permet d'arrêter winsrv. SYS_PROC_KILL prend un handle et un processus ne détient que ceux de ses enfants. init, seul parent de winsrv, n'a pas de commande d'arrêt. La relance n'est vérifiée que par test_init_policy sur l'hôte.
+Constat : Avec init.mort-winsrv, init arrête winsrv une fois la session ouverte (« winsrv terminé (code 99) »), le relance aussitôt, logon ferme la session et revient à l'écran de connexion sur le nouveau serveur. Une seconde session s'ouvre et le bureau s'affiche avec sa barre des tâches. Aucune panique, aucun service abandonné.
 
 Observations :
 
-- Il faut un point d'entrée de test, par exemple une option de ligne de commande qui fait quitter winsrv.
+- Le cas était bloqué le 5 octobre faute de moyen d'arrêter winsrv : l'option de test a été ajoutée à init le 6 octobre.
 
 ### MT-21 : Lisibilité de l'écran d'arrêt
 
@@ -430,6 +433,7 @@ Constat : Orthographe : aucune faute relevée. Typographie : aucune espace insé
 Observations :
 
 - « Exécuter... » utilise trois points au lieu du caractère « … ».
+- P26 corrigé le 6 octobre : espaces insécables posées, vérifiées par tests/host/a20/test_typographie.py. Relecture complète à rejouer.
 
 Incidents : P26 (voir `../TESTS.md`).
 
@@ -439,7 +443,7 @@ Incidents : P26 (voir `../TESTS.md`).
 - Objectif : Vérifier lecture, écriture et cohérence d'un volume FAT32.
 - Préconditions : mtools et dosfstools installés.
 - Durée estimée : 30 min
-- Statut : Échec
+- Statut : Réussi
 
 1. Créer une image FAT32 avec mformat -F et y copier des fichiers (mcopy, mmd).
 2. La brancher en virtio-blk et démarrer avec selftest.
@@ -448,13 +452,14 @@ Incidents : P26 (voir `../TESTS.md`).
 
 Résultat attendu : Autotest du VFS réussi, aucune erreur de fsck.vfat.
 
-Exécution du 2026-10-05 : QEMU/KVM, image FAT32 de 64 Mo faite avec mformat, disque virtio-blk, contrôle avec fsck.vfat et mtools.
+Exécution du 2026-10-06 : QEMU/KVM, scénario tests/qemu/a12_fat32.py : image FAT32 de 64 Mo faite avec mformat, disque virtio-blk, contrôle avec fsck.vfat et mtools.
 
-Constat : Le noyau monte l'image (« vfs: fat32 sur /data, 129022 clusters », « /data monté sur vda ») et l'autotest passe (« vfs: autotest data ok » : lecture 8.3 et nom long, mkdir, écriture de 70 000 octets, relecture, renommage, suppression), SELFTESTS PASS 17. Après l'arrêt, mtools relit le fichier écrit (contenu conforme octet pour octet, nom long conservé), mais fsck.vfat -n rend le code 1 : « Free cluster summary wrong (128879 vs. really 128880) ».
+Constat : Le noyau monte l'image, l'autotest du VFS passe (lecture 8.3 et nom long, mkdir, écriture, relecture, renommage, suppression). Après l'arrêt, mtools relit le fichier écrit et fsck.vfat -n rend le code 0 : le compteur de clusters libres de FSInfo est exact.
 
 Observations :
 
 - Les dates écrites par le noyau sont en UTC (16:58) alors que mtools écrit l'heure locale (18:58) : FAT ne stocke pas de fuseau.
+- Échec le 5 octobre (P24, compteur FSInfo décalé de 1), corrigé le 6 octobre : le scénario n'accepte plus aucune anomalie de fsck.vfat.
 
 Incidents : P24 (voir `../TESTS.md`).
 

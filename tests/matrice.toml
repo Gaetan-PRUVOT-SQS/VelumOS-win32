@@ -90,7 +90,7 @@ id = "F12"
 sous_systeme = "a03"
 titre = "Page de garde et faute de page noyau"
 mode = "A"
-tests = ["tests/qemu/a03_guard.py", "tests/qemu/a03_vmm.py"]
+tests = ["tests/qemu/a03_guard.py", "tests/qemu/a03_vmm.py", "tests/host/a03/test_ustack.c", "tests/host/a03/test_reserve.c"]
 
 [[fonction]]
 id = "F13"
@@ -210,9 +210,9 @@ id = "F29"
 sous_systeme = "a07"
 titre = "Supervision et relance des services de session par init"
 mode = "AM"
-tests = ["tests/host/a07/test_init_policy.c", "tests/qemu/int_session.py"]
+tests = ["tests/host/a07/test_init_policy.c", "tests/qemu/int_session.py", "tests/host/a07/test_init_killtest.c", "tests/host/a07/test_init_session.c", "tests/qemu/int_winsrv_mort.py"]
 manuels = ["MT-20"]
-note = "La politique de relance est testée sur l'hôte, la mort réelle de winsrv ne l'est pas."
+note = "La mort réelle de winsrv est provoquée par l'option de test init.mort-winsrv et jouée par int_winsrv_mort."
 
 [[fonction]]
 id = "F30"
@@ -240,14 +240,14 @@ id = "F33"
 sous_systeme = "a08"
 titre = "Sections de mémoire partagée"
 mode = "A"
-tests = ["tests/host/a08/test_section.c", "tests/host/a08/test_section2.c", "tests/host/a08/test_ipcmem.c", "tests/qemu/a08_objets.py"]
+tests = ["tests/host/a08/test_section.c", "tests/host/a08/test_section2.c", "tests/host/a08/test_ipcmem.c", "tests/qemu/a08_objets.py", "tests/host/a08/test_section3.c", "tests/host/a08/test_section4.c", "tests/host/a08/test_section5.c", "tests/host/a08/test_section6.c", "tests/qemu/int_endurance_fenetres.py"]
 
 [[fonction]]
 id = "F34"
 sous_systeme = "a09"
 titre = "Énumération PCI, BAR, capacités, MSI"
 mode = "A"
-tests = ["tests/host/a09/test_pci_enum_basic.c", "tests/host/a09/test_pci_enum_bridges.c", "tests/host/a09/test_pci_bar.c", "tests/host/a09/test_pci_cap.c", "tests/host/a09/test_pci_msi_encode.c", "tests/qemu/a09_pci.py", "tests/qemu/a09_pci_legacy.py", "tests/qemu/a09_pci_edu.py"]
+tests = ["tests/host/a09/test_pci_enum_basic.c", "tests/host/a09/test_pci_enum_bridges.c", "tests/host/a09/test_pci_bar.c", "tests/host/a09/test_pci_cap.c", "tests/host/a09/test_pci_msi_encode.c", "tests/qemu/a09_pci.py", "tests/qemu/a09_pci_legacy.py", "tests/qemu/a09_pci_edu.py", "tests/host/a09/test_pci_intx.c", "tests/host/a09/test_pci_intx_wr.c"]
 
 [[fonction]]
 id = "F35"
@@ -268,7 +268,7 @@ id = "F37"
 sous_systeme = "a10"
 titre = "Décodeur clavier (jeu 2) et souris PS/2 avec resynchronisation"
 mode = "A"
-tests = ["tests/host/a10/test_scan2_basic.c", "tests/host/a10/test_scan2_e1.c", "tests/host/a10/test_scan2_fuzz.c", "tests/host/a10/test_mouse_dec.c"]
+tests = ["tests/host/a10/test_scan2_basic.c", "tests/host/a10/test_scan2_e1.c", "tests/host/a10/test_scan2_fuzz.c", "tests/host/a10/test_mouse_dec.c", "tests/host/a10/test_kbd_lost.c", "tests/host/a10/test_sys_priv.c"]
 
 [[fonction]]
 id = "F38"
@@ -291,7 +291,7 @@ id = "F40"
 sous_systeme = "a11"
 titre = "Partitions GPT et MBR, bornes des E/S"
 mode = "A"
-tests = ["tests/host/a11/test_gpt.c", "tests/host/a11/test_gpt_hdr.c", "tests/host/a11/test_mbr.c", "tests/host/a11/test_blk_bounds.c"]
+tests = ["tests/host/a11/test_gpt.c", "tests/host/a11/test_gpt_hdr.c", "tests/host/a11/test_mbr.c", "tests/host/a11/test_blk_bounds.c", "tests/host/a11/test_ebr.c", "tests/host/a11/test_ebr_hostile.c", "tests/host/a11/test_ebr_scan.c", "tests/qemu/a11_etendue.py"]
 
 [[fonction]]
 id = "F41"
@@ -312,9 +312,9 @@ id = "F43"
 sous_systeme = "a12"
 titre = "FAT32 en lecture et écriture, noms longs, appels système de fichiers"
 mode = "AM"
-tests = ["tests/qemu/a12_fat32.py", "tests/tools/test_a12_fat32.py"]
+tests = ["tests/qemu/a12_fat32.py", "tests/tools/test_a12_fat32.py", "tests/host/a12/test_fat_fsinfo.c", "tests/host/a12/test_fat_rw.c", "tests/host/a12/test_fat_lfn.c", "tests/host/a12/test_fat_corrupt.c"]
 manuels = ["MT-23"]
-note = "Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat. Les tests hôte de a12 sont à découper pour la norme avant d'être versionnés."
+note = "Scénario QEMU sur une image mtools, relue par mtools et contrôlée par fsck.vfat (code 0 exigé). Tests hôte sur un faux disque en mémoire."
 
 [[fonction]]
 id = "F44"
@@ -408,14 +408,14 @@ id = "F56"
 sous_systeme = "a16"
 titre = "Décodage UTF-8 strict et recherche de glyphe"
 mode = "A"
-tests = ["tests/host/a16/test_utf8_valid.c", "tests/host/a16/test_utf8_invalid.c", "tests/host/a16/test_utf8_random.c", "tests/host/a16/test_glyph_lookup.c"]
+tests = ["tests/host/a16/test_utf8_valid.c", "tests/host/a16/test_utf8_invalid.c", "tests/host/a16/test_utf8_random.c", "tests/host/a16/test_glyph_lookup.c", "tests/host/a16/test_nbsp.c"]
 
 [[fonction]]
 id = "F57"
 sous_systeme = "a16"
 titre = "Mesure et rendu du texte"
 mode = "A"
-tests = ["tests/host/a16/test_width.c", "tests/host/a16/test_fit.c", "tests/host/a16/test_render.c", "tests/host/a16/test_draw_clip.c", "tests/qemu/a16_console_font.py"]
+tests = ["tests/host/a16/test_width.c", "tests/host/a16/test_fit.c", "tests/host/a16/test_render.c", "tests/host/a16/test_draw_clip.c", "tests/qemu/a16_console_font.py", "tests/host/a16/test_font_bounds.c"]
 
 [[fonction]]
 id = "F58"
@@ -522,7 +522,7 @@ id = "F72"
 sous_systeme = "a20"
 titre = "Connexion à la souris, bureau, menu Démarrer, extinction"
 mode = "A"
-tests = ["tests/qemu/a20_souris.py", "tests/qemu/a20_desktop.py", "tests/qemu/int_session.py", "tests/qemu/int_captures.py"]
+tests = ["tests/qemu/a20_souris.py", "tests/qemu/a20_desktop.py", "tests/qemu/int_session.py", "tests/qemu/int_captures.py", "tests/host/a20/test_programmes.c"]
 
 [[fonction]]
 id = "F73"
@@ -537,7 +537,7 @@ id = "F74"
 sous_systeme = "a20"
 titre = "Boîtes de dialogue (Exécuter, Éteindre l'ordinateur)"
 mode = "AM"
-tests = ["tests/host/a20/test_runcmd.c", "tests/host/a20/test_logon_flow.c", "tests/host/a20/test_sm_model.c"]
+tests = ["tests/host/a20/test_runcmd.c", "tests/host/a20/test_logon_flow.c", "tests/host/a20/test_sm_model.c", "tests/host/a20/test_typographie.py"]
 manuels = ["MT-07", "MT-08"]
 
 [[fonction]]
@@ -777,7 +777,7 @@ statut = "Échec"
 date = "2026-10-05"
 moyen = "QEMU/KVM, 20 zones de texte mesurées avec tools/contraste.py sur les captures"
 constat = "17 textes sur 20 respectent 4,5 (de 5,44 à 21,00). Trois sont en dessous : « démarrer » blanc gras sur vert à 3,57, libellé des boutons inactifs de la barre des tâches à 3,91, titre d'une fenêtre inactive à 2,07."
-observations = ["Les couleurs reprennent le style Luna : corriger demande un arbitrage entre fidélité visuelle et lisibilité."]
+observations = ["Les couleurs reprennent le style Luna : corriger demande un arbitrage entre fidélité visuelle et lisibilité.", "P25 corrigé le 6 octobre : les couleurs des trois textes passent le seuil de 4,5, vérifié par tests/host/a17/test_contrast_bar.c et test_contrast_win.c. Mesure sur capture à rejouer."]
 incidents = ["P25"]
 duree = 10
 
@@ -807,7 +807,7 @@ statut = "Échec"
 date = "2026-10-05"
 moyen = "QEMU/KVM, boucle de 300 ouvertures et fermetures de la fenêtre Bonjour au clavier (environ 10 minutes), avec 128 Mo puis 64 Mo de RAM"
 constat = "Aucune panique, aucun gel, aucune ligne d'erreur dans le journal, le bureau reste intact (captures identiques aux cycles 50, 150 et 250 hors horloge). Mais le système cesse d'ouvrir des fenêtres : avec 128 Mo, la 223e tentative donne « hello: connexion au serveur de fenêtres impossible » (222 réussites), avec 64 Mo plus aucune fenêtre ne s'ouvre après la 163e, sans message. Le nombre de réussites dépend de la taille de la mémoire. L'endurance de 8 h n'a pas été jouée."
-observations = ["La mémoire libre n'est visible nulle part (ni à l'écran, ni dans le journal) : l'étape 2 du cas ne peut se faire qu'en observant l'échec.", "Quand le lancement échoue, le shell n'affiche aucun message à l'utilisateur."]
+observations = ["La mémoire libre n'est visible nulle part (ni à l'écran, ni dans le journal) : l'étape 2 du cas ne peut se faire qu'en observant l'échec.", "Quand le lancement échoue, le shell n'affiche aucun message à l'utilisateur.", "P27 corrigé le 6 octobre : tests/qemu/int_endurance_fenetres.py ouvre et ferme 320 fenêtres avec 64 Mo, mémoire libre identique avant et après. Cas manuel à rejouer."]
 incidents = ["P27"]
 duree = 480
 
@@ -835,14 +835,14 @@ duree = 10
 id = "MT-20"
 titre = "Mort du serveur de fenêtres"
 objectif = "Vérifier que init relance le serveur et la session."
-prerequis = "Session ouverte, accès à un moyen d'arrêter winsrv (outil de test)."
+prerequis = "Image construite, option de ligne de commande init.mort-winsrv."
 etapes = ["Arrêter le processus winsrv.", "Observer l'écran et le journal."]
 attendu = "L'écran de connexion revient, le noyau ne panique pas, le journal montre la relance."
-statut = "Bloqué"
-date = "2026-10-05"
-moyen = "analyse des sources"
-constat = "Impossible à jouer : aucun outil de test ne permet d'arrêter winsrv. SYS_PROC_KILL prend un handle et un processus ne détient que ceux de ses enfants. init, seul parent de winsrv, n'a pas de commande d'arrêt. La relance n'est vérifiée que par test_init_policy sur l'hôte."
-observations = ["Il faut un point d'entrée de test, par exemple une option de ligne de commande qui fait quitter winsrv."]
+statut = "Réussi"
+date = "2026-10-06"
+moyen = "QEMU/KVM, BIOS et UEFI, scénario tests/qemu/int_winsrv_mort.py (session ouverte au clavier, captures comparées)"
+constat = "Avec init.mort-winsrv, init arrête winsrv une fois la session ouverte (« winsrv terminé (code 99) »), le relance aussitôt, logon ferme la session et revient à l'écran de connexion sur le nouveau serveur. Une seconde session s'ouvre et le bureau s'affiche avec sa barre des tâches. Aucune panique, aucun service abandonné."
+observations = ["Le cas était bloqué le 5 octobre faute de moyen d'arrêter winsrv : l'option de test a été ajoutée à init le 6 octobre."]
 incidents = []
 duree = 15
 
@@ -872,7 +872,7 @@ statut = "Échec"
 date = "2026-10-05"
 moyen = "relecture des textes dans les sources et sur les captures (une quarantaine de chaînes)"
 constat = "Orthographe : aucune faute relevée. Typographie : aucune espace insécable. Les espaces avant « : », « ! » et « ? », à l'intérieur des guillemets « » et avant les unités (« 4 min 30 s ») sont des espaces ordinaires, la ligne peut se couper à cet endroit."
-observations = ["« Exécuter... » utilise trois points au lieu du caractère « … »."]
+observations = ["« Exécuter... » utilise trois points au lieu du caractère « … ».", "P26 corrigé le 6 octobre : espaces insécables posées, vérifiées par tests/host/a20/test_typographie.py. Relecture complète à rejouer."]
 incidents = ["P26"]
 duree = 20
 
@@ -883,11 +883,11 @@ objectif = "Vérifier lecture, écriture et cohérence d'un volume FAT32."
 prerequis = "mtools et dosfstools installés."
 etapes = ["Créer une image FAT32 avec mformat -F et y copier des fichiers (mcopy, mmd).", "La brancher en virtio-blk et démarrer avec selftest.", "Lire la ligne d'autotest du VFS.", "Contrôler l'image avec fsck.vfat -n."]
 attendu = "Autotest du VFS réussi, aucune erreur de fsck.vfat."
-statut = "Échec"
-date = "2026-10-05"
-moyen = "QEMU/KVM, image FAT32 de 64 Mo faite avec mformat, disque virtio-blk, contrôle avec fsck.vfat et mtools"
-constat = "Le noyau monte l'image (« vfs: fat32 sur /data, 129022 clusters », « /data monté sur vda ») et l'autotest passe (« vfs: autotest data ok » : lecture 8.3 et nom long, mkdir, écriture de 70 000 octets, relecture, renommage, suppression), SELFTESTS PASS 17. Après l'arrêt, mtools relit le fichier écrit (contenu conforme octet pour octet, nom long conservé), mais fsck.vfat -n rend le code 1 : « Free cluster summary wrong (128879 vs. really 128880) »."
-observations = ["Les dates écrites par le noyau sont en UTC (16:58) alors que mtools écrit l'heure locale (18:58) : FAT ne stocke pas de fuseau."]
+statut = "Réussi"
+date = "2026-10-06"
+moyen = "QEMU/KVM, scénario tests/qemu/a12_fat32.py : image FAT32 de 64 Mo faite avec mformat, disque virtio-blk, contrôle avec fsck.vfat et mtools"
+constat = "Le noyau monte l'image, l'autotest du VFS passe (lecture 8.3 et nom long, mkdir, écriture, relecture, renommage, suppression). Après l'arrêt, mtools relit le fichier écrit et fsck.vfat -n rend le code 0 : le compteur de clusters libres de FSInfo est exact."
+observations = ["Les dates écrites par le noyau sont en UTC (16:58) alors que mtools écrit l'heure locale (18:58) : FAT ne stocke pas de fuseau.", "Échec le 5 octobre (P24, compteur FSInfo décalé de 1), corrigé le 6 octobre : le scénario n'accepte plus aucune anomalie de fsck.vfat."]
 incidents = ["P24"]
 duree = 30
 

@@ -96,12 +96,12 @@ Les seuls aléas sont des graines affichées par les tests (listées au point 5)
 
 | Mesure | Résultat |
 |--------|----------|
-| Compilation complète (`make -j8 all`) | 0 erreur, noyau, 8 applis, image Limine BIOS et UEFI |
+| Compilation complète (`make -j8 all`) | 0 erreur, noyau, 9 applis, image Limine BIOS et UEFI |
 | Autotests noyau au démarrage | 17 sur 17 (`SELFTESTS PASS 17`), BIOS et UEFI |
-| Scénarios QEMU | 84 exécutions sur 84 (45 fichiers, deux firmwares pour la plupart), dernier passage complet en 2 min 31 s à -j6 |
+| Scénarios QEMU | 89 exécutions sur 89 (48 fichiers, deux firmwares pour la plupart) |
 | Intégration continue (`tools/ci.sh`) | rejouée dans un conteneur Ubuntu 24.04 (gcc 13, QEMU 8.2, sans KVM) : 13 tests d'outils, 7 lots de tests hôte, 5 scénarios (10 exécutions), tout vert |
-| Tests hôte | 530 exécutions de suites, 13,19 millions de vérifications, 0 échec au passage final (505 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
-| Norme 42 | 1 993 fichiers C et en-têtes sans erreur au dernier balayage complet, puis les fichiers touchés ensuite contrôlés un à un |
+| Tests hôte | 597 exécutions de suites, 13,19 millions de vérifications, 0 échec au passage final, binaires reconstruits de zéro (560 fichiers `test_*.c`, certains joués en debug et en release, plus 7 bancs de rendu) |
+| Norme 42 | 2 086 fichiers C et en-têtes sans erreur au dernier balayage complet |
 | `make scan` (fonctions C dangereuses, secrets, idiomes risqués) | 0 alerte sur tout le dépôt |
 | ruff, ruff format, shellcheck, shfmt | propres |
 | `make hdrcheck` | tous les en-têtes sont autonomes |
@@ -116,24 +116,24 @@ ce qui n'a pas tourné.
 |-----|------|------|--------------|--------------------|-----------------------|
 | a01 cpu | 7 | 9 | octets des descripteurs d'après le SDM, CPUID factice, fautes volontaires `fault=` | 100 % lignes, branches et conditions, sauf `idt_table` 90 % des conditions | pas de SMP |
 | a02 pmm | 33 | 6 | modèle de référence 100 000 opérations, métamorphique, échecs injectés, mutation | 100 % sauf `pmm_fault` (93,75 % des lignes) et `pmm_region` (96,67 % des branches) | mutants M13, M20, M32 à M41 non rejoués |
-| a03 vmm | 14 | 2 | pseudo-physique, modèle de 4 000 opérations, échec pmm à chaque rang, copies utilisateur | 96,2 % des 954 lignes | pas de `PROT_NONE` ni de pages paresseuses |
+| a03 vmm | 16 | 2 | pseudo-physique, modèle de 4 000 opérations, échec pmm à chaque rang, copies utilisateur | 96,2 % des 954 lignes | pas de `PROT_NONE` ni de pages paresseuses |
 | a04 heap | 30 | 2 | 6 graines de métamorphique (324 472 vérifications), échec à chaque rang, fils | non mesurée | `cov-a04`, bancs et TSan non lancés |
 | a05 acpi, irq, temps | 17 | 0 | 1e9 points TSC vers ns à moins de 1 ppm, tables ACPI corrompues, RTC | code pur : 85,7 % à 100 % (13 fichiers sur 22 à 100 %) | scénarios dédiés non écrits (couverts par `skel_boot`), extinction jouée seulement par `a20_souris` |
 | a06 sched | 17 | 1 | simulation pthreads, files de priorité, mutex, autotests noyau | non mesurée | exclusion mutuelle à 1 M d'incréments au lieu de 10 M |
-| a07 proc | 12 | 3 | corpus ELF (4 890 refusés, 1 110 acceptés, graine `0xa07c0de`), `ring3test` 71 vérifications | non mesurée | chaîne `init` vers `winsrv` : redémarrage sur mort testé sur l'hôte seulement |
-| a08 obj | 19 | 1 | 100 000 courses simulées sans réveil perdu, détection vérifiée par mutation volontaire (2 222 réveils perdus) | 95,0 % des lignes, 83,8 % des branches | pas de test SMP |
-| a09 pci, aléa, crypto | 51 | 4 | vecteurs NIST, RFC 4231, 7914, 8439, khi-deux 246,3 pour 255 degrés, MSI de bout en bout sur l'appareil `edu` | non mesurée | fuzz de configuration PCI, mutation |
-| a10 clavier, souris | 34 | 1 | décodeur sur 100 000 octets aléatoires, tables us et fr complètes | non mesurée | `inputlog`, `input_boot_init` et changement de disposition non testés sur l'hôte |
-| a11 bloc, virtio | 16 | 2 | CRC32, GPT et MBR fabriquées (relues par `sgdisk -v` et `sfdisk`), faux appareil virtio complet | 97,4 % des 1 084 lignes, 90,1 % des branches, MC/DC à 100 % sur les bornes | MSI-X, partitions étendues |
-| a12 vfs, fat | 3 (10 à réintégrer) | 1 | cpio 405 vérifications (10 000 entrées, troncature à chaque octet), FAT32 : 400 images corrompues, 20 000 opérations avec contrôle fsck | non mesurée | 10 tests à découper pour la norme |
+| a07 proc | 15 | 3 | corpus ELF (4 890 refusés, 1 110 acceptés, graine `0xa07c0de`), `ring3test` 71 vérifications | non mesurée | chaîne `init` vers `winsrv` : redémarrage sur mort testé sur l'hôte seulement |
+| a08 obj | 23 | 1 | 100 000 courses simulées sans réveil perdu, détection vérifiée par mutation volontaire (2 222 réveils perdus) | 95,0 % des lignes, 83,8 % des branches | pas de test SMP |
+| a09 pci, aléa, crypto | 53 | 4 | vecteurs NIST, RFC 4231, 7914, 8439, khi-deux 246,3 pour 255 degrés, MSI de bout en bout sur l'appareil `edu` | non mesurée | fuzz de configuration PCI, mutation |
+| a10 clavier, souris | 40 | 1 | décodeur sur 100 000 octets aléatoires, tables us et fr complètes | non mesurée | `inputlog`, `input_boot_init` et changement de disposition non testés sur l'hôte |
+| a11 bloc, virtio | 21 | 3 | CRC32, GPT et MBR fabriquées (relues par `sgdisk -v` et `sfdisk`), faux appareil virtio complet | 97,4 % des 1 084 lignes, 90,1 % des branches, MC/DC à 100 % sur les bornes | MSI-X |
+| a12 vfs, fat | 26 | 1 | cpio 405 vérifications (10 000 entrées, troncature à chaque octet), FAT32 : 400 images corrompues, 20 000 opérations avec contrôle fsck | non mesurée | scénario en BIOS seulement |
 | a13 affichage | 37 | 4 | fuzz de 20 000 appels (graine 20261005), géométrie hostile, mutation (8 tuées sur 12) | 99,4 % des 880 lignes, 87,4 % des 546 branches | 2 mutants survivants renforcés mais non rejoués, chemin DISPI par ports jamais exécuté |
 | a14 libvelum | 63 | 1 | allocateur (churn, double libération), pile de départ, 68 vérifications de `vtest` dans QEMU | pile de départ et RELRO 100 %, allocateur 505 sur 526 lignes, libc pure 100 % des lignes | `crt0.S`, `guard.S`, `thread.S` seulement en QEMU |
 | a15 gfx | 30 | 0 | mélange exhaustif 16,7 millions de triplets, 1 million d'appels fuzz, régions contre modèle bitmap | non mesurée | `cov.sh`, bancs de performance |
-| a16 polices | 20 | 1 | 10 365 120 séquences UTF-8 recoupées avec CPython sans écart, mutation (19 mutants tués sur 22 au premier passage, les 3 survivants tués à la repasse ciblée), génération reproductible | 100 % des lignes sauf l'autotest (92,7 %) | repasse complète des mutants sur l'arbre final interrompue |
-| a17 Luna | 9 | 0 | partition complète de `luna_hit_test` sur trois tailles (46 508 et 123 636 vérifications), galerie relue | non mesurée | tests de garde du dessin, pixels clés, hashes figés, mise en page |
+| a16 polices | 22 | 1 | 10 365 120 séquences UTF-8 recoupées avec CPython sans écart, mutation (19 mutants tués sur 22 au premier passage, les 3 survivants tués à la repasse ciblée), génération reproductible | 100 % des lignes sauf l'autotest (92,7 %) | repasse complète des mutants sur l'arbre final interrompue |
+| a17 Luna | 11 | 0 | partition complète de `luna_hit_test` sur trois tailles (46 508 et 123 636 vérifications), galerie relue | non mesurée | tests de garde du dessin, pixels clés, hashes figés, mise en page |
 | a18 winsrv | 16 | 0 | 1 000 opérations aléatoires, 100 000 messages, composition incrémentale identique à la complète | non mesurée | scénario QEMU propre, `lib/wm` contre le serveur |
 | a19 ctl | 47 | 0 | chaque allocation échoue une fois (348), édition UTF-8 en fuzz, contraste WCAG (17:1, 5,25:1, 3,9:1) | non mesurée | comparaison aux vrais rendus Luna |
-| a20 session | 29 (+7 rendu) | 2 | PBKDF2 contre `hashlib`, balayages de mise en page, rendus relus | non mesurée | `hello` sans test de rendu |
+| a20 session | 30 (+7 rendu) | 2 | PBKDF2 contre `hashlib`, balayages de mise en page, rendus relus | non mesurée | `hello` sans test de rendu |
 | Intégration | 0 | 3 | session complète, préemption, kill | sans objet | voir point 6 |
 
 ### 4.3 Mesures relevées pendant la campagne (QEMU sous KVM, BIOS)
@@ -185,10 +185,11 @@ de l'interface. Le FAT32 est passé de M à AM avec le scénario `a12_fat32` (im
 
 ### 4.6 Exécution des cas manuels
 
-Les cas de [`tests/MANUEL.md`](tests/MANUEL.md) ont été joués le 5 octobre 2026 sous QEMU/KVM : le clavier et la souris
+Les cas de [`tests/MANUEL.md`](tests/MANUEL.md) ont été joués les 5 et 6 octobre 2026 sous QEMU/KVM : le clavier et la souris
 sont injectés par le moniteur QEMU avec `tools/manuel.py`, chaque étape est relue sur une capture, et les mesures sont
 faites sur les pixels (`tools/contraste.py` pour les rapports de contraste). Rien n'a été joué sur du matériel réel ni par
-une personne devant l'écran. Résultat : 11 réussis, 4 en échec, 3 partiels, 1 bloqué, 2 à exécuter.
+une personne devant l'écran. Résultat : 13 réussis, 3 en échec, 3 partiels, 2 à exécuter. Les trois échecs datent du
+5 octobre : leurs défauts sont corrigés depuis (voir 5.3), les cas restent à rejouer.
 
 | Cas | Titre | Résultat | Incident |
 |-----|-------|----------|----------|
@@ -203,21 +204,21 @@ une personne devant l'écran. Résultat : 11 réussis, 4 en échec, 3 partiels, 
 | MT-10 | Horloge de la barre des tâches | Réussi | - |
 | MT-11 | Saisie au clavier AZERTY | Réussi | - |
 | MT-13 | Session entière au clavier seul | Réussi | - |
-| MT-14 | Contraste des textes | Échec | P25 |
+| MT-14 | Contraste des textes | Échec le 5 octobre, à rejouer | P25 (corrigé) |
 | MT-16 | Plusieurs fenêtres dans la barre des tâches | Réussi | - |
-| MT-17 | Endurance | Échec | P27 |
+| MT-17 | Endurance | Échec le 5 octobre, à rejouer | P27 (corrigé) |
 | MT-18 | Matériel réel | A exécuter | - |
 | MT-19 | Fluidité perçue | A exécuter | - |
-| MT-20 | Mort du serveur de fenêtres | Bloqué | - |
+| MT-20 | Mort du serveur de fenêtres | Réussi | - |
 | MT-21 | Lisibilité de l'écran d'arrêt | Réussi | - |
-| MT-22 | Revue linguistique de l'interface | Échec | P26 |
-| MT-23 | FAT32 sur une image réelle | Échec | P24 |
+| MT-22 | Revue linguistique de l'interface | Échec le 5 octobre, à rejouer | P26 (corrigé) |
+| MT-23 | FAT32 sur une image réelle | Réussi | P24 (corrigé) |
 | MT-24 | Construction sur une machine propre | Partiel | T15 |
 
 Ce qui reste à faire : la fluidité perçue (MT-19) demande une personne, le matériel réel (MT-18) une machine, l'endurance
-de 8 h (MT-17 n'a duré que 10 minutes) et la machine vierge (MT-24) du temps. MT-20 est bloqué : aucun outil de test ne
-permet d'arrêter le serveur de fenêtres, la relance par `init` n'est vérifiée que sur l'hôte. Le constat détaillé de chaque
-cas, avec ses observations, est dans sa fiche.
+de 8 h (MT-17 n'a duré que 10 minutes) et la machine vierge (MT-24) du temps. MT-20, bloqué le 5 octobre, se joue depuis
+que `init` accepte l'option de test `init.mort-winsrv` (scénario `int_winsrv_mort`). Le constat détaillé de chaque cas,
+avec ses observations, est dans sa fiche.
 
 ## 5. Registre des incidents
 
@@ -274,28 +275,25 @@ au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN 
 | T13 | tests a14 | figeaient les défauts libk | attendu C17 rétabli |
 | T14 | norminette 3.3.60 | faux positifs : asm sans entrée contenant une variable, initialisations désignées, littéraux hexa commençant par `b`, avant-déclarations avant un typedef de pointeur de fonction | contournements décrits dans la section « Conventions de code » du README, exception `arch/x86_64/limine/` |
 | T15 | scénario `a20_desktop` | instable : 4 échecs sur 8 en séquentiel, 12 sur 30 en parallèle. Trois causes : capture juste après la touche avant le redessin, image de référence prise pendant le premier dessin du bureau, captures du BIOS et de l'UEFI écrites sous le même nom dans le même dossier | `capture_quand` et `capture_stable` dans `vtest.py`, noms de capture préfixés par la machine, 46 exécutions sur 46 réussies |
+| T16 | `mk/user.mk`, `mk/host.mk` | les dépendances d'en-têtes n'étaient pas suivies : motif `wildcard` trop court pour les applis, aucune pour les tests hôte. Après un changement de `shell.h`, le shell était lié avec des objets périmés et les boîtes de dialogue ne s'ouvraient plus (`a20_desktop` et `a20_souris` en échec), et des tests hôte qui ne compilaient plus restaient verts | liste des `.d` tirée des sources, dépendances générées pour chaque test hôte, `tests/tools/test_dependances.py` |
 | T16 | plan de tests manuels | étapes inexactes : Tab avant Entrée à la connexion (MT-13), `fault=panic` sans `selftest` (MT-21), formatage FAT32 sans `-F` (MT-23) | étapes corrigées dans les fiches |
 
-### 5.3 Défauts ouverts, trouvés par les cas manuels
+### 5.3 Défauts trouvés par les cas manuels, corrigés le 6 octobre
 
-Ces défauts ne sont pas corrigés. Chacun renvoie au cas qui le reproduit, qui sert de test de régression tant qu'il
-n'est pas automatisé.
+Chaque défaut a d'abord été reproduit par un test qui échouait, puis corrigé. Le test reste dans la suite.
 
-| Réf | Élément | Attendu | Obtenu | Gravité | Cas |
-|-----|---------|---------|--------|---------|-----|
-| P24 | FAT32, compteur `FSInfo` | nombre de clusters libres exact après écriture, renommage et suppression | 128879 pour 128880 réels, `fsck.vfat -n` rend 1 | basse | MT-23, `a12_fat32` (tolère P24) |
-| P25 | Luna, contraste | rapport de 4,5 au moins pour le texte courant | « démarrer » à 3,57, boutons inactifs de la barre des tâches à 3,91, titre de fenêtre inactive à 2,07 | basse | MT-14 |
-| P26 | textes de l'interface | espaces insécables avant `:`, `!`, `?` et dans les guillemets | espaces ordinaires, la ligne peut se couper là | basse | MT-22 |
-| P27 | serveur de fenêtres ou noyau, fenêtres ouvertes puis fermées | ressources rendues à la fermeture | après 222 ouvertures (128 Mo) puis plus aucune connexion, après 163 avec 64 Mo plus aucune fenêtre sans message | moyenne | MT-17 |
-
-P27 : pas de panique ni de gel, le bureau reste utilisable, mais plus aucune fenêtre ne s'ouvre. Le nombre de réussites
-dépend de la mémoire, ce qui évoque une ressource non rendue à la mort du client. La cause n'a pas été analysée. Rien dans
-le système ne montre la mémoire libre, il a fallu observer l'échec.
+| Réf | Élément | Attendu | Obtenu | Gravité | Cause | Correction | Test de régression |
+|-----|---------|---------|--------|---------|-------|------------|--------------------|
+| P24 | FAT32, compteur `FSInfo` | nombre de clusters libres exact après écriture, renommage et suppression | 128879 pour 128880 réels, `fsck.vfat -n` rend 1 | basse | le secteur FSInfo n'était écrit que sur `fsync` ou au démontage, pas après une suppression, un renommage ou un `mkdir` | FSInfo écrit avec chaque opération qui change la FAT | `test_fat_fsinfo.c`, `a12_fat32` (code 0 de `fsck.vfat` exigé) |
+| P25 | Luna, contraste | rapport de 4,5 au moins pour le texte courant | « démarrer » à 3,57, boutons inactifs de la barre des tâches à 3,91, titre de fenêtre inactive à 2,07 | basse | couleurs reprises du style d'origine sans calcul de contraste | fond foncé dans la même teinte sous le texte blanc (pire point après correction : 4,63) | `test_contrast_bar.c`, `test_contrast_win.c` |
+| P26 | textes de l'interface | espaces insécables avant `:`, `!`, `?` et dans les guillemets | espaces ordinaires, la ligne peut se couper là | basse | chaînes saisies avec U+0020 | U+00A0 dans les chaînes ; U+00A0 et U+202F dessinés avec la chasse de l'espace | `test_typographie.py`, `test_nbsp.c` |
+| P27 | noyau, sections partagées | surface rendue à la fermeture d'une fenêtre | après 222 ouvertures (128 Mo) plus aucune connexion, après 163 avec 64 Mo plus aucune fenêtre | moyenne | `SYS_VFREE` retirait les pages d'une section sans lâcher la référence prise par `section_map` : la surface restait allouée tant que le serveur vivait | `SYS_VFREE` rend la référence quand plus aucune page de la section n'est mappée | `test_section3.c` à `test_section6.c`, `int_endurance_fenetres` (320 fenêtres avec 64 Mo, mémoire libre identique avant et après) |
 
 ## 6. Écarts au plan et limites
 
 - Les cas manuels ont été joués sous QEMU/KVM avec des entrées injectées et des captures relues (voir 4.6), pas par
-  une personne devant l'écran ni sur du matériel. Quatre sont en échec, trois partiels, un bloqué, deux à faire.
+  une personne devant l'écran ni sur du matériel. Trois gardent leur échec du 5 octobre et sont à rejouer, trois sont
+  partiels, deux à faire.
 - Couverture non mesurée pour a04, a06, a07, a09, a10, a12, a15, a17, a18, a19, a20. Les critères de fin étaient
   « couverture mesurée », ils ne sont donc pas démontrés pour ces lots.
 - Mutation : faite pour a02, a08 (contrôle de la simulation), a13 et a16, partielle ou interrompue ailleurs.
@@ -307,8 +305,8 @@ le système ne montre la mémoire libre, il a fallu observer l'échec.
   temps ont échoué quand plusieurs machines QEMU tournaient en parallèle sur le même hôte.
 - Scénarios QEMU absents pour a05, a12, a15, a17, a18, a19 : ces sous-systèmes sont couverts indirectement par
   `skel_boot`, `int_session` et `a20_souris`.
-- Dix tests hôte de a12 sont à découper (limite de 25 lignes par fonction de la norme) avant d'être remis dans
-  `tests/host/a12/`, et le scénario FAT32 (`a12_fat32`) ne tourne qu'en BIOS : l'écriture FAT32 est jouée contre des faux, dans ce scénario et en manuel (MT-23).
+- Le scénario FAT32 (`a12_fat32`) ne tourne qu'en BIOS. L'écriture FAT32 est jouée contre un faux disque sur l'hôte et
+  contre une image mtools dans ce scénario.
 - Les vérifications de plusieurs sous-systèmes ont été limitées en durée (mutation interrompue, bancs de performance
   non lancés). Le point 4.2 liste, sous-système par sous-système, ce qui n'a pas tourné.
 
