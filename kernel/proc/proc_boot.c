@@ -48,6 +48,7 @@ int	init_start(void)
 	t_spawnreq	rq;
 	t_process	*p;
 	const char	*path;
+	char		args[BOOT_ARGS_CAP];
 	int			rc;
 
 	path = boot_cmdline_get("init");
@@ -60,6 +61,8 @@ int	init_start(void)
 	}
 	memset(&rq, 0, sizeof(rq));
 	rq.path = path;
+	rq.args = args;
+	rq.args_len = boot_args_init(boot_info()->cmdline, args, sizeof(args));
 	rq.flags = PF_ALL;
 	p = NULL;
 	rc = proc_spawn(&rq, &p);

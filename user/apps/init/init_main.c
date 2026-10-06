@@ -43,7 +43,7 @@ static uint32_t	init_collect(const t_service *sv, t_handle *hs, uint32_t *map)
 	return (n);
 }
 
-static void	init_wait(t_service *sv)
+static void	init_wait(t_service *sv, t_killtest *kt)
 {
 	t_handle	hs[INIT_SERVICES];
 	uint32_t	map[INIT_SERVICES];
@@ -53,23 +53,23 @@ static void	init_wait(t_service *sv)
 	n = init_collect(sv, hs, map);
 	r = E_INVAL;
 	if (n > 0)
-		r = v_wait_many(hs, n, WAIT_ANY, TIMEOUT_INF);
-	if (r < 0 || (uint32_t)r >= n)
-	{
+		r = v_wait_many(hs, n, WAIT_ANY, killtest_timeout(kt));
+	if (r == E_TIMEOUT)
+		killtest_tick(kt, &sv[0], init_now());
+	else if (r < 0 || (uint32_t)r >= n)
 		v_sleep(INIT_IDLE_NS);
-		return ;
-	}
-	service_died(&sv[map[r]], init_now());
+	else
+		service_died(&sv[map[r]], init_now());
 }
 
 int	main(int argc, char **argv)
 {
 	t_service	sv[INIT_SERVICES];
+	t_killtest	kt;
 	uint32_t	i;
 
-	(void)argc;
-	(void)argv;
 	init_services(sv);
+	killtest_setup(&kt, argc, argv);
 	v_log(V_LOG_INFO, "init: démarrage de la session système");
 	i = 0;
 	while (i < INIT_SERVICES)
@@ -78,6 +78,6 @@ int	main(int argc, char **argv)
 		i++;
 	}
 	while (1)
-		init_wait(sv);
+		init_wait(sv, &kt);
 	return (0);
 }

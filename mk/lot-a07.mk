@@ -8,7 +8,8 @@ HT_a07 := $(sort $(wildcard tests/host/a07/test_*.c))
 HSRC_a07 := kernel/proc/syscall_table.c kernel/proc/elf_hdr.c \
 	kernel/proc/elf_seg.c kernel/proc/elf_final.c kernel/proc/elf_dyn.c \
 	kernel/proc/elf_util.c kernel/proc/ustack.c kernel/proc/ustack_aux.c \
-	kernel/proc/args.c kernel/proc/ratelimit.c arch/x86_64/syscall_check.c \
+	kernel/proc/args.c kernel/proc/boot_args.c kernel/proc/ratelimit.c \
+	arch/x86_64/syscall_check.c \
 	user/apps/init/init_policy.c lib/libk/str.c lib/libk/str2.c \
 	lib/libk/memcmp.c
 HINC_a07 := -Ikernel/proc -Iarch/x86_64 -Iuser/apps/init
