@@ -7,7 +7,7 @@
 # include "fake_gfx.h"
 # include "fake_utf8.h"
 # include "harness.h"
-# include "velum/font.h"
+# include "font_int.h"
 
 # define RENDER_W 96
 # define RENDER_H 40

@@ -1,6 +1,9 @@
 #include "fake.h"
 
-static const t_font	g_fonts[2] = {{9, 2, 11, 0, NULL}, {9, 2, 11, 1, NULL}};
+static const t_font	g_fonts[2] = {
+{9, 2, 11, 0, NULL, NULL, 0},
+{9, 2, 11, 1, NULL, NULL, 0}
+};
 
 static int32_t	char_w(const t_font *f)
 {

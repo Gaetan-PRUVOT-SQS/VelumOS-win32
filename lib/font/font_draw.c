@@ -7,7 +7,7 @@ static void	paint_row(const t_pen *pen, const t_glyph *g, const t_cut *cut,
 	int32_t			col;
 	t_point			at;
 
-	line = g->bits + (size_t)row * (size_t)((g->w + 7) / 8);
+	line = cut->rows + (size_t)row * (size_t)((g->w + 7) / 8);
 	col = cut->c0;
 	at.y = cut->y + row;
 	while (col < cut->c1)
@@ -21,12 +21,27 @@ static void	paint_row(const t_pen *pen, const t_glyph *g, const t_cut *cut,
 	}
 }
 
+int	font_glyph_rows(const t_font *f, const t_glyph *g, const uint8_t **rows)
+{
+	size_t	need;
+
+	if (!f || !g || !rows || !f->bits || !g->w || !g->h)
+		return (0);
+	need = (size_t)g->h * (size_t)((g->w + 7) / 8);
+	if (g->off > f->nbits || need > f->nbits - g->off)
+		return (0);
+	*rows = f->bits + g->off;
+	return (1);
+}
+
 static void	draw_glyph(const t_pen *pen, const t_glyph *g)
 {
 	t_cut	cut;
 	int32_t	row;
 
-	if (!g->bits || !g->w || !g->h || !font_glyph_cut(pen, g, &cut))
+	if (!font_glyph_rows(pen->font, g, &cut.rows))
+		return ;
+	if (!font_glyph_cut(pen, g, &cut))
 		return ;
 	row = cut.r0;
 	while (row < cut.r1)

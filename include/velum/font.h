@@ -15,13 +15,13 @@ typedef enum e_fontid
 
 typedef struct s_glyph
 {
-	uint32_t		cp;
-	uint8_t			w;
-	uint8_t			h;
-	int8_t			xoff;
-	int8_t			yoff;
-	uint8_t			advance;
-	const uint8_t	*bits;
+	uint32_t	cp;
+	uint8_t		w;
+	uint8_t		h;
+	int8_t		xoff;
+	int8_t		yoff;
+	uint8_t		advance;
+	uint16_t	off;
 }	t_glyph;
 
 typedef struct s_font
@@ -31,6 +31,8 @@ typedef struct s_font
 	int32_t			height;
 	int32_t			nglyphs;
 	const t_glyph	*glyphs;
+	const uint8_t	*bits;
+	uint32_t		nbits;
 }	t_font;
 
 typedef struct s_textreq

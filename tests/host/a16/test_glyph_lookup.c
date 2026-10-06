@@ -1,19 +1,19 @@
 #include "a16_test.h"
 
 static const t_glyph	g_tiny_glyphs[] = {
-{0x20, 0, 0, 0, 0, 3, NULL},
-{0x41, 0, 0, 0, 0, 5, NULL},
-{0x5A, 0, 0, 0, 0, 6, NULL},
-{0x100, 0, 0, 0, 0, 7, NULL},
-{0x2000, 0, 0, 0, 0, 8, NULL},
-{0xFFFD, 0, 0, 0, 0, 9, NULL},
+{0x20, 0, 0, 0, 0, 3, 0},
+{0x41, 0, 0, 0, 0, 5, 0},
+{0x5A, 0, 0, 0, 0, 6, 0},
+{0x100, 0, 0, 0, 0, 7, 0},
+{0x2000, 0, 0, 0, 0, 8, 0},
+{0xFFFD, 0, 0, 0, 0, 9, 0},
 };
 
 static const t_glyph	g_sparse_glyphs[] = {
-{0x20, 0, 0, 0, 0, 3, NULL},
-{0x41, 0, 0, 0, 0, 5, NULL},
-{0x42, 0, 0, 0, 0, 6, NULL},
-{0xFFFD, 0, 0, 0, 0, 9, NULL},
+{0x20, 0, 0, 0, 0, 3, 0},
+{0x41, 0, 0, 0, 0, 5, 0},
+{0x42, 0, 0, 0, 0, 6, 0},
+{0xFFFD, 0, 0, 0, 0, 9, 0},
 };
 
 static const uint32_t	g_absent[] = {
@@ -21,8 +21,10 @@ static const uint32_t	g_absent[] = {
 	0x2001, 0xFFFC, 0xFFFE, 0x10FFFF, 0xD800, 0xFFFFFFFF,
 };
 
-static const t_font		g_tiny = {8, 2, 10, 6, g_tiny_glyphs};
-static const t_font		g_sparse = {8, 2, 10, 4, g_sparse_glyphs};
+static const t_font		g_tiny = {8, 2, 10, 6, g_tiny_glyphs,
+	NULL, 0};
+static const t_font		g_sparse = {8, 2, 10, 4, g_sparse_glyphs,
+	NULL, 0};
 
 static void	lookup_present_and_absent(void)
 {
@@ -95,7 +97,7 @@ static void	lookup_real_fonts_against_scan(void)
 		cp = 0;
 		while (cp < 0x2200)
 		{
-			want = &f->glyphs[f->nglyphs - 1];
+			want = &f->glyphs[(f->nglyphs - 1) * (cp != 0x202F)];
 			k = 0;
 			while (k < f->nglyphs && f->glyphs[k].cp != cp)
 				k++;

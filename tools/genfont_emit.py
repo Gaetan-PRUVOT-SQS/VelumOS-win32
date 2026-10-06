@@ -1,4 +1,7 @@
+from genfont_raster import FontError
+
 BYTES_PER_LINE = 16
+OFFSET_MAX = 0xFFFF
 
 
 def pack_blob(glyphs):
@@ -26,23 +29,26 @@ def format_blob(ident, blob):
     return lines
 
 
-def format_glyph(ident, glyph, offsets):
-    where = f"&g_{ident}_bits[{offsets[glyph.cp]}]" if glyph.cp in offsets else "NULL"
+def format_glyph(glyph, offsets):
     fields = (glyph.cp, glyph.width, glyph.height, glyph.xoff, glyph.yoff, glyph.advance)
-    return "\t{" + ", ".join(str(field) for field in fields) + f", {where}}},"
+    return "\t{" + ", ".join(str(field) for field in (*fields, offsets.get(glyph.cp, 0))) + "},"
 
 
 def emit_c(spec, glyphs):
     ordered = sorted(glyphs, key=lambda glyph: glyph.cp)
     blob, offsets = pack_blob(ordered)
+    if len(blob) > OFFSET_MAX:
+        raise FontError(
+            f"{spec.ident} : {len(blob)} octets de bitmaps, décalage sur 16 bits dépassé"
+        )
     lines = ['#include "../font_int.h"', ""]
     lines += format_blob(spec.ident, blob)
     lines += ["", f"static const t_glyph\tg_{spec.ident}_glyphs[] = {{"]
-    lines += [format_glyph(spec.ident, glyph, offsets) for glyph in ordered]
+    lines += [format_glyph(glyph, offsets) for glyph in ordered]
     lines += ["};", ""]
     height = spec.ascent + spec.descent
     lines.append(
         f"const t_font\tg_font_{spec.ident} = {{{spec.ascent}, {spec.descent}, {height}, "
-        f"{len(ordered)}, g_{spec.ident}_glyphs}};"
+        f"{len(ordered)}, g_{spec.ident}_glyphs, g_{spec.ident}_bits, {len(blob)}}};"
     )
     return "\n".join(lines) + "\n", len(blob)

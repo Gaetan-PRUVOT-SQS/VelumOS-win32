@@ -17,6 +17,7 @@ int	font_pen_start(t_pen *pen, t_surface *dst, const t_textreq *rq)
 		return (0);
 	clip = &dst->clip;
 	pen->dst = dst;
+	pen->font = rq->font;
 	pen->color = rq->color;
 	pen->x = rq->at.x;
 	pen->y = rq->at.y;

@@ -2,11 +2,12 @@
 #include "a16_test.h"
 
 static const t_glyph	g_wide_glyphs[] = {
-{0x41, 0, 0, 0, 0, 255, NULL},
-{0xFFFD, 0, 0, 0, 0, 1, NULL},
+{0x41, 0, 0, 0, 0, 255, 0},
+{0xFFFD, 0, 0, 0, 0, 1, 0},
 };
 
-static const t_font		g_wide = {8, 2, 10, 2, g_wide_glyphs};
+static const t_font		g_wide = {8, 2, 10, 2, g_wide_glyphs, NULL,
+	0};
 
 const t_font	*wide_font(void)
 {

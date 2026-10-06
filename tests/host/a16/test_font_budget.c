@@ -8,25 +8,7 @@ static const uint8_t	g_mono_h[9] = {0x84, 0x84, 0x84, 0x84, 0xFC, 0x84,
 
 static int64_t	blob_size(const t_font *f)
 {
-	const uint8_t	*low;
-	const uint8_t	*high;
-	int32_t			k;
-	const t_glyph	*g;
-
-	low = NULL;
-	high = NULL;
-	k = 0;
-	while (k < f->nglyphs)
-	{
-		g = &f->glyphs[k++];
-		if (!g->bits)
-			continue ;
-		if (!low || g->bits < low)
-			low = g->bits;
-		if (!high || g->bits + g->h * ((g->w + 7) / 8) > high)
-			high = g->bits + g->h * ((g->w + 7) / 8);
-	}
-	return (high - low);
+	return (f->nbits);
 }
 
 static void	budget_under_80_kib(void)
@@ -56,9 +38,13 @@ static void	budget_under_80_kib(void)
 static void	pinned_mono_h_after_review(void)
 {
 	const t_glyph	*g;
+	const uint8_t	*rows;
 	int				row;
 
 	g = font_glyph(font_get(FONT_MONO), 'H');
+	rows = g_mono_h + 1;
+	h_true(font_glyph_rows(font_get(FONT_MONO), g, &rows),
+		"EPINGLE-H mono dans la table");
 	h_eq_i64("EPINGLE-H mono largeur", g->w, 6);
 	h_eq_i64("EPINGLE-H mono hauteur", g->h, 9);
 	h_eq_i64("EPINGLE-H mono xoff", g->xoff, 1);
@@ -67,7 +53,7 @@ static void	pinned_mono_h_after_review(void)
 	row = 0;
 	while (row < 9)
 	{
-		h_eq_u64("EPINGLE-H mono rangee", g->bits[row], g_mono_h[row]);
+		h_eq_u64("EPINGLE-H mono rangee", rows[row], g_mono_h[row]);
 		row++;
 	}
 }

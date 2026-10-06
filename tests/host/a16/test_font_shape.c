@@ -2,9 +2,12 @@
 
 static void	check_cell(const t_font *f, const t_glyph *g)
 {
+	const uint8_t	*rows;
+
 	h_true(g->advance >= 1, "FORME-chasse >= 1");
 	h_true((g->w == 0) == (g->h == 0), "FORME-largeur nulle ssi hauteur nulle");
-	h_true((g->w == 0) == (g->bits == NULL), "FORME-bits nul ssi vide");
+	h_true((g->w == 0) == !font_glyph_rows(f, g, &rows),
+		"FORME-bitmap dans la table ssi encre");
 	if (g->h == 0)
 		return ;
 	h_true(g->yoff >= 0, "FORME-glyphe sous le haut de la cellule");

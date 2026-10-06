@@ -95,6 +95,28 @@ class EmitTests(unittest.TestCase):
         self.assertEqual(cps, sorted(cps))
         self.assertEqual(cps[-1], raster.REPLACEMENT)
 
+    def test_output_has_offsets_and_no_pointer_per_glyph(self):
+        spec = spec_of("ui")
+        text, blob_size = emit.emit_c(spec, raster.rasterize(spec, FONTS))
+        rows = [line for line in text.splitlines() if line.startswith("\t{")]
+        self.assertNotIn("&", text)
+        self.assertNotIn("NULL", text)
+        for row in rows:
+            fields = [int(field) for field in row.strip("\t{},").split(",")]
+            self.assertEqual(len(fields), 7)
+            stride = (fields[1] + 7) // 8
+            self.assertLessEqual(fields[6] + fields[2] * stride, blob_size)
+        self.assertIn(f"g_ui_glyphs, g_ui_bits, {blob_size}}};", text)
+
+    def test_blob_larger_than_16_bit_offsets_is_refused(self):
+        spec = spec_of("ui")
+        glyphs = [
+            raster.Glyph(0x100 + k, 8, 255, 0, 0, 8, bytes([k % 256, k // 256]) * 127 + b"\x01")
+            for k in range(258)
+        ]
+        with self.assertRaises(raster.FontError):
+            emit.emit_c(spec, glyphs)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -72,9 +72,18 @@ size_t	decode_n(const void *seq, size_t len, uint32_t *out, size_t cap)
 
 int	glyph_pixel(const t_glyph *g, int32_t col, int32_t row)
 {
-	size_t	stride;
+	const uint8_t	*rows;
+	const t_font	*f;
+	size_t			stride;
+	int				id;
 
+	id = 0;
+	f = font_get(FONT_UI);
+	while (f && !(g >= f->glyphs && g < f->glyphs + f->nglyphs))
+		f = font_get((t_fontid)++id);
+	if (!font_glyph_rows(f, g, &rows))
+		abort();
 	stride = (size_t)(g->w + 7) / 8;
-	return ((g->bits[(size_t)row * stride + (size_t)col / 8]
+	return ((rows[(size_t)row * stride + (size_t)col / 8]
 			>> (7 - col % 8)) & 1);
 }

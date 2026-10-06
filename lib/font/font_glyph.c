@@ -33,6 +33,13 @@ static const t_glyph	*glyph_search(const t_font *f, uint32_t cp)
 	return (NULL);
 }
 
+static const t_glyph	*glyph_blank(const t_font *f, uint32_t cp)
+{
+	if (cp != FONT_NBSP && cp != FONT_NNBSP)
+		return (NULL);
+	return (glyph_search(f, FONT_SPACE));
+}
+
 const t_glyph	*font_glyph(const t_font *f, uint32_t cp)
 {
 	const t_glyph	*found;
@@ -42,6 +49,8 @@ const t_glyph	*font_glyph(const t_font *f, uint32_t cp)
 	found = glyph_direct(f, cp);
 	if (!found)
 		found = glyph_search(f, cp);
+	if (!found)
+		found = glyph_blank(f, cp);
 	if (!found)
 		found = glyph_search(f, FONT_REPLACEMENT);
 	return (found);
