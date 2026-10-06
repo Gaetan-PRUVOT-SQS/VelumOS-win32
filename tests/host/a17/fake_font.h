@@ -24,11 +24,27 @@ typedef struct s_fkg
 	t_color		c;
 }	t_fkg;
 
+# define FK_SPY_MAX 8
+
+typedef struct s_fkrec
+{
+	t_rect	box;
+	t_color	c;
+}	t_fkrec;
+
+typedef struct s_fkspy
+{
+	t_fkrec	rec[FK_SPY_MAX];
+	int32_t	n;
+	bool	mute;
+}	t_fkspy;
+
 const char	*fk_rows(int ch);
 int32_t		fk_len(const char *s);
 const t_fkp	*fk_params(const t_font *f);
 void		fk_glyph(t_surface *s, uint32_t cp, const t_fkg *g);
 uint32_t	fk_utf8(const char **s, const char *end);
 bool		fk_pixel(uint32_t cp, int32_t x, int32_t y);
+t_fkspy		*fk_spy(void);
 
 #endif

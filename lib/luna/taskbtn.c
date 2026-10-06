@@ -1,7 +1,7 @@
 #include "luna_int.h"
 
-static const t_lstop	g_norm[] = {{0, 0xff5b96f8}, {8, 0xff3e80f2},
-{20, 0xff3074ea}, {25, 0xff2c6ae0}};
+static const t_lstop	g_norm[] = {{0, 0xff5b96f8}, {2, 0xff2a66dc},
+{20, 0xff2862d8}, {25, 0xff245cd0}};
 static const t_lstop	g_down[] = {{0, 0xff1a48a8}, {6, 0xff1f55bc},
 {23, 0xff2a62cc}};
 
@@ -23,7 +23,7 @@ static t_color	task_style(t_lunastate st, t_lgrad *g)
 	if (st == LS_HOT)
 	{
 		g->tint = LC_WHITE;
-		g->tint_t = 34;
+		g->tint_t = 16;
 	}
 	return (ring);
 }

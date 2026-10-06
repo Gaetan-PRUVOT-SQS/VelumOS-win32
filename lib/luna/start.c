@@ -1,7 +1,7 @@
 #include "luna_int.h"
 
 static const t_lstop	g_green[] = {{0, 0xff7fd66a}, {2, 0xff5bba47},
-{8, 0xff46a836}, {16, 0xff3c9b2c}, {24, 0xff38902a}, {28, 0xff2f7d24}};
+{5, 0xff2f7d24}, {16, 0xff2c7822}, {24, 0xff2a7420}, {28, 0xff246619}};
 
 static void	start_text(t_surface *s, t_rect r)
 {
@@ -23,7 +23,7 @@ static void	start_grad(t_lunastate st, t_lgrad *g)
 	g->tint = LC_WHITE;
 	g->tint_t = 0;
 	if (st == LS_HOT)
-		g->tint_t = 36;
+		g->tint_t = 12;
 	if (st == LS_PRESSED)
 	{
 		g->tint = LC_BLACK;
