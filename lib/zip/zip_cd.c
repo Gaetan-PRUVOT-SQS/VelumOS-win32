@@ -21,6 +21,8 @@ static int	cd_fields(const t_zip *z, uint32_t at, t_zipent *e)
 	if (e->csize == 0xffffffff || e->usize == 0xffffffff
 		|| e->lfh_off == 0xffffffff)
 		return (E_NOTSUP);
+	if (e->name_len > ZIP_NAME_MAX)
+		return (E_RANGE);
 	if (e->name_len == 0 || (e->method == 0 && e->csize != e->usize))
 		return (E_INVAL);
 	return (0);

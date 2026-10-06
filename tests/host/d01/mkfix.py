@@ -159,6 +159,7 @@ def cas_archives():
     ]
     out = [rec(0, a) for a in bons]
     out.append(rec(E_RANGE, archive([(f"f{i}", b"", st) for i in range(4097)])))
+    out.append(rec(E_RANGE, archive([("n" * 256, b"z", st)])))
     nonsup = [
         patch(patch(base, fin + 8, "<H", 0xFFFF), fin + 10, "<H", 0xFFFF),
         patch(base, fin + 16, "<I", 0xFFFFFFFF),

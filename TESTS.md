@@ -228,12 +228,12 @@ phrase : tout ce qui vient d'un APK est hostile. Chaque lecteur a donc, en plus 
 
 | Lot | Élément | Vérifications | Ce qui a été le plus poussé | Non fait ou limite |
 |-----|---------|---------------|-----------------------------|--------------------|
-| d01 | ZIP, DEFLATE | 33 160 | archives et flux de référence faits par les modules `zipfile` et `zlib` de Python, 24 000 mutations | 4 096 entrées au plus, pas de ZIP64 |
+| d01 | ZIP, DEFLATE | 33 162 | archives et flux de référence faits par les modules `zipfile` et `zlib` de Python, 24 000 mutations | 4 096 entrées et noms de 255 octets au plus, pas de ZIP64 |
 | d02 | XML binaire, ressources | 262 | tables UTF-8 et UTF-16, cycle de références, 20 000 mutations | entrées complexes refusées, fixtures du même auteur |
 | d03 | conteneur DEX | 1 492 | 20 000 mutations avec somme recalculée, dont plus de 1 000 acceptées puis parcourues en entier | tri des tables et SHA-1 non contrôlés |
 | d04 | bytecode | 1 483 | table de décision de 51 refus ; propriété : un code accepté ne fait jamais sortir un décodage ni un registre des bornes | pas de vérification de types (faite à l'exécution) |
 | d05 | RSA, X.509 | 11 146 | 53 vecteurs `openssl` (2048 à 4096 bits, e = 3 et 65537), contrefaçon classique par racine cubique refusée | exponentiation lente, non mesurée |
-| d07 | signature v2, manifeste | 130 | 30 APK fabriqués, 12 000 mutations d'un APK signé dont aucune n'est acceptée, second écrivain de signature indépendant | relecture à contexte vierge non faite |
+| d07 | signature v2, manifeste | 130 | 30 APK fabriqués, 12 000 mutations d'un APK signé dont aucune n'est acceptée, second écrivain de signature indépendant | un seul signataire, RSA seulement |
 | d08 | objets, tas, ramasse-miettes | 242 | références hostiles, chaque allocation en échec une à une, code invalide refusé | type déclaré d'un champ référence non contrôlé à l'écriture |
 | d09 | interpréteur | 1 467 | division, décalages et conversions flottantes aux bornes, reste flottant comparé à celui de l'hôte | champs d'instance et appels virtuels testés à l'intégration seulement |
 | d10 | registre des paquets | 21 158 | panne injectée à chaque opération de chaque scénario : registre toujours ancien ou nouveau, jamais mêlé | fichier absent non détecté par la liste |
@@ -255,8 +255,10 @@ Essais croisés, qui sont la preuve d'intégration :
 - `int_apk_menu` (QEMU, BIOS et UEFI) : l'appli d'exemple est lancée à la souris depuis le menu Démarrer, trois
   clics donnent trois lignes de journal et « Clics : 3 » à l'écran, Alt+F4 la ferme.
 
-Limites de cette preuve : aucun APK produit par la chaîne officielle n'a été lu (elle n'est pas installée ici), et
-la relecture à contexte vierge du code de signature reste à faire.
+Relecture à contexte vierge du code de signature (`lib/rsa`, `lib/apk`, `lib/zip`, les deux appelants), faite après
+l'intégration : aucun contournement, aucune forge, aucun défaut mémoire ; un défaut de durée sur fichier hostile (P29),
+corrigé en plafonnant les noms d'entrée à 255 octets. Limite de cette preuve : aucun APK produit par la chaîne officielle
+n'a été lu (elle n'est pas installée ici).
 
 ## 5. Registre des incidents
 
@@ -291,6 +293,7 @@ mais le système reste utilisable, basse si c'est cosmétique ou limité à un t
 | P22 | libvelum et noyau | `-pie` donne un ELF `ET_DYN` | `-static -pie` donnait `ET_EXEC` à l'adresse 0, applis inchargeables | haute | contrôle `readelf` dans `a14-elf`, `a07_ring3test` |
 | P23 | Luna bouton Démarrer | « démarrer » entier | « démar... » | basse | capture relue |
 | P28 | machine virtuelle des applis APK | un tas plein lève `OutOfMemoryError` | l'instance était un `Throwable` simple, créée avant que la classe existe : un `catch OutOfMemoryError` ne l'attrapait pas | basse | `tests/host/d00/test_croise_oom.c` |
+| P29 | lecture d'une archive APK | un fichier hostile est refusé vite | 4 096 entrées aux noms de plusieurs kilo-octets : recherche de doublons en temps quadratique multiplié par la longueur des noms, plusieurs minutes avant le refus (trouvé par la relecture à contexte vierge, non mesuré) | basse | cas « nom de 256 octets » de `tests/host/d01/test_zip.c` |
 
 Preuve différentielle de P19 et P20 : sans les appels `sched_irq_exit()` et `proc_return_check()`, `int_preempt` échoue
 au bout de 30 s (« SPIN PASS » absent, puis « KILL FAIL »). Avec eux, `SPIN PASS` à 0,42 s et `KILL PASS` à 0,30 s.

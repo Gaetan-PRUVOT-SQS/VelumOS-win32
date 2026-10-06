@@ -6,6 +6,7 @@
 # include <velum/apk/apkdef.h>
 
 # define ZIP_MAX_ENTRIES 4096
+# define ZIP_NAME_MAX 255
 
 typedef struct s_zip
 {

@@ -101,7 +101,7 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Scénarios système | 92 exécutions sur 92 (50 scénarios, BIOS et UEFI) |
 | Autotests du noyau | 17 sur 17 |
 | Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 10 lots de tests hôte, 6 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
-| Défauts trouvés et corrigés | 46 : 28 dans le produit (6 de gravité haute, 11 moyenne, 11 basse) et 18 dans l'infrastructure de test |
+| Défauts trouvés et corrigés | 47 : 29 dans le produit (6 de gravité haute, 11 moyenne, 12 basse) et 18 dans l'infrastructure de test |
 | Défauts ouverts | aucun au registre ; les 4 défauts trouvés par les cas manuels sont corrigés, chacun avec son test de régression |
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
 | Test de mutation | mémoire physique (41 mutants définis, 31 joués), affichage (12), polices (22) |
@@ -183,13 +183,13 @@ refuse`, et les sections de `TESTS.md` relient chaque sous-système à ses techn
 |---------|--------|----------|
 | Haute | 6 | processus qui boucle en anneau 3 sans préemption (gel de la machine), processus tué qui survit, #GP noyau quand un espace d'adressage est détruit avant son dernier fil, allocateur utilisateur qui prend une adresse valide pour une double libération, `ET_EXEC` à l'adresse 0 au lieu de `ET_DYN`, copie de pixels qui ignore la ligne de départ |
 | Moyenne | 11 | `printf` qui n'écrit aucun chiffre pour 0, lecture au-delà d'une chaîne non terminée avec `%.3s`, deux types de cache sur une même page, recherche de nom insensible à la casse limitée à l'ASCII |
-| Basse | 11 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
+| Basse | 12 | texte tronqué sur le bouton Démarrer, débordements de mise en page d'un pixel, touche Maj qui sélectionne une icône |
 
 Les quatre derniers ont été trouvés par les cas manuels, puis corrigés avec un test de régression (voir `TESTS.md`, 5.3).
 
 Classement indicatif du niveau où chaque défaut est apparu en premier : 15 aux tests unitaires, 4 en scénario système
 (démarrage et préemption), 5 à l'intégration (lecture du journal, inspection de l'ELF, captures d'écran, essai croisé
-de la couche APK), 4 par les cas manuels.
+de la couche APK), 4 par les cas manuels, 1 par relecture.
 
 ### Trois histoires
 
