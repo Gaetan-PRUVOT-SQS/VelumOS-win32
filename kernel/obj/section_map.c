@@ -31,10 +31,11 @@ static uint32_t	sec_vmflags(uint32_t prot)
 	return (fl);
 }
 
-static int	sec_map_pages(t_aspace *as, const t_section *s, uintptr_t va,
+static int	sec_map_pages(t_aspace *as, t_object *sec, uintptr_t va,
 		const t_secreq *rq)
 {
 	t_vmreq		vr;
+	t_secmap	part;
 	uint64_t	i;
 	int			rc;
 
@@ -43,19 +44,21 @@ static int	sec_map_pages(t_aspace *as, const t_section *s, uintptr_t va,
 	while (rc == 0 && i < rq->len / PAGE_SIZE)
 	{
 		vr.va = va + i * PAGE_SIZE;
-		vr.pa = s->frames[rq->offset / PAGE_SIZE + i];
+		vr.pa = section_frame(sec, rq->offset / PAGE_SIZE + i);
 		vr.len = PAGE_SIZE;
 		vr.flags = sec_vmflags(rq->prot);
 		rc = vmm_map(as, &vr);
 		if (rc == 0)
 			i++;
 	}
-	if (rc < 0 && i > 0)
-		vmm_unmap(as, va, i * PAGE_SIZE);
+	if (rc == 0 || i == 0)
+		return (rc);
+	part = (t_secmap){NULL, va, i * PAGE_SIZE, rq->offset, sec};
+	sec_pages_rollback(as, &part);
 	return (rc);
 }
 
-static int	sec_place(t_aspace *as, const t_section *s, const t_secreq *rq,
+static int	sec_place(t_aspace *as, t_object *s, const t_secreq *rq,
 		uintptr_t *va)
 {
 	int			rc;
@@ -92,18 +95,15 @@ int	section_map(t_process *p, t_object *s, t_secreq *r, uintptr_t *v)
 	m = kmalloc_tag(sizeof(t_secmap), HEAP_OBJECT);
 	if (!m)
 		return (E_NOMEM);
-	rc = sec_place(p->aspace, s->impl, r, v);
-	if (rc == 0)
-	{
-		m->va = *v;
-		m->len = r->len;
-		m->offset = r->offset;
-		m->sec = s;
-		rc = secmap_insert(ht_of(p), m);
-		if (rc < 0)
-			vmm_unmap(p->aspace, *v, r->len);
-	}
+	mutex_lock(&ht_of(p)->maplock);
+	rc = sec_place(p->aspace, s, r, v);
 	if (rc < 0)
 		kfree(m);
+	else
+	{
+		*m = (t_secmap){NULL, *v, r->len, r->offset, s};
+		rc = secmap_record(p, m);
+	}
+	mutex_unlock(&ht_of(p)->maplock);
 	return (rc);
 }

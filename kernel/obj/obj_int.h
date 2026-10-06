@@ -76,6 +76,7 @@ typedef struct s_handle_table
 	uint32_t	pad;
 	t_secmap	*maps;
 	t_memacct	*acct;
+	t_mutex		maplock;
 }	t_htab;
 
 typedef struct s_wblock
@@ -366,5 +367,11 @@ int			st_chan(void);
 int			st_section(void);
 int			st_handles(void);
 uint64_t	st_pmm_user(void);
+void		secmap_drop(t_aspace *as, t_secmap *m);
+void		secmaps_forget(t_process *p, uintptr_t va, uint64_t len);
+bool		sec_pages_mapped(t_aspace *as, const t_secmap *m);
+uint64_t	sec_pages_unmap(t_aspace *as, const t_secmap *m);
+void		sec_pages_rollback(t_aspace *as, const t_secmap *part);
+int			secmap_record(t_process *p, t_secmap *m);
 
 #endif

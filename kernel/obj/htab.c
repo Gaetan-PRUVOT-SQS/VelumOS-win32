@@ -18,6 +18,7 @@ void	*handle_table_create(void)
 		return (NULL);
 	}
 	spin_init(&ht->lock, "handles");
+	mutex_init(&ht->maplock, "secmaps");
 	return (ht);
 }
 

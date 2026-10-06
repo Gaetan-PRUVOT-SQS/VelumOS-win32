@@ -1,5 +1,6 @@
 #include "obj_int.h"
 #include "velum/heap.h"
+#include "velum/klog.h"
 #include "velum/util.h"
 
 int	secmap_insert(t_htab *ht, t_secmap *m)
@@ -36,21 +37,13 @@ static t_secmap	*secmaps_detach(t_htab *ht)
 	return (m);
 }
 
-static void	sec_unmap_record(t_aspace *as, t_secmap *m)
+void	secmap_drop(t_aspace *as, t_secmap *m)
 {
-	t_vminfo	info;
-	uint64_t	i;
-	uint64_t	va;
-
-	i = 0;
-	while (as && i < m->len / PAGE_SIZE)
-	{
-		va = m->va + i * PAGE_SIZE;
-		if (vmm_query(as, va, &info) && align_down(info.pa, PAGE_SIZE)
-			== section_frame(m->sec, m->offset / PAGE_SIZE + i))
-			vmm_unmap(as, va, PAGE_SIZE);
-		i++;
-	}
+	if (as && sec_pages_unmap(as, m) > 0)
+		klog_warn("objets: section restee mappee, reference gardee");
+	else
+		obj_unref(m->sec);
+	kfree(m);
 }
 
 void	secmaps_cleanup(t_process *p)
@@ -64,9 +57,9 @@ void	secmaps_cleanup(t_process *p)
 	while (m)
 	{
 		next = m->next;
-		sec_unmap_record(p->aspace, m);
-		obj_unref(m->sec);
-		kfree(m);
+		if (p->aspace)
+			sec_pages_unmap(p->aspace, m);
+		secmap_drop(NULL, m);
 		m = next;
 	}
 }

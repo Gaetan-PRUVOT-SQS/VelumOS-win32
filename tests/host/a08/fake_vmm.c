@@ -54,7 +54,7 @@ int	vmm_map(t_aspace *as, const t_vmreq *rq)
 	{
 		g_fk.vmm_fail--;
 		if (g_fk.vmm_fail == 0)
-			return (E_NOMEM);
+			return (fk_vmm_refuse());
 	}
 	if (rq->len == 0 || rq->len % PAGE_SIZE
 		|| ((rq->flags & VM_W) && (rq->flags & VM_X)))
@@ -75,6 +75,8 @@ int	vmm_unmap(t_aspace *as, uintptr_t va, size_t len)
 {
 	uint32_t	i;
 
+	if (g_fk.unmap_fail)
+		return (E_ACCES);
 	i = 0;
 	while (i < FK_MAPS)
 	{

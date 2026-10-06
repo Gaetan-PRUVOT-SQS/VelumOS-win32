@@ -8,6 +8,7 @@
 # include "velum/util.h"
 
 # define FK_MAPS 4096
+# define FK_VMQ_ON_FAIL 1
 # define FK_SYS 256
 # define FK_TIMERS 64
 # define FK_VA_BASE 0x10000000
@@ -15,6 +16,7 @@
 # define FK_SIM_OBJS 6
 
 typedef int		(*t_fkhook)(void *ctx, int forced);
+typedef void	(*t_fkvmq)(void);
 
 typedef struct s_fkmap
 {
@@ -62,6 +64,13 @@ typedef struct s_fake
 	int64_t		proc_refs;
 	int64_t		thread_refs;
 	uint64_t	rng;
+	t_fkvmq		vmq_hook;
+	uint64_t	vmq_va;
+	int			vmq_pre;
+	int			vmq_late;
+	int64_t		vmq_h;
+	int64_t		vmq_n;
+	int64_t		unmap_fail;
 }	t_fake;
 
 typedef struct s_sim
@@ -96,5 +105,8 @@ int64_t		fk_send(t_handle h, const t_chansend *cs);
 int64_t		fk_recv(t_handle h, t_chanrecv *cr);
 t_object	*fk_obj(t_process *p, t_handle h);
 int64_t		fk_map(int64_t h, uint64_t hint, uint64_t prot, uint64_t off);
+void		fk_vmq_fire(uint64_t page, int pre);
+void		fk_vmq_arm(t_fkvmq fn, uint64_t va, int pre);
+int			fk_vmm_refuse(void);
 
 #endif
