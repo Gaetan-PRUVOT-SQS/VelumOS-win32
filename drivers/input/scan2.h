@@ -18,6 +18,7 @@ typedef struct s_scan2
 	uint8_t		state;
 	uint8_t		e1pos;
 	uint16_t	last;
+	uint8_t		skip;
 }	t_scan2;
 
 void	scan2_reset(t_scan2 *s);

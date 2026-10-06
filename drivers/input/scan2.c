@@ -5,6 +5,7 @@ void	scan2_reset(t_scan2 *s)
 	s->state = S2_IDLE;
 	s->e1pos = 0;
 	s->last = 0;
+	s->skip = 0;
 }
 
 int	scan2_emit(t_scan2 *s, uint16_t code, uint8_t release, t_keyraw *out)

@@ -10,7 +10,14 @@ static void	ps2_key_byte(t_ps2 *g, uint8_t b, uint64_t now)
 	uint8_t		locks;
 	int			n;
 
-	if (led_byte(g, b, now) || !scan2_feed(&g->scan, b, &raw))
+	if (led_byte(g, b, now) || ps2_kbd_skip(g, b))
+		return ;
+	if (ps2_kbd_loss_byte(b))
+	{
+		ps2_kbd_lost(g);
+		return ;
+	}
+	if (!scan2_feed(&g->scan, b, &raw))
 		return ;
 	n = xlate_key(&raw, ev, &locks);
 	inpq_push_all(ev, n);
@@ -35,7 +42,7 @@ static void	ps2_discard(t_ps2 *g, uint8_t st)
 	if (st & PS2_ST_AUX)
 		g->mdec.len = 0;
 	else
-		scan2_reset(&g->scan);
+		ps2_kbd_line_error(g);
 }
 
 void	ps2_drain(t_ps2 *g)

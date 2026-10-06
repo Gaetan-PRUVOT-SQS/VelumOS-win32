@@ -32,6 +32,11 @@
 # define PS2_R_ACK 0xfa
 # define PS2_R_RESEND 0xfe
 # define PS2_R_BAT_OK 0xaa
+# define PS2_K_OVERRUN 0x00
+# define PS2_K_LINE_ERR 0xff
+# define PS2_K_EXT 0xe0
+# define PS2_K_EXT1 0xe1
+# define PS2_K_BREAK 0xf0
 # define PS2_D_RESET 0xff
 # define PS2_D_DEFAULTS 0xf6
 # define PS2_D_ENABLE 0xf4
@@ -110,6 +115,10 @@ void			led_request(t_ps2 *g, uint8_t mask, uint64_t now);
 int				led_byte(t_ps2 *g, uint8_t b, uint64_t now);
 void			ps2_drain(t_ps2 *g);
 void			ps2_irq_handler(void *ctx);
+int				ps2_kbd_loss_byte(uint8_t b);
+void			ps2_kbd_lost(t_ps2 *g);
+void			ps2_kbd_line_error(t_ps2 *g);
+int				ps2_kbd_skip(t_ps2 *g, uint8_t b);
 uint8_t			ps2_irq_hook(t_ps2 *g, uint8_t isa);
 uint8_t			ps2_final_cfg(const t_ps2 *g, uint8_t cfg);
 

@@ -21,5 +21,6 @@ int		xlate_key(const t_keyraw *raw, t_inpevent *out, uint8_t *locks);
 int		xlate_mouse(const t_mousepkt *p, t_inpevent *out);
 uint8_t	xlate_locks(void);
 void	xlate_locks_set(uint8_t mask);
+int		xlate_keys_lost(t_inpevent *out);
 
 #endif

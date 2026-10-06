@@ -22,8 +22,9 @@ static void	error_bytes_reset_decoders(void)
 	f8042_push(0xe0, 0);
 	f8042_push_err(0x00, 0);
 	f8042_push(0x75, 0);
+	f8042_push(0x75, 0);
 	th_irq();
-	h_eq_i64("E0, erreur de parite, 75", th_pop_all(ev, 8), 2);
+	h_eq_i64("E0, erreur, 75 jete, 75", th_pop_all(ev, 8), 2);
 	h_true(th_ev_is(&ev[0], INP_KEY_DOWN, VK_NUMPAD0 + 8), "75 seul = pave 8");
 	h_eq_u64("pas de drapeau etendu", ev[0].mods & INPM_EXTENDED, 0);
 	f8042_push(0x09, 1);

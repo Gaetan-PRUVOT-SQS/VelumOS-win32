@@ -102,6 +102,15 @@ typedef struct s_colcase
 	uint8_t			locks;
 }	t_colcase;
 
+typedef struct s_privcase
+{
+	const char	*name;
+	uint32_t	num;
+	uint64_t	a[3];
+	uint32_t	flags;
+	int64_t		exp;
+}	t_privcase;
+
 int			th_scan(t_scan2 *s, const uint8_t *b, int n, t_keyraw *out);
 t_keyraw	th_raw(uint16_t code, int release, int repeat);
 int			th_press(t_kbd *k, uint16_t code, t_inpevent *out);

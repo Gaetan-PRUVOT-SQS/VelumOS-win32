@@ -67,7 +67,7 @@ int	kbd_translate(t_kbd *k, const t_keyraw *raw, t_inpevent *out)
 	int			n;
 
 	key = layout_key(k->layout, raw->code);
-	if (!key)
+	if (!key || kbd_ghost_release(k, raw))
 		return (0);
 	kbd_mod_apply(k, raw);
 	key_event(k, key, raw, &out[0]);

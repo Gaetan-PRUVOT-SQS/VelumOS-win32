@@ -40,13 +40,17 @@ int64_t	sys_input_layout(const t_sysargs *args)
 {
 	if (args->a[0] == INPUT_LAYOUT_GET)
 		return (layout_get(args->a[1], args->a[2]));
-	if (args->a[0] == INPUT_LAYOUT_SET)
-		return (layout_set(args->a[1], args->a[2]));
-	return (E_INVAL);
+	if (args->a[0] != INPUT_LAYOUT_SET)
+		return (E_INVAL);
+	if (!inp_sys_may_configure())
+		return (E_PERM);
+	return (layout_set(args->a[1], args->a[2]));
 }
 
 int64_t	sys_input_leds(const t_sysargs *args)
 {
+	if (!inp_sys_may_configure())
+		return (E_PERM);
 	if (args->a[0] > INPUT_LED_ALL)
 		return (E_INVAL);
 	input_set_leds((uint32_t)args->a[0]);
@@ -55,6 +59,8 @@ int64_t	sys_input_leds(const t_sysargs *args)
 
 int64_t	sys_input_mouse_cfg(const t_sysargs *args)
 {
+	if (!inp_sys_may_configure())
+		return (E_PERM);
 	if (args->a[0] < INPUT_MOUSE_SPEED_MIN)
 		return (E_INVAL);
 	if (args->a[0] > INPUT_MOUSE_SPEED_MAX || args->a[1] > 1)
