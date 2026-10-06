@@ -1,9 +1,9 @@
 #include "fmt_int.h"
 #include "velum/libk.h"
 
-static int32_t	parse_int(const char **p, va_list *ap)
+static int64_t	parse_int(const char **p, va_list *ap)
 {
-	int32_t	v;
+	int64_t	v;
 
 	if (**p == '*')
 	{
@@ -13,22 +13,27 @@ static int32_t	parse_int(const char **p, va_list *ap)
 	v = 0;
 	while (**p >= '0' && **p <= '9')
 	{
-		v = v * 10 + (**p - '0');
+		if (v < FMT_CAP)
+			v = v * 10 + (**p - '0');
 		(*p)++;
 	}
+	if (v > FMT_CAP)
+		v = FMT_CAP;
 	return (v);
 }
 
 static void	parse_flags(const char **p, t_spec *sp)
 {
+	const char	*set;
 	const char	*pos;
 
-	pos = strchr("-0+ #", **p);
+	set = "-0+ #";
+	pos = strchr(set, **p);
 	while (**p && pos)
 	{
-		sp->flags |= 1u << (pos - "-0+ #");
+		sp->flags |= 1u << (pos - set);
 		(*p)++;
-		pos = strchr("-0+ #", **p);
+		pos = strchr(set, **p);
 	}
 }
 
@@ -64,6 +69,8 @@ void	fmt_parse(const char **p, va_list *ap, t_spec *sp)
 	{
 		(*p)++;
 		sp->prec = parse_int(p, ap);
+		if (sp->prec < 0)
+			sp->prec = -1;
 	}
 	parse_len(p, sp);
 	sp->conv = **p;

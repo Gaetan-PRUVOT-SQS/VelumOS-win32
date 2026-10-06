@@ -4,7 +4,7 @@
 void	fmt_string(t_out *o, const t_spec *sp, const char *s)
 {
 	size_t	len;
-	int32_t	pad;
+	int64_t	pad;
 
 	if (!s)
 		s = "(null)";
@@ -13,8 +13,8 @@ void	fmt_string(t_out *o, const t_spec *sp, const char *s)
 	else
 		len = strlen(s);
 	pad = 0;
-	if (sp->width > (int32_t)len)
-		pad = sp->width - (int32_t)len;
+	if (sp->width > (int64_t)len)
+		pad = sp->width - (int64_t)len;
 	if (!(sp->flags & F_LEFT))
 		out_fill(o, ' ', pad);
 	out_write(o, s, len);
@@ -24,7 +24,7 @@ void	fmt_string(t_out *o, const t_spec *sp, const char *s)
 
 void	fmt_char(t_out *o, const t_spec *sp, char c)
 {
-	int32_t	pad;
+	int64_t	pad;
 
 	pad = 0;
 	if (sp->width > 1)

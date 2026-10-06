@@ -35,7 +35,7 @@ static void	num_prefix(t_num *n, const t_spec *sp, uint64_t v, int neg)
 
 static void	num_layout(t_num *n, const t_spec *sp)
 {
-	int32_t	total;
+	int64_t	total;
 
 	n->zeros = 0;
 	if (sp->prec > n->nd)

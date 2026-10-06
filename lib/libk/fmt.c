@@ -1,4 +1,5 @@
 #include "fmt_int.h"
+#include "velum/err.h"
 #include "velum/libk.h"
 
 static uint64_t	fetch_unsigned(const t_spec *sp, va_list *ap)
@@ -76,6 +77,8 @@ int	kvsnprintf(char *buf, size_t size, const char *fmt, va_list ap)
 	}
 	va_end(cp);
 	out_term(&o);
+	if (o.pos > INT32_MAX)
+		return (E_OVERFLOW);
 	return ((int)o.pos);
 }
 
