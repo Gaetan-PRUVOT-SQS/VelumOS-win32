@@ -21,6 +21,7 @@ Pressé ? Le [guide de lecture en cinq minutes](GUIDE-DE-LECTURE.md) indique tro
 |---|---|
 | ![Ouverture de session](assets/connexion.png) | ![Bureau](assets/bureau.png) |
 | ![Menu Démarrer](assets/menu-demarrer.png) | ![Fenêtre Bonjour](assets/fenetre-bonjour.png) |
+| ![Programmes du menu Démarrer](assets/menu-programmes.png) | ![Appli APK en marche](assets/appli-apk.png) |
 
 Windows et Windows XP sont des marques de Microsoft Corporation. VelumOS n'est ni affilié à Microsoft
 ni approuvé par elle, et il n'exécute pas de programmes Windows.
@@ -102,7 +103,7 @@ dans [`TESTS.md`](TESTS.md). Le code de test et sa façon de s'écrire sont déc
 | Autotests du noyau | 17 sur 17 |
 | Intégration continue | GitHub Actions : compilation avec le `gcc` du système, 10 lots de tests hôte, 6 scénarios QEMU sans KVM (voir [`tests/README.md`](tests/README.md)) |
 | Défauts trouvés et corrigés | 47 : 29 dans le produit (6 de gravité haute, 11 moyenne, 12 basse) et 18 dans l'infrastructure de test |
-| Défauts ouverts | aucun au registre ; les 4 défauts trouvés par les cas manuels sont corrigés, chacun avec son test de régression |
+| Défauts ouverts | aucun au registre du 6 octobre ; les 4 défauts trouvés par les cas manuels sont corrigés, chacun avec son test de régression. Un panic sous KVM constaté le 8 octobre est décrit dans [Limites connues](#limites-connues) |
 | Couverture mesurée avec gcov | de 95 % à 100 % des lignes sur les sous-systèmes mesurés (a01, a02, a03, a08, a11, a13, a16) |
 | Test de mutation | mémoire physique (41 mutants définis, 31 joués), affichage (12), polices (22) |
 | Contrôles statiques | norminette sur 2 390 fichiers, en-têtes autonomes, contrôle de fonctions dangereuses, ruff, shellcheck : 0 erreur |
@@ -565,6 +566,11 @@ Pièges connus de `norminette` 3.3.60 sur du code noyau, avec leur contournement
 - Un seul processeur : le démarrage des autres cœurs n'est pas écrit, les verrous sont prévus pour le SMP
   mais jamais éprouvés à plusieurs cœurs.
 - Aucun essai sur du vrai matériel : tout tourne sous QEMU (q35 et pc, avec ou sans HPET).
+- Panic sous KVM, constaté le 8 octobre 2026 (QEMU 10.2.2, hôte AMD Ryzen 7 7730U, profil `debug`) : le noyau
+  démarre, mais dès que `winsrv` et `logon` sont lancés il s'arrête sur une double faute (`#DF`, pile noyau
+  épuisée dans `trap_dispatch`). Les scénarios de démarrage passent, ceux qui ouvrent le bureau (`a20_desktop`,
+  `int_captures`) échouent. Sans KVM (`make ci`, `tools/manuel.py demarrer NOM --lent`) le bureau démarre et les
+  deux dernières captures ci-dessus en viennent. Cause non élucidée, pas encore au registre des défauts.
 - Pas d'USB (le clavier et la souris sont en PS/2), pas de réseau, pas de NVMe ni d'AHCI, un seul adaptateur
   graphique à mode réglable (Bochs/QEMU).
 - Pas de compatibilité avec les programmes Windows.
